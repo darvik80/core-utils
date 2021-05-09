@@ -3,7 +3,7 @@
 //
 
 #ifndef CORE_UTILS_LOGGING_H
-#define CORE_UTILS_LOGGER_H
+#define CORE_UTILS_LOGGING_H
 
 #include <boost/log/trivial.hpp>
 #include <fmt/core.h>
@@ -36,4 +36,4 @@ namespace logging {
     DECLARE_LEVEL(fatal)
 }
 
-#endif //CORE_UTILS_AUDIOPLAYER_H
+#endif //CORE_UTILS_LOGGING_H

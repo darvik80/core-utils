@@ -13,7 +13,7 @@ file(GLOB SRCS_G
         )
 
 # libs {
-set(MAIN_LIBS logging ao mpg123)
+set(MAIN_LIBS logging ao SDL2 SDL2_image SDL2_mixer mpg123 pthread fftw3)
 # }
 
 add_executable(${PROJECT_NAME} ${SRCS_G})

@@ -2,8 +2,7 @@
 // Created by Ivan Kishchenko on 08.05.2021.
 //
 
-#ifndef CORE_UTILS_MPG123DECODER_H
-#define CORE_UTILS_MPG123DECODER_H
+#pragma once
 
 #include <mpg123.h>
 #include <optional>
@@ -36,5 +35,3 @@ public:
 
     int close();
 };
-
-#endif //CORE_UTILS_MPG123DECODER_H

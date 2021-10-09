@@ -2,8 +2,7 @@
 // Created by Ivan Kishchenko on 08.05.2021.
 //
 
-#ifndef CORE_UTILS_AOAUDIOPLAYER_H
-#define CORE_UTILS_AOAUDIOPLAYER_H
+#pragma once
 
 #include <ao/ao.h>
 #include <thread>
@@ -37,8 +36,6 @@ public:
     void wait();
 
 private:
-    void run(std::string filePath);
+    void run(std::string_view filePath);
 };
 
-
-#endif //CORE_UTILS_AOAUDIOPLAYER_H

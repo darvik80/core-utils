@@ -42,7 +42,7 @@ void AudioPlayer::wait() {
     _thread.join();
 }
 
-void AudioPlayer::run(std::string filePath) {
+void AudioPlayer::run(std::string_view filePath) {
     _decoder.open(filePath, this);
     while (!_stop) {
         int res = _decoder.process();

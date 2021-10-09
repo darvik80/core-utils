@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 project(core_utils)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -13,3 +13,5 @@ link_directories(
 
 add_subdirectory(logging)
 add_subdirectory(audioplayer)
+add_subdirectory(event-manager)
+add_subdirectory(serial)

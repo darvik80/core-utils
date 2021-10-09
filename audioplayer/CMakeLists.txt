@@ -7,15 +7,16 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/../logging/src
 )
 
-file(GLOB SRCS_G
-        src/*.cpp
-        src/audioplayer/*.cpp
-        )
+link_directories(/usr/local/lib)
+
+file(GLOB SRCS_G src/audioplayer/*.cpp)
 
 # libs {
-set(MAIN_LIBS logging ao SDL2 SDL2_image SDL2_mixer mpg123 pthread fftw3)
+set(MAIN_LIBS logging mpg123 ao)
 # }
 
-add_executable(${PROJECT_NAME} ${SRCS_G})
+add_library(${PROJECT_NAME} ${SRCS_G})
 
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
+
+add_subdirectory(example)

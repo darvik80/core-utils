@@ -7,7 +7,9 @@ file(GLOB SRCS_G src/logging/*.cpp)
 
 # libs {
 add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE -DBOOST_LOG_DYN_LINK)
-SET(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+
 find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup)
 set(LOG_MAIN_LIBS fmt ${Boost_LIBRARIES})
 # }

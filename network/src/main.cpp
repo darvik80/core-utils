@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
                 std::make_shared<ByteStream>()
         );
     });
-    server.bind(8000);
+    server.bind(8001);
     service.run();
     server.shutdown();
 

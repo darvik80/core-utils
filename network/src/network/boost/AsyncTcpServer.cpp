@@ -18,6 +18,7 @@ void Channel::start() {
 void Channel::shutdown() {
     if (_socket.is_open()) {
         handleInactive();
+        network::log::info("close conn: {}:{}", _socket.remote_endpoint().address().to_string(), _socket.remote_endpoint().port());
         _socket.close();
     }
 }
@@ -36,6 +37,7 @@ void Channel::doRecv() {
                 }
 
                 if (err) {
+                    handleError(err);
                     shutdown();
                 }
             }
@@ -72,6 +74,7 @@ void Channel::handleInactive() {
 }
 
 void Channel::handleError(std::error_code err) {
+    network::log::info("error conn: {}:{}, {}", _socket.remote_endpoint().address().to_string(), _socket.remote_endpoint().port(), err.message());
     MessageHandler<ByteBuf, ByteBuf>::handleError(err);
 }
 
@@ -117,6 +120,7 @@ void AsyncTcpServer::doAccept() {
     _acceptor.async_accept(
             [this](boost::system::error_code ec, asio::ip::tcp::socket socket) {
                 if (!ec) {
+                    network::log::info("accept conn: {}:{}", socket.remote_endpoint().address().to_string(), socket.remote_endpoint().port());
                     auto channel = std::make_shared<Channel>(std::move(socket));
                     _callback(channel);
                     channel->start();

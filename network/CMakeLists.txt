@@ -9,6 +9,7 @@ find_package(Threads)
 
 include_directories(
         /usr/local/include
+        ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/../logging/src
 )
 
@@ -17,7 +18,7 @@ link_directories(
         /usr/local/Cellar/icu4c/69.1/lib
 )
 
-file(GLOB SRCS_G src/*.cpp src/network/*.cpp)
+file(GLOB SRCS_G src/*.cpp src/network/*.cpp src/network/handler/*.cpp src/network/boost/*.cpp)
 
 set(MAIN_LIBS ${Boost_LIBRARIES} logging)
 

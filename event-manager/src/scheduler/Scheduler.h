@@ -84,7 +84,6 @@ class Scheduler {
 public:
     using TimeHandler = std::function<void()>;
     using TimeDuration = boost::posix_time::time_duration;
-    using Time = boost::posix_time::ptime;
     using ErrorCode = boost::system::error_code;
 
     explicit Scheduler(boost::asio::io_service &service)

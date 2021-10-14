@@ -4,6 +4,8 @@
 
 #include <vector>
 #include "network/Handler.h"
+#include "network/handler/NetworkLogger.h"
+#include "network/boost/AsyncTcpServer.h"
 
 struct Greeting {
     std::string greeting;
@@ -13,24 +15,57 @@ struct Body {
     std::string body;
 };
 
-class ByteStream : public MessageHandler<std::string, Greeting> {
+const char* ws = " \t\n\r\f\v";
+
+// trim from end of string (right)
+inline std::string& rtrim(std::string& s, const char* t = ws)
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
+// trim from beginning of string (left)
+inline std::string& ltrim(std::string& s, const char* t = ws)
+{
+    s.erase(0, s.find_first_not_of(t));
+    return s;
+}
+
+// trim from both ends of string (right then left)
+inline std::string& trim(std::string& s, const char* t = ws)
+{
+    return ltrim(rtrim(s, t), t);
+}
+
+class ByteStream : public MessageHandler<ByteBuf, Greeting> {
 public:
     void handleActive() override {
         network::log::info("0. onActive");
+        MessageHandler<ByteBuf, Greeting>::handleActive();
     }
 
     void handleInactive() override {
         network::log::info("0. onInactive");
+        MessageHandler<ByteBuf, Greeting>::handleActive();
     }
 
-    void handleRead(const std::string &event) override {
-        network::log::info("0. handle: {}", event);
-        Greeting greeting{event};
-        trigger(greeting);
+    void handleRead(const ByteBuf &event) override {
+        std::string msg(event.data(), event.size());
+        trim(msg);
+        network::log::info("0. handle: {}", msg);
+        if (msg == "quit") {
+            shutdown();
+        } else {
+            write(event);
+        }
+        //Greeting greeting{std::string(event.data(), event.size())};
+        //trigger(greeting);
     }
 
     void handleWrite(const Greeting &event) override {
         network::log::info("0. write: {}", event.greeting);
+        //ByteBuf buf(event.greeting.begin(), event.greeting.end());
+        //write(buf);
     }
 
     ~ByteStream() override {
@@ -43,9 +78,7 @@ class GreetingHandler : public MessageHandler<Greeting, Body> {
 public:
     void handleRead(const Greeting &event) override {
         network::log::info("1. read greeting: {}", event.greeting);
-        Body body;
-        body.body = "body:" + event.greeting;
-        trigger(body);
+        trigger(Body{event.greeting});
     }
 
     void handleWrite(const Body &event) override {
@@ -71,55 +104,6 @@ public:
     }
 };
 
-template<typename A, typename B>
-auto link(std::shared_ptr<A> a, std::shared_ptr<B> b) {
-    a->setNext(b);
-    b->setPrev(a);
-
-    return a;
-}
-
-template<typename A, typename B, typename C>
-auto link(std::shared_ptr<A> a, std::shared_ptr<B> b, std::shared_ptr<C> c) {
-    a->setNext(b);
-    b->setPrev(a);
-
-    b->setNext(c);
-    c->setPrev(b);
-
-    return a;
-}
-
-template<typename A, typename B, typename C, typename D>
-auto link(A a, B b, C c, D d) {
-    a->setNext(b);
-    b->setPrev(a);
-
-    b->setNext(c);
-    c->setPrev(b);
-
-    c->setNext(d);
-    d->setPrev(c);
-
-    return a;
-}
-
-template<typename A, typename B, typename C, typename D, typename E>
-auto link(A a, B b, C c, D d, E e) {
-    a->setNext(b);
-    b->setPrev(a);
-
-    b->setNext(c);
-    c->setPrev(b);
-
-    c->setNext(d);
-    d->setPrev(c);
-
-    d->setNext(e);
-    e->setPrev(d);
-
-    return a;
-}
 
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;
@@ -127,13 +111,26 @@ int main(int argc, char *argv[]) {
     logger::setup(logProps);
 
     auto root = link(
+            std::make_shared<NetworkLogger>(),
             std::make_shared<ByteStream>(),
             std::make_shared<GreetingHandler>(),
             std::make_shared<BodyHandler>()
     );
     root->handleActive();
-    root->handleRead("test");
+    root->handleRead(ByteBuf({0x74, 0x65, 0x73, 0x74}));
     root->handleInactive();
+
+    boost::asio::io_service service;
+    AsyncTcpServer server(service, [](const std::shared_ptr<Channel>& channel) {
+        link(
+                channel,
+                std::make_shared<NetworkLogger>(),
+                std::make_shared<ByteStream>()
+        );
+    });
+    server.bind(8000);
+    service.run();
+    server.shutdown();
 
     return 0;
 }

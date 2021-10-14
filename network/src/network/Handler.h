@@ -8,6 +8,8 @@
 #include <array>
 #include "NetworkLogging.h"
 
+class Void {};
+
 class ActiveHandler {
 public:
     virtual void handleActive() {}
@@ -92,7 +94,7 @@ template<typename T, typename U>
 class OutboundMessageHandler : public OutboundHandler<T>, public NetworkWriter<U> {
 };
 
-template<typename T, typename U>
+template<typename T, typename U = Void>
 class MessageHandler : public NetworkHandler, public InboundMessageHandler<T, U>, public OutboundMessageHandler<U, T> {
 public:
     void handleActive() override {

@@ -3,6 +3,8 @@ project(network)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions(-DRASPBERRY_ARCH)
+
 add_definitions(-DBOOST_LOG_DYN_LINK)
 find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup)
 find_package(Threads)

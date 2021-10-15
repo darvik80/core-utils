@@ -2,6 +2,8 @@
 // Created by Ivan Kishchenko on 15.10.2021.
 //
 
+#ifdef RASPBERRY_ARCH
+
 #include "AsyncTcpClient.h"
 #include "network/Logging.h"
 
@@ -57,3 +59,5 @@ namespace network {
         _deadline.cancel();
     }
 }
+
+#endif

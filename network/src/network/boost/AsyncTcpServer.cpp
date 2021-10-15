@@ -2,6 +2,8 @@
 // Created by Ivan Kishchenko on 13.10.2021.
 //
 
+#ifdef RASPBERRY_ARCH
+
 #include <network/handler/NetworkLogger.h>
 
 #include <utility>
@@ -41,3 +43,5 @@ namespace network {
     }
 
 }
+
+#endif

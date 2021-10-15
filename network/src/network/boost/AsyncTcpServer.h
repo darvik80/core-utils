@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifdef RASPBERRY_ARCH
+
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
@@ -29,4 +31,5 @@ namespace network {
     };
 }
 
+#endif
 

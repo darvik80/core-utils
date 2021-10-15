@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifdef RASPBERRY_ARCH
+
 #include <boost/asio.hpp>
 #include "network/ByteBuf.h"
 #include "network/Handler.h"
@@ -44,3 +46,5 @@ namespace network {
     typedef std::function<void(const std::shared_ptr<AsyncChannel> &)> onConnectCallback;
 
 }
+
+#endif

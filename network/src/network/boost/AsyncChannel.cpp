@@ -2,6 +2,8 @@
 // Created by Ivan Kishchenko on 15.10.2021.
 //
 
+#ifdef RASPBERRY_ARCH
+
 #include "AsyncChannel.h"
 
 namespace network{
@@ -106,3 +108,5 @@ namespace network{
         network::log::info("~Channel");
     }
 }
+
+#endif

@@ -5,16 +5,19 @@
 #pragma once
 
 #include "network/Handler.h"
+#include "network/ByteBuf.h"
 #include <string>
 
-class NetworkLogger : public MessageHandler<ByteBuf, ByteBuf> {
-private:
-    std::string dump(const ByteBuf& buf);
+namespace network::handler {
 
-public:
-    void handleRead(const ByteBuf &event) override;
+    class NetworkLogger : public MessageHandler<ByteBuffer, ByteBuffer> {
+    private:
+        std::string dump(ByteBuffer &buf);
 
-    void handleWrite(const ByteBuf &event) override;
-};
+    public:
+        void handleRead(ByteBuffer &event) override;
 
+        void handleWrite(ByteBuffer &event) override;
+    };
+}
 

@@ -18,7 +18,14 @@ link_directories(
         /usr/local/Cellar/icu4c/69.1/lib
 )
 
-file(GLOB SRCS_G src/*.cpp src/network/*.cpp src/network/handler/*.cpp src/network/boost/*.cpp)
+file(GLOB SRCS_G
+        src/*.cpp
+        src/network/*.cpp
+        src/network/handler/*.cpp
+        src/network/boost/*.cpp
+        src/network/zeromq/*.cpp
+        src/network/zeromq/v3.0/*.cpp
+        )
 
 set(MAIN_LIBS ${Boost_LIBRARIES} logging)
 

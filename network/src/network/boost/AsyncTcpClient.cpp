@@ -3,7 +3,7 @@
 //
 
 #include "AsyncTcpClient.h"
-#include "network/NetworkLogging.h"
+#include "network/Logging.h"
 
 namespace network {
 

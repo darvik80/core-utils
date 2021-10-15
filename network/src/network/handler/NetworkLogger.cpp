@@ -3,7 +3,7 @@
 //
 
 #include "NetworkLogger.h"
-#include "network/NetworkLogging.h"
+#include "network/Logging.h"
 #include <iostream>
 #include <iomanip>
 

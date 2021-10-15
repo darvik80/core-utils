@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <array>
-#include "NetworkLogging.h"
+#include "Logging.h"
 
 namespace network {
     class Void {

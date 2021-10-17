@@ -4,11 +4,13 @@
 
 #include "event/EventManagerLogger.h"
 #include "scheduler/Scheduler.h"
-
-
 #include "event/EventManager.h"
 
 int main(int argc, char *argv[]) {
+    logger::LoggingProperties logProps;
+    logProps.level = "debug";
+    logger::setup(logProps);
+
     boost::asio::io_service service;
 
     Scheduler scheduler(service);

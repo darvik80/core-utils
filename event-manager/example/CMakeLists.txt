@@ -22,9 +22,10 @@ include_directories(
 
 link_directories(
         /usr/local/lib
+        /usr/local/Cellar/icu4c/69.1/lib
 )
 
-set(EM_EXAMPLE_MAIN_LIBS logging)
+set(EM_EXAMPLE_MAIN_LIBS logging event-manager)
 
 add_executable(${PROJECT_NAME} ${SRCS_G})
 

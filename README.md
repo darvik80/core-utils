@@ -7,7 +7,7 @@
 
 ## Logging
 
-#### EMLogger.h
+#### Logging.h
 ```cpp
 #pragma once
 
@@ -17,9 +17,8 @@ LOG_COMPONENT_SETUP(em, em_logger);
 ```
 
 #### main.cpp
-```asm
-#include <logging/Logging.h>
-#include "EMLogger.h"
+```cpp
+#include "Logging"
 
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;
@@ -35,3 +34,43 @@ int main(int argc, char *argv[]) {
 ```
 
 ![](https://raw.githubusercontent.com/darvik80/core-utils/master/images/logging.png)
+
+## Event Manager
+
+#### main.cpp
+```cpp
+#include "event/EventManagerLogger.h"
+#include "scheduler/Scheduler.h"
+#include "event/EventManager.h"
+
+int main(int argc, char *argv[]) {
+    boost::asio::io_service service;
+
+    Scheduler scheduler(service);
+
+    scheduler.scheduleAtFixedRate([]() {
+        em::log::info("scheduleAtFixedRate");
+    }, boost::posix_time::seconds{0}, boost::posix_time::seconds{10});
+
+    scheduler.scheduleWithFixedDelay([]() {
+        em::log::info("scheduleWithFixedDelay");
+    }, boost::posix_time::seconds{0}, boost::posix_time::seconds{5});
+
+    scheduler.schedule([]() {
+        em::log::info("schedule");
+    }, boost::posix_time::seconds{10});
+
+    em::EventManager mng;
+    mng.subscribe<em::Event>([](const em::Event& event) -> bool {
+        em::log::info("handle event");
+        return false;
+    });
+
+    mng.raiseEvent(em::Event{});
+
+    service.run();
+    return 0;
+}
+```
+
+![](https://raw.githubusercontent.com/darvik80/core-utils/master/images/event-manager.png)

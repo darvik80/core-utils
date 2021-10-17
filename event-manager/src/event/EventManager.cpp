@@ -9,5 +9,5 @@ namespace em {
         } else {
             em::log::warning("dropped event {}", typeid(event).name());
         }
-    };
+    }
 }

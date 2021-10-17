@@ -3,8 +3,9 @@
 #include "serial/SerialPortManager.h"
 
 int main(int argc, char *argv[]) {
-    auto props = logging::LoggingProperties{};
-    logging::setup(props);
+    logger::LoggingProperties logProps;
+    logProps.level = "info";
+    logger::setup(logProps);
 
     SerialPortManager manager;
 

@@ -12,16 +12,10 @@ file(GLOB SRCS_G
         )
 
 include_directories(
-        /usr/include
-        /usr/local/include
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/../src
 )
 
-link_directories(
-        /usr/local/lib
-        /usr/local/Cellar/icu4c/69.1/lib
-)
 
 set(PLAYER_EXAMPLE_MAIN_LIBS logging audioplayer fftw3 SDL2 SDL2_image SDL2_mixer)
 

@@ -14,14 +14,8 @@ file(GLOB SRCS_G
         )
 
 include_directories(
-        /usr/local/include
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/../src
-)
-
-link_directories(
-        /usr/local/lib
-        /usr/local/Cellar/icu4c/69.1/lib
 )
 
 add_executable(${PROJECT_NAME} ${SRCS_G})

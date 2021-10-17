@@ -12,25 +12,6 @@
 
 using namespace network;
 
-const char *ws = " \t\n\r\f\v";
-
-// trim from end of string (right)
-inline std::string &rtrim(std::string &s, const char *t = ws) {
-    s.erase(s.find_last_not_of(t) + 1);
-    return s;
-}
-
-// trim from beginning of string (left)
-inline std::string &ltrim(std::string &s, const char *t = ws) {
-    s.erase(0, s.find_first_not_of(t));
-    return s;
-}
-
-// trim from both ends of string (right then left)
-inline std::string &trim(std::string &s, const char *t = ws) {
-    return ltrim(rtrim(s, t), t);
-}
-
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;
     logProps.level = "info";
@@ -45,7 +26,7 @@ int main(int argc, char *argv[]) {
     signals.add(SIGQUIT);
 #endif
 
-    uint16_t port = 8001;
+    uint16_t port = 8000;
 
     auto subscriber = std::make_shared<zeromq::ZeroMQSubscriber>();
     subscriber->subscribe("joystick", [](std::string_view topic, std::string_view data) {

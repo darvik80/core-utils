@@ -12,15 +12,8 @@ file(GLOB SRCS_G
         )
 
 include_directories(
-        /usr/include
-        /usr/local/include
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/../src
-)
-
-link_directories(
-        /usr/local/lib
-        /usr/local/Cellar/icu4c/69.1/lib
 )
 
 set(SERIAL_EXAMPLE_MAIN_LIBS logging serial)

@@ -20,11 +20,6 @@ if(Boost_FOUND)
 endif()
 # }
 
-link_directories(
-        /usr/local/lib
-        /usr/local/Cellar/icu4c/69.1/lib
-)
-
 add_subdirectory(example)
 
 add_library(${PROJECT_NAME} ${SRCS_G})

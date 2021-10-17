@@ -5,9 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_definitions(-DRASPBERRY_ARCH)
 
-add_definitions(-DBOOST_LOG_DYN_LINK)
 find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup)
-find_package(Threads)
 
 include_directories(
         /usr/local/include
@@ -29,8 +27,7 @@ file(GLOB SRCS_G
         src/network/zeromq/v3.0/*.cpp
         )
 
-set(MAIN_LIBS ${Boost_LIBRARIES} logging)
-
+set(EXAMPLE_MAIN_LIBS ${Boost_LIBRARIES} logging)
 
 add_executable(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
+target_link_libraries(${PROJECT_NAME} ${EXAMPLE_MAIN_LIBS})

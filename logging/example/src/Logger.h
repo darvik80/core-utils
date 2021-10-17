@@ -6,5 +6,6 @@
 
 #include <logging/Logging.h>
 
-LOG_COMPONENT_SETUP(mqtt, mqtt_logger)
+LOG_COMPONENT_SETUP(em, em_logger);
 
+LOG_COMPONENT_SETUP(mqtt, mqtt_logger);

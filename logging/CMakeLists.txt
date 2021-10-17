@@ -3,19 +3,30 @@ project(logging)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB SRCS_G src/logging/*.cpp)
+file(GLOB SRCS_G src/*.cpp src/logging/*.cpp)
 
 # libs {
-add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE -DBOOST_LOG_DYN_LINK)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
 
-find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup)
-set(LOG_MAIN_LIBS fmt ${Boost_LIBRARIES})
+set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
+set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+
+add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
+find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup REQUIRED)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
 # }
+
+link_directories(
+        /usr/local/lib
+        /usr/local/Cellar/icu4c/69.1/lib
+)
 
 add_subdirectory(example)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 
-target_link_libraries(${PROJECT_NAME} ${LOG_MAIN_LIBS})
+target_link_libraries(${PROJECT_NAME} fmt ${Boost_LIBRARIES})

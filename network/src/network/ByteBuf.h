@@ -10,6 +10,7 @@
 #include <cstring>
 
 namespace network {
+
     template<class CharT = char>
     class ByteBuf : public std::basic_streambuf<CharT> {
     protected:
@@ -17,8 +18,6 @@ namespace network {
 
     public:
         using Base = std::basic_streambuf<CharT>;
-        using int_type = typename Base::int_type;
-
     public:
         std::streamsize xsputn(const CharT *s, std::streamsize n) override {
             Base::setg(Base::pbase(), Base::pbase(), Base::pptr() + n);
@@ -76,6 +75,29 @@ namespace network {
         ByteBufFix() {
             ByteBuf<CharT>::setp(_buf.begin(), _buf.end());
             ByteBuf<CharT>::setg(_buf.begin(), _buf.begin(), _buf.begin());
+        }
+    };
+
+    template<typename T>
+    class ByteBufferRef {
+        const T *_data;
+        size_t _size;
+    public:
+        ByteBufferRef(std::vector<T> &data, size_t size)
+                : _data(data.data()), _size(std::min(size, data.size())) {}
+
+        ByteBufferRef(T *data, size_t size)
+                : _data(data), _size(size) {}
+
+        ByteBufferRef(ByteBuffer &bb)
+                : _data((const T *) bb.data()), _size(bb.size()) {}
+
+        const T *data() const {
+            return _data;
+        }
+
+        size_t size() const {
+            return _size;
         }
     };
 

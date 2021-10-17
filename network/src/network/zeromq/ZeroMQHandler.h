@@ -6,22 +6,19 @@
 
 #include "network/Handler.h"
 #include "network/zeromq/ZeroMQ.h"
+#include <utility>
 #include <variant>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace network::zeromq {
 
-    class ZeroMQHandler : public NetworkHandler, public InboundHandler<ZeroMQMsg>, public NetworkWriter<ZeroMQMsg> {
+    class ZeroMQHandler : public InboundHandler<ZeroMQCommand, ZeroMQMessage>, public PrevLink<ZeroMQCommand, ZeroMQMessage> {
         std::string _type;
     public:
         explicit ZeroMQHandler(std::string_view type);
 
-        void handleActive() override;
-        void handleRead(std::variant<ZeroMQCommand, ZeroMQMessage> &event) override;
-
-        virtual void handleRead(ZeroMQCommand& cmd) = 0;
-        virtual void handleRead(ZeroMQMessage& msg) = 0;
+        void handleActive(const Context &ctx) override;
     };
 
     typedef std::function<void(std::string_view topic, std::string_view data)> fnOnSubMessage;
@@ -29,25 +26,69 @@ namespace network::zeromq {
     class ZeroMQSubscriber : public ZeroMQHandler {
         std::unordered_map<std::string, fnOnSubMessage> _callbacks;
     public:
-        ZeroMQSubscriber() : ZeroMQHandler(ZERO_MQ_SOCKET_TYPE_SUB) {}
+        ZeroMQSubscriber()
+                : ZeroMQHandler(ZERO_MQ_SOCKET_TYPE_SUB) {}
 
-        void subscribe(std::string_view topic, const fnOnSubMessage& callback) {
+        void subscribe(std::string_view topic, const fnOnSubMessage &callback) {
             _callbacks.emplace(topic, callback);
         }
 
-        void handleRead(ZeroMQCommand& cmd) override;
-        void handleRead(ZeroMQMessage& msg) override;
+        void handleRead(const Context &ctx, const ZeroMQCommand &cmd) override;
+
+        void handleRead(const Context &ctx, const ZeroMQMessage &msg) override;
     };
 
-    class ZeroMQPublisher : public ZeroMQHandler {
+    class Producer {
+    public:
+        typedef std::shared_ptr<Producer> Ptr;
+    public:
+        virtual void publish(std::string_view topic, std::string_view data) = 0;
+    };
+
+    class CompositeProducer : public Producer {
+        std::unordered_set<Producer::Ptr> _pubs;
+    public:
+        typedef std::shared_ptr<CompositeProducer> Ptr;
+
+        virtual void add(Producer::Ptr pub) {
+            _pubs.emplace(pub);
+        }
+
+        virtual void remove(Producer::Ptr pub) {
+            _pubs.erase(pub);
+        }
+
+        void publish(std::string_view topic, std::string_view data) override {
+            for (const auto &pub: _pubs) {
+                pub->publish(topic, data);
+            }
+        }
+    };
+
+    class ZeroMQPublisher : public ZeroMQHandler, public std::enable_shared_from_this<ZeroMQPublisher>, public Producer {
+        CompositeProducer::Ptr _pub;
         std::unordered_set<std::string> _topics;
     public:
-        ZeroMQPublisher() : ZeroMQHandler(ZERO_MQ_SOCKET_TYPE_PUB) {}
+        typedef std::shared_ptr<ZeroMQPublisher> Ptr;
 
-        void publish(std::string_view topic, std::string_view data);
+        explicit ZeroMQPublisher(CompositeProducer::Ptr pub)
+                : ZeroMQHandler(ZERO_MQ_SOCKET_TYPE_PUB), _pub(std::move(pub)) {}
 
-        void handleRead(ZeroMQCommand& cmd) override;
-        void handleRead(ZeroMQMessage& msg) override;
+        void publish(std::string_view topic, std::string_view data) override;
+
+        void handleActive(const Context &ctx) override {
+            _pub->add(shared_from_this());
+            ZeroMQHandler::handleActive(ctx);
+        }
+
+        void handleInactive(const Context &ctx) override {
+            ZeroMQHandler::handleInactive(ctx);
+            _pub->remove(shared_from_this());
+        }
+
+        void handleRead(const Context &ctx, const ZeroMQCommand &cmd) override;
+
+        void handleRead(const Context &ctx, const ZeroMQMessage &msg) override;
     };
 }
 

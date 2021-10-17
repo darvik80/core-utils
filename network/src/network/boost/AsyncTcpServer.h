@@ -23,11 +23,13 @@ namespace network {
         void doAccept();
 
     public:
-        explicit AsyncTcpServer(boost::asio::io_service &service, onConnectCallback  callback);
+        explicit AsyncTcpServer(boost::asio::io_service &service, onConnectCallback callback);
 
         void bind(uint16_t port);
 
         void shutdown();
+
+        ~AsyncTcpServer();
     };
 }
 

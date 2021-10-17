@@ -6,42 +6,46 @@
 
 #include "AsyncChannel.h"
 
-namespace network{
+namespace network {
 
     using namespace boost;
 
     AsyncChannel::AsyncChannel(asio::ip::tcp::socket socket)
             : _socket(std::move(socket)) {
+        _ctx.address = _socket.remote_endpoint().address().to_string();
+        _ctx.port = _socket.remote_endpoint().port();
+        _incBuf.resize(2048);
     }
 
     void AsyncChannel::start() {
-        handleActive();
+        handleActive(_ctx);
     }
 
-    void AsyncChannel::shutdown() {
+    void AsyncChannel::handleShutdown() {
         if (_socket.is_open()) {
-            handleInactive();
-            network::log::info("close conn");
+            handleInactive(_ctx);
             _socket.close();
+            network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
         }
     }
 
-    void AsyncChannel::doRecv() {
+    void AsyncChannel::doRead() {
         auto self(shared_from_this());
         _socket.async_read_some(
-                asio::buffer(_inc.data(), _inc.size()),
+                asio::buffer(_incBuf.data(), _incBuf.size()),
                 [this, self](system::error_code err, std::size_t size) {
                     if (size > 0) {
-                        _incBuf.append(_inc.data(), (std::streamsize)size);
-                        handleRead(_incBuf);
+                        network::log::debug("[net] onRead: {}:{}, size: {}", _ctx.address, _ctx.port, size);
+                        ByteBufferRef<uint8_t> ref(_incBuf, size);
+                        handleRead(_ctx, ref);
                         if (!err) {
-                            doRecv();
+                            doRead();
                         }
                     }
 
                     if (err) {
-                        handleError(err);
-                        shutdown();
+                        handleError(_ctx, err);
+                        handleShutdown();
                     }
                 }
         );
@@ -55,49 +59,53 @@ namespace network{
             asio::async_write(
                     _socket,
                     asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
-                    [this, self](boost::system::error_code err, std::size_t) {
+                    [this, self](boost::system::error_code err, std::size_t size) {
                         if (!err) {
+                            network::log::debug("[net] onWrite: {}:{}, size: {}", _ctx.address, _ctx.port, size);
                             doWrite();
                         } else {
-                            handleError(err);
-                            shutdown();
+                            handleError(_ctx, err);
+                            handleShutdown();
                         }
                     }
             );
         }
     }
 
-    void AsyncChannel::handleActive() {
-        MessageHandler<ByteBuffer, ByteBuffer>::handleActive();
-        doRecv();
+    void AsyncChannel::handleActive(const Context &ctx) {
+        network::log::debug("[net] onActive: {}:{}", ctx.address, ctx.port);
+        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleActive(ctx);
+        doRead();
     }
 
-    void AsyncChannel::handleInactive() {
-        MessageHandler<ByteBuffer, ByteBuffer>::handleInactive();
+    void AsyncChannel::handleInactive(const Context &ctx) {
+        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleInactive(ctx);
+        network::log::debug("[net] onInactive: {}:{}", ctx.address, ctx.port);
     }
 
-    void AsyncChannel::handleError(std::error_code err) {
-        network::log::info("error conn: {}", err.message());
-        MessageHandler<ByteBuffer , ByteBuffer>::handleError(err);
+    void AsyncChannel::handleError(const Context &ctx, std::error_code err) {
+        network::log::warning("[net] onError: {}:{}, {}", ctx.address, ctx.port, err.message());
+        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleError(ctx, err);
     }
 
-    void AsyncChannel::handleRead(ByteBuffer &event) {
-        trigger(event);
+    void AsyncChannel::handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
+        fireMessage(ctx, event);
     }
 
-    void AsyncChannel::handleWrite(ByteBuffer &event) {
+    void AsyncChannel::handleWrite(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
         bool inProgress = !_outBufs.empty();
-        _outBufs.push_back(event);
+        _outBufs.emplace_back(event.data(), event.data() + event.size());
         if (!inProgress) {
             boost::asio::async_write(
                     _socket,
                     boost::asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
-                    [this](boost::system::error_code err, std::size_t) {
+                    [this](boost::system::error_code err, std::size_t size) {
                         if (!err) {
+                            network::log::debug("[net] onWrite: {}:{}, size: {}", _ctx.address, _ctx.port, size);
                             doWrite();
                         } else {
-                            handleError(err);
-                            shutdown();
+                            handleError(_ctx, err);
+                            handleShutdown();
                         }
                     }
             );
@@ -105,8 +113,9 @@ namespace network{
     }
 
     AsyncChannel::~AsyncChannel() {
-        network::log::info("~Channel");
+        network::log::debug("~Channel");
     }
+
 }
 
 #endif

@@ -9,131 +9,163 @@
 #include "Logging.h"
 
 namespace network {
+
+    struct Context {
+        std::string address;
+        uint16_t port;
+    };
+
     class Void {
     };
 
-    class ActiveHandler {
+    class NetworkHandler {
     public:
-        virtual void handleActive() {}
+        virtual void handleActive(const Context &ctx) {};
+
+        virtual void handleInactive(const Context &ctx) {};
+
+        virtual void handleError(const Context &ctx, std::error_code err) {};
     };
 
-    class InactiveHandler {
+    class StreamHandler {
     public:
-        virtual void handleInactive() {}
+        virtual void handleShutdown() {}
+
     };
 
-    class ErrorHandler {
+    template<typename T, typename... Tn>
+    class InboundHandler : public InboundHandler<T>, public InboundHandler<Tn...> {
     public:
-        virtual void handleError(std::error_code err) {}
-    };
-
-    class NetworkHandler : public ActiveHandler, public InactiveHandler, public ErrorHandler {
-    public:
-        virtual void shutdown() {};
+        using InboundHandler<T>::handleRead;
+        using InboundHandler<Tn...>::handleRead;
     };
 
     template<typename T>
-    class InboundHandler {
+    class InboundHandler<T> : public virtual NetworkHandler {
     public:
-        virtual void handleRead(T &event) = 0;
+        virtual void handleRead(const Context &ctx, const T &msg) = 0;
 
         virtual ~InboundHandler() = default;
     };
 
-    template<typename T>
-    class NetworkTrigger {
-        std::shared_ptr<InboundHandler<T>> _next{};
+    class Next {
+    };
+
+    template<typename T, typename ...Tn>
+    class NextLink : Next {
+        std::shared_ptr<InboundHandler<T, Tn...>> _next;
     public:
-        virtual void trigger(T &event) {
+
+        template<typename Msg>
+        void fireMessage(const Context &ctx, const Msg &msg) {
             if (_next) {
-                _next->handleRead(event);
+                _next->handleRead(ctx, msg);
             }
         }
 
-        void setNext(std::shared_ptr<InboundHandler<T>> next) {
+        void linkNext(std::shared_ptr<InboundHandler<T, Tn...>> next) {
             _next = next;
         }
 
-        std::shared_ptr<InboundHandler<T>> getNext() {
+        auto getNext() {
             return _next;
+        }
+
+        virtual void fireActive(const Context &ctx) {
+            if (_next) {
+                _next->handleActive(ctx);
+            }
+        }
+
+        virtual void fireInactive(const Context &ctx) {
+            if (_next) {
+                _next->handleInactive(ctx);
+            }
+        }
+
+        virtual void fireError(const Context &ctx, std::error_code err) {
+            if (_next) {
+                _next->handleError(ctx, err);
+            }
         }
     };
 
-
-    template<typename T, typename U>
-    class InboundMessageHandler : public InboundHandler<T>, public NetworkTrigger<U> {
+    template<typename T, typename... Tn>
+    class OutboundHandler : public OutboundHandler<T>, public OutboundHandler<Tn...> {
+    public:
+        using OutboundHandler<T>::handleWrite;
+        using OutboundHandler<Tn...>::handleWrite;
     };
 
     template<typename T>
-    class OutboundHandler {
+    class OutboundHandler<T> : public virtual StreamHandler {
     public:
-        virtual void handleWrite(T &event) {}
+        virtual void handleWrite(const Context &ctx, const T &msg) = 0;
 
         virtual ~OutboundHandler() = default;
     };
 
-    template<typename T>
-    class NetworkWriter {
-        std::weak_ptr<OutboundHandler<T>> _prev{};
-    public:
-        virtual void write(T &event) {
-            if (auto prev = _prev.lock()) {
-                prev->handleWrite(event);
-            }
-        }
-
-        void setPrev(std::weak_ptr<OutboundHandler<T>> next) {
-            _prev = next;
-        }
-
-        std::shared_ptr<OutboundHandler<T>> getPrev() {
-            return _prev.lock();
-        }
-
+    class Prev {
     };
 
-    template<typename T, typename U>
-    class OutboundMessageHandler : public OutboundHandler<T>, public NetworkWriter<U> {
+    template<typename T, typename ...Tn>
+    class PrevLink : Prev {
+        std::weak_ptr<OutboundHandler<T, Tn...>> _prev;
+    public:
+
+        template<typename Msg>
+        void write(const Context &ctx, const Msg &msg) {
+            if (auto prev = _prev.lock(); prev) {
+                prev->handleWrite(ctx, msg);
+            }
+        }
+
+        void linkPrev(std::shared_ptr<OutboundHandler<T, Tn...>> prev) {
+            _prev = prev;
+        }
+
+        virtual void fireShutdown() {
+            if (auto prev = _prev.lock(); prev) {
+                prev->handleShutdown();
+            }
+        }
     };
 
-    template<typename T, typename U = Void>
-    class MessageHandler : public NetworkHandler, public InboundMessageHandler<T, U>, public OutboundMessageHandler<U, T> {
+    template<typename T, typename ...Tn>
+    class InboundMessageHandler : public InboundHandler<T>, public NextLink<Tn...> {
     public:
-        void handleActive() override {
-            auto handler = std::dynamic_pointer_cast<NetworkHandler>(this->getNext());
-            if (handler) {
-                handler->handleActive();
-            }
+        void handleActive(const Context &ctx) override {
+            this->fireActive(ctx);
         }
 
-        void handleInactive() override {
-            auto handler = std::dynamic_pointer_cast<NetworkHandler>(this->getNext());
-            if (handler) {
-                handler->handleInactive();
-            }
+        void handleInactive(const Context &ctx) override {
+            this->fireInactive(ctx);
         }
 
-        void handleError(std::error_code err) override {
-            auto handler = std::dynamic_pointer_cast<NetworkHandler>(this->getNext());
-            if (handler) {
-                handler->handleError(err);
-            }
+        void handleError(const Context &ctx, std::error_code err) override {
+            this->fireError(ctx, err);
         }
+    };
 
-        void shutdown() override {
-            auto handler = std::dynamic_pointer_cast<NetworkHandler>(this->getPrev());
-            if (handler) {
-                handler->shutdown();
-            }
+    template<typename T, typename ...Tn>
+    class OutboundMessageHandler : public OutboundHandler<Tn...>, public PrevLink<T> {
+    public:
+        void handleShutdown() override {
+            this->fireShutdown();
         }
+    };
+
+    template<typename T, typename ...Tn>
+    class InboundOutboundMessageHandler : public InboundMessageHandler<T, Tn...>, public OutboundMessageHandler<T, Tn...> {
     };
 
     template<typename A, typename B>
-    auto link(std::shared_ptr<A> a, std::shared_ptr<B> b) {
-        a->setNext(b);
-        b->setPrev(a);
+    void link(std::shared_ptr<A> a, std::shared_ptr<B> b) {
+        a->linkNext(b);
 
-        return a;
+        if constexpr(std::is_base_of<Prev, B>::value) {
+            b->linkPrev(a);
+        }
     }
 
     template<typename A, typename B, typename C>

@@ -23,12 +23,13 @@ namespace network::zeromq {
         ZeroMQMessageHandler _msgHandler;
 
         std::unique_ptr<ZeroMQMessage> _msg;
+
     public:
-        void onCommand(const ZeroMQCommandHandler& handler) {
+        void onCommand(const ZeroMQCommandHandler &handler) {
             _cmdHandler = handler;
         }
 
-        void onMessage(const ZeroMQMessageHandler& handler) {
+        void onMessage(const ZeroMQMessageHandler &handler) {
             _msgHandler = handler;
         }
 
@@ -132,10 +133,10 @@ namespace network::zeromq {
     };
 
     class ZeroMQEncoder {
-        std::error_code writeCmdSub(ByteBuffer &buf, ZeroMQCommand& cmd) {
+        std::error_code writeCmdSub(ByteBuffer &buf, const ZeroMQCommand &cmd) {
             ZeroMQWriter writer(buf);
 
-            std::string topic = cmd.props[ZERO_MQ_PROP_SUBSCRIPTION];
+            std::string topic = cmd.props.at(ZERO_MQ_PROP_SUBSCRIPTION);
             uint64_t expected = 1 + cmd.name.size() + topic.size();
 
             if (buf.available() < expected + 1) {
@@ -149,7 +150,8 @@ namespace network::zeromq {
 
             return {};
         }
-        std::error_code writeCmdReady(ByteBuffer &buf, ZeroMQCommand& cmd) {
+
+        std::error_code writeCmdReady(ByteBuffer &buf, const ZeroMQCommand &cmd) {
             ZeroMQWriter writer(buf);
             std::size_t expected = 1 + cmd.name.size();
             for (const auto &prop: cmd.props) {
@@ -174,8 +176,9 @@ namespace network::zeromq {
 
             return {};
         }
+
     public:
-        std::error_code write(ByteBuffer &buf, ZeroMQGreeting& greeting) {
+        std::error_code write(ByteBuffer &buf, const ZeroMQGreeting &greeting) {
             ZeroMQWriter writer(buf);
             writer << (uint8_t) 0xFF << std::setfill((char) 0x00) << std::setw(8) << (uint8_t) 0x00 << (uint8_t) 0x7F;
             writer << (uint8_t) greeting.version.major << (uint8_t) greeting.version.minor;
@@ -185,7 +188,8 @@ namespace network::zeromq {
 
             return {};
         }
-        std::error_code write(ByteBuffer &buf, ZeroMQCommand& cmd) {
+
+        std::error_code write(ByteBuffer &buf, const ZeroMQCommand &cmd) {
             if (cmd.name == ZERO_MQ_CMD_READY) {
                 return writeCmdReady(buf, cmd);
             } else if (cmd.name == ZERO_MQ_CMD_SUBSCRIBE || cmd.name == ZERO_MQ_CMD_CANCEL) {
@@ -194,7 +198,8 @@ namespace network::zeromq {
 
             return {};
         }
-        std::error_code write(ByteBuffer &buf, ZeroMQMessage& msg) {
+
+        std::error_code write(ByteBuffer &buf, const ZeroMQMessage &msg) {
             ZeroMQWriter writer(buf);
             std::size_t expected{0};
             for (const auto &item: msg.data) {
@@ -205,9 +210,9 @@ namespace network::zeromq {
                 return std::make_error_code(std::errc::message_size);
             }
 
-            for (auto &iter: msg.data) {
-                writer.writeFlagAndSize(flag_msg, iter.size());
-                writer.writeString(iter);
+            for (size_t idx = 0; idx < msg.data.size(); idx++) {
+                writer.writeFlagAndSize((idx < (msg.data.size() - 1) ? flag_more : flag_msg), msg.data[idx].size());
+                writer.writeString(msg.data[idx]);
             }
 
             return {};
@@ -219,17 +224,20 @@ namespace network::zeromq {
         Stream,
     };
 
-    class ZeroMQCodec : public MessageHandler<ByteBuffer, ZeroMQMsg> {
+    class ZeroMQCodec : public InboundOutboundMessageHandler<ByteBufferRef<uint8_t>, ZeroMQCommand, ZeroMQMessage> {
         ZeroMQState _state{ZeroMQState::Greeting};
 
+        ByteBufFix<2048> _incBuf;
         ZeroMQDecoder _decoder;
         ZeroMQEncoder _encoder;
     public:
-        void handleActive() override;
+        void handleActive(const Context &ctx) override;
 
-        void handleRead(ByteBuffer &event) override;
+        void handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) override;
 
-        void handleWrite(ZeroMQMsg &event) override;
+        void handleWrite(const Context &ctx, const ZeroMQCommand &msg) override;
+
+        void handleWrite(const Context &ctx, const ZeroMQMessage &msg) override;
     };
 }
 

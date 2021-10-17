@@ -20,8 +20,9 @@ namespace network {
         boost::asio::deadline_timer _deadline;
     private:
         void doConnect(boost::asio::io_service &service, boost::asio::ip::tcp::resolver::results_type endpoints, boost::asio::ip::tcp::resolver::results_type::iterator iter);
+
     public:
-        explicit AsyncTcpClient(boost::asio::io_service &service, const onConnectCallback& callback);
+        explicit AsyncTcpClient(boost::asio::io_service &service, const onConnectCallback &callback);
 
         void connect(std::string_view host, uint16_t port);
 

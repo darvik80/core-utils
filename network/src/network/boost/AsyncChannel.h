@@ -12,14 +12,16 @@
 
 namespace network {
 
-    class AsyncChannel : public MessageHandler<ByteBuffer, ByteBuffer>, public std::enable_shared_from_this<AsyncChannel> {
+    class AsyncChannel : public InboundOutboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>, public std::enable_shared_from_this<AsyncChannel> {
         boost::asio::ip::tcp::socket _socket;
-        std::array<char, 1024> _inc{};
-        ByteBufFix<2048> _incBuf;
 
-        std::deque <ByteBuffer> _outBufs;
+        std::vector<uint8_t> _incBuf;
+
+        std::deque<std::vector<uint8_t>> _outBufs;
+
+        Context _ctx;
     private:
-        void doRecv();
+        void doRead();
 
         void doWrite();
 
@@ -28,17 +30,17 @@ namespace network {
 
         void start();
 
-        void shutdown() override;
+        void handleShutdown() override;
 
-        void handleActive() override;
+        void handleActive(const Context &ctx) override;
 
-        void handleInactive() override;
+        void handleInactive(const Context &ctx) override;
 
-        void handleError(std::error_code err) override;
+        void handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) override;
 
-        void handleRead(ByteBuffer &event) override;
+        void handleWrite(const Context &ctx, const ByteBufferRef<uint8_t> &event) override;
 
-        void handleWrite(ByteBuffer &event) override;
+        void handleError(const Context &ctx, std::error_code err) override;
 
         ~AsyncChannel() override;
     };

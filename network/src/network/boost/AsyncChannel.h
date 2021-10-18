@@ -42,6 +42,7 @@ namespace network {
 
         void handleError(const Context &ctx, std::error_code err) override;
 
+        void shutdown();
         ~AsyncChannel() override;
     };
 

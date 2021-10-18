@@ -12,6 +12,10 @@
 
 using namespace network;
 
+#include <logging/Logging.h>
+
+LOG_COMPONENT_SETUP(app, app_logger);
+
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;
     logProps.level = "info";
@@ -26,7 +30,7 @@ int main(int argc, char *argv[]) {
     signals.add(SIGQUIT);
 #endif
 
-    uint16_t port = 8000;
+    uint16_t port = 5556;
 
     auto subscriber = std::make_shared<zeromq::ZeroMQSubscriber>();
     subscriber->subscribe("joystick", [](std::string_view topic, std::string_view data) {
@@ -42,39 +46,40 @@ int main(int argc, char *argv[]) {
     });
     server.bind(port);
 
-    auto producer = std::make_shared<zeromq::CompositeProducer>();
-
-    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
-        link(
-                channel,
-                std::make_shared<handler::NetworkLogger>(),
-                std::make_shared<zeromq::ZeroMQCodec>(),
-                std::make_shared<zeromq::ZeroMQPublisher>(producer)
-        );
-    });
-    client.connect("127.0.0.1", port);
-
-    boost::asio::deadline_timer deadline(service);
-    deadline.expires_from_now(boost::posix_time::seconds(10));
-    deadline.async_wait([producer, &server](boost::system::error_code err) {
-        if (!err) {
-            producer->publish("joystick", "Hello World");
-            producer->publish("test", "Skipped message");
-            producer->publish("joystick", "Second message");
-        }
-    });
+//    auto producer = std::make_shared<zeromq::CompositeProducer>();
+//
+//    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
+//        link(
+//                channel,
+//                std::make_shared<handler::NetworkLogger>(),
+//                std::make_shared<zeromq::ZeroMQCodec>(),
+//                std::make_shared<zeromq::ZeroMQPublisher>(producer)
+//        );
+//    });
+//    client.connect("127.0.0.1", port);
+//
+//    boost::asio::deadline_timer deadline(service);
+//    deadline.expires_from_now(boost::posix_time::seconds(10));
+//    deadline.async_wait([producer, &server](boost::system::error_code err) {
+//        if (!err) {
+//            producer->publish("joystick", "Hello World");
+//            producer->publish("test", "Skipped message");
+//            producer->publish("joystick", "Second message");
+//        }
+//    });
 
     signals.async_wait(
-            [&service, &client, &server](boost::system::error_code ec, int signal) {
+            [&service](boost::system::error_code ec, int signal) {
                 if (!ec) {
                     service.stop();
-                    client.shutdown();
-                    server.shutdown();
+                    app::log::info("service shutdown");
                 }
             }
     );
 
+    app::log::info("service started");
     service.run();
+    server.shutdown();
 
     return 0;
 }

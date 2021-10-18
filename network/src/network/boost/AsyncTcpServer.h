@@ -9,6 +9,8 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 
+#include <unordered_set>
+
 #include "network/ByteBuf.h"
 #include "network/Handler.h"
 #include "AsyncChannel.h"
@@ -19,6 +21,8 @@ namespace network {
         boost::asio::ip::tcp::acceptor _acceptor;
 
         onConnectCallback _callback;
+
+        std::unordered_set<AsyncChannel*> _channels;
     private:
         void doAccept();
 
@@ -28,8 +32,6 @@ namespace network {
         void bind(uint16_t port);
 
         void shutdown();
-
-        ~AsyncTcpServer();
     };
 }
 

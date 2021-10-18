@@ -21,6 +21,7 @@ namespace network {
         handleActive(_ctx);
     }
 
+
     void AsyncChannel::handleShutdown() {
         if (_socket.is_open()) {
             handleInactive(_ctx);

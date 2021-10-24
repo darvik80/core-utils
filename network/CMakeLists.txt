@@ -20,5 +20,7 @@ file(GLOB SRCS_G
 
 set(MAIN_LIBS logging)
 
-add_executable(${PROJECT_NAME} ${SRCS_G})
+add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
+
+add_subdirectory(example)

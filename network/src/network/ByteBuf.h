@@ -33,7 +33,7 @@ namespace network {
             return Base::epptr() - Base::pbase() - Base::in_avail();
         }
 
-        const CharT *data() const {
+        [[nodiscard]] const CharT *data() const {
             return Base::pbase();
         }
 
@@ -89,14 +89,14 @@ namespace network {
         ByteBufferRef(T *data, size_t size)
                 : _data(data), _size(size) {}
 
-        ByteBufferRef(ByteBuffer &bb)
+        explicit ByteBufferRef(ByteBuffer &bb)
                 : _data((const T *) bb.data()), _size(bb.size()) {}
 
         const T *data() const {
             return _data;
         }
 
-        size_t size() const {
+        [[nodiscard]] size_t size() const {
             return _size;
         }
     };

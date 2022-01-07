@@ -12,7 +12,8 @@ endif ()
 include_directories(
         /usr/include
         /usr/local/include
-        ${PROJECT_SOURCE_DIR}/logging/src
+       logging/src
+       event-manager/src
 )
 
 link_directories(
@@ -25,3 +26,4 @@ add_subdirectory(audioplayer)
 add_subdirectory(event-manager)
 add_subdirectory(serial)
 add_subdirectory(network)
+add_subdirectory(application)

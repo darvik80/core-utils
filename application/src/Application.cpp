@@ -39,6 +39,8 @@ void Application::postConstruct(Registry &registry) {
     registry.addService(std::make_shared<EventManagerService>());
     // } System Services
 
+    setup(registry);
+
     registry.visitService([&registry](auto &service) {
         service.postConstruct(registry);
     });
@@ -60,6 +62,13 @@ void Application::run(Registry &registry) {
                 eventManager.raiseEvent(ApplicationCloseEvent{signal});
             }
     );
+
+
+    std::function<bool(const ApplicationStartedEvent &)> fnStart = [this](const ApplicationStartedEvent &event) -> bool {
+        info("started");
+        return true;
+    };
+    registry.getService<EventManagerService>().subscribe<>(fnStart);
 
     std::function<bool(const ApplicationCloseEvent &)> fnClose = [&ioc, this](const ApplicationCloseEvent &event) -> bool {
         std::string signal = "unknown";

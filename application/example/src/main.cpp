@@ -4,8 +4,15 @@
 
 #include "Application.h"
 
+class MainApp : public Application {
+protected:
+    void setup(Registry &registry) override {
+
+    }
+};
+
 int main(int argc, char *argv[]) {
-    Application app;
+    MainApp app;
     app.run(argc, argv);
     return 0;
 }

@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include <boost/log/trivial.hpp>
 #include <fmt/ranges.h>
 #include <fmt/core.h>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
+
+typedef boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level> logger_type;
 
 BOOST_LOG_GLOBAL_LOGGER(g_logger, boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level>);
 

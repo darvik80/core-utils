@@ -6,9 +6,10 @@
 #include "Registry.h"
 
 void BaseService::postConstruct(Registry &registry) {
-    debug("postConstruct");
+    debug("post constructor");
 }
 
 void BaseService::preDestroy(Registry& registry) {
-    debug("preDestroy");
+    debug("pre destroy");
 }
+

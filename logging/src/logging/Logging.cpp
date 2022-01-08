@@ -64,10 +64,10 @@ void consoleFormatter(boost::log::record_view const &rec, boost::log::formatting
 
     auto ch = rec[channel];
     if (ch) {
-        strm << "[ \033[34m" << ch << "\033[38;5;15m ] ";
+        strm << "[\033[34m" << std::setw(10) << std::right << ch << "\033[38;5;15m] ";
     }
 
-    strm << "[ \033[36m" << rec[threadId] << "\033[38;5;15m ] : ";
+    strm << "[\033[36m" << rec[threadId] << "\033[38;5;15m] : ";
 
     strm << "\033[38;5;250m" << rec[boost::log::expressions::smessage] << "\033[38;5;1m";
 

@@ -22,17 +22,15 @@ class Registry {
 
     PropertySource::Ptr _propsSource;
 
-protected:
-    void addService(const Service::Ptr &service) {
-        _services.emplace_back(service);
-        std::sort(_services.begin(), _services.end(), OrderedLess<Service>());
-    }
-
 public:
     explicit Registry(PropertySource::Ptr propsSource)
             : _propsSource(std::move(propsSource)) {
     }
 
+    void addService(const Service::Ptr &service) {
+        _services.emplace_back(service);
+        std::sort(_services.begin(), _services.end(), OrderedLess<Service>());
+    }
 
     boost::asio::io_service &getIoService() {
         return _service;

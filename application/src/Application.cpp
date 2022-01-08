@@ -32,6 +32,7 @@ void Application::run(int argc, char **argv) {
 }
 
 void Application::postConstruct(Registry &registry) {
+    auto now = boost::posix_time::microsec_clock::local_time();
 
     // { System Services
     registry.addService(std::make_shared<LoggingService>());
@@ -44,6 +45,13 @@ void Application::postConstruct(Registry &registry) {
     registry.visitService([&registry](auto &service) {
         service.postConstruct(registry);
     });
+
+    auto &eventManager = registry.getService<EventManagerService>();
+    std::function<bool(const ApplicationStartedEvent &)> fnStart = [this, now](const ApplicationStartedEvent &event) -> bool {
+        info("application started, {}ms", (boost::posix_time::microsec_clock::local_time()-now).total_milliseconds());
+        return true;
+    };
+    registry.getService<EventManagerService>().subscribe<>(fnStart);
 }
 
 void Application::run(Registry &registry) {
@@ -62,13 +70,6 @@ void Application::run(Registry &registry) {
                 eventManager.raiseEvent(ApplicationCloseEvent{signal});
             }
     );
-
-
-    std::function<bool(const ApplicationStartedEvent &)> fnStart = [this](const ApplicationStartedEvent &event) -> bool {
-        info("started");
-        return true;
-    };
-    registry.getService<EventManagerService>().subscribe<>(fnStart);
 
     std::function<bool(const ApplicationCloseEvent &)> fnClose = [&ioc, this](const ApplicationCloseEvent &event) -> bool {
         std::string signal = "unknown";

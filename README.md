@@ -8,6 +8,7 @@
 ## Logging
 
 #### Logging.h
+
 ```cpp
 #pragma once
 
@@ -17,6 +18,7 @@ LOG_COMPONENT_SETUP(em, em_logger);
 ```
 
 #### main.cpp
+
 ```cpp
 #include "Logging"
 
@@ -38,6 +40,7 @@ int main(int argc, char *argv[]) {
 ## Event Manager
 
 #### main.cpp
+
 ```cpp
 #include "event/EventManagerLogger.h"
 #include "scheduler/Scheduler.h"
@@ -74,3 +77,32 @@ int main(int argc, char *argv[]) {
 ```
 
 ![](https://raw.githubusercontent.com/darvik80/core-utils/master/images/event-manager.png)
+
+## Application
+
+#### main.cpp
+
+# include "Application.h"
+
+```cpp
+#include "Application.h"
+
+class MainApp : public Application {
+protected:
+    void setup(Registry &registry) override {
+        // TODO: init extra libs
+        //wiringPiSetup();
+        
+        // TODO: register own services
+        // registry.addService(std::make_shared<I2CServoDriver>());
+    }
+};
+
+int main(int argc, char *argv[]) {
+    MainApp app;
+    app.run(argc, argv);
+    return 0;
+}
+
+```
+

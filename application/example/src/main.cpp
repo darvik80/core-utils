@@ -7,7 +7,11 @@
 class MainApp : public Application {
 protected:
     void setup(Registry &registry) override {
+        // TODO: init extra libs
+        //wiringPiSetup();
 
+        // TODO: register own services
+        // registry.addService(std::make_shared<I2CServoDriver>());
     }
 };
 

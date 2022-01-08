@@ -82,8 +82,6 @@ int main(int argc, char *argv[]) {
 
 #### main.cpp
 
-# include "Application.h"
-
 ```cpp
 #include "Application.h"
 

@@ -46,12 +46,10 @@ void Application::postConstruct(Registry &registry) {
         service.postConstruct(registry);
     });
 
-    auto &eventManager = registry.getService<EventManagerService>();
-    std::function<bool(const ApplicationStartedEvent &)> fnStart = [this, now](const ApplicationStartedEvent &event) -> bool {
+    registry.getService<EventManagerService>().subscribe<ApplicationStartedEvent>([this, now](const ApplicationStartedEvent &event) -> bool {
         info("application started, {}ms", (boost::posix_time::microsec_clock::local_time()-now).total_milliseconds());
         return true;
-    };
-    registry.getService<EventManagerService>().subscribe<>(fnStart);
+    });
 }
 
 void Application::run(Registry &registry) {
@@ -71,7 +69,7 @@ void Application::run(Registry &registry) {
             }
     );
 
-    std::function<bool(const ApplicationCloseEvent &)> fnClose = [&ioc, this](const ApplicationCloseEvent &event) -> bool {
+    eventManager.subscribe<ApplicationCloseEvent>([&ioc, this](const ApplicationCloseEvent &event) -> bool {
         std::string signal = "unknown";
         switch (event.getSignal()) {
             case SIGTERM:
@@ -91,15 +89,14 @@ void Application::run(Registry &registry) {
         info("handle signal: {}", signal);
         ioc.stop();
         return true;
-    };
-    registry.getService<EventManagerService>().subscribe<>(fnClose);
-    std::function<bool(const ApplicationShutdownEvent &)> fnShutdown = [this](const ApplicationShutdownEvent &event) -> bool {
+    });
+
+    eventManager.subscribe<ApplicationShutdownEvent>([this](const ApplicationShutdownEvent &event) -> bool {
         info("shutdown");
         return true;
-    };
-    registry.getService<EventManagerService>().subscribe<>(fnShutdown);
+    });
 
-    registry.getService<EventManagerService>().raiseEvent(ApplicationStartedEvent{});
+    eventManager.raiseEvent(ApplicationStartedEvent{});
     registry.getIoService().run();
 }
 

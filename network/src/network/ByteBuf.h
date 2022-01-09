@@ -8,6 +8,7 @@
 #include <streambuf>
 #include <array>
 #include <cstring>
+#include <vector>
 
 namespace network {
 

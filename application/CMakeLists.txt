@@ -11,16 +11,10 @@ include_directories(
 
 file(GLOB SRCS_G
         src/*.cpp
-        src/network/*.cpp
-        src/network/handler/*.cpp
-        src/network/boost/*.cpp
-        src/network/zeromq/*.cpp
-        src/network/zeromq/v30/*.cpp
-        src/network/zeromq/v31/*.cpp
-        src/network/mqtt/*.cpp
+        src/properties/source/*.cpp
         )
 
-set(MAIN_LIBS logging event-manager)
+set(MAIN_LIBS logging event-manager network)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})

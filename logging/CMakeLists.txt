@@ -7,7 +7,7 @@ file(GLOB SRCS_G src/*.cpp src/logging/*.cpp)
 
 # libs {
 
-set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+set(Boost_USE_STATIC_LIBS       OFF)  # only find static libs
 set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
 set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -24,4 +24,4 @@ add_subdirectory(example)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 
-target_link_libraries(${PROJECT_NAME} fmt ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} fmt ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})

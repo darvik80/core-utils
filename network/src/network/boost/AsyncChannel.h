@@ -9,6 +9,7 @@
 #include <boost/asio.hpp>
 #include "network/ByteBuf.h"
 #include "network/Handler.h"
+#include <deque>
 
 namespace network {
 

@@ -12,6 +12,7 @@
 class Application : public BaseService {
 protected:
     virtual void setup(Registry &registry) = 0;
+    virtual void destroy(Registry &registry) = 0;
 public:
     const char *name() override {
         return "application";

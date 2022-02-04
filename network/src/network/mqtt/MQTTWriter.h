@@ -66,9 +66,9 @@ namespace network::mqtt {
         };
 
         size_t writeData(ByteBuffer& buf, std::ostream &out) {
-            out.write(buf.data(), buf.size());
+            out.write(buf.data(), buf.capacity());
 
-            return buf.size();
+            return buf.capacity();
         };
 
         size_t writeData(const std::string &val, std::ostream &out) {

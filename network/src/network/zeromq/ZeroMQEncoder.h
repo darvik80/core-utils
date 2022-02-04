@@ -9,16 +9,15 @@
 #include <functional>
 
 #include "ZeroMQ.h"
-#include "ZeroMQWriter.h"
+#include "network/Buffer.h"
 
 namespace network::zeromq {
 
     class ZeroMQEncoder {
     public:
         typedef std::shared_ptr<ZeroMQEncoder> Ptr;
-        virtual std::error_code write(ByteBuffer &buf, const ZeroMQGreeting &greeting) = 0;
-        virtual std::error_code write(ByteBuffer &buf, const ZeroMQCommand &cmd) = 0;
-        virtual std::error_code write(ByteBuffer &buf, const ZeroMQMessage &msg) = 0;
+        virtual std::error_code write(Buffer &buf, const ZeroMQCommand &cmd) = 0;
+        virtual std::error_code write(Buffer &buf, const ZeroMQMessage &msg) = 0;
     };
 }
 

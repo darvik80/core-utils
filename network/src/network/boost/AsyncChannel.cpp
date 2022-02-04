@@ -36,8 +36,8 @@ namespace network {
                 asio::buffer(_incBuf.data(), _incBuf.size()),
                 [this, self](system::error_code err, std::size_t size) {
                     if (size > 0) {
-                        network::log::debug("[net] onRead: {}:{}, size: {}", _ctx.address, _ctx.port, size);
-                        ByteBufferRef<uint8_t> ref(_incBuf, size);
+                        network::log::debug("[net] onRead: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
+                        Buffer ref(_incBuf.data(), size);
                         handleRead(_ctx, ref);
                         if (!err) {
                             doRead();
@@ -62,7 +62,7 @@ namespace network {
                     asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
                     [this, self](boost::system::error_code err, std::size_t size) {
                         if (!err) {
-                            network::log::debug("[net] onWrite: {}:{}, size: {}", _ctx.address, _ctx.port, size);
+                            network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
                             doWrite();
                         } else {
                             handleError(_ctx, err);
@@ -75,25 +75,25 @@ namespace network {
 
     void AsyncChannel::handleActive(const Context &ctx) {
         network::log::debug("[net] onActive: {}:{}", ctx.address, ctx.port);
-        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleActive(ctx);
+        InboundMessageHandler<Buffer, Buffer>::handleActive(ctx);
         doRead();
     }
 
     void AsyncChannel::handleInactive(const Context &ctx) {
-        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleInactive(ctx);
+        InboundMessageHandler<Buffer, Buffer>::handleInactive(ctx);
         network::log::debug("[net] onInactive: {}:{}", ctx.address, ctx.port);
     }
 
     void AsyncChannel::handleError(const Context &ctx, std::error_code err) {
         network::log::warning("[net] onError: {}:{}, {}", ctx.address, ctx.port, err.message());
-        InboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>::handleError(ctx, err);
+        InboundMessageHandler<Buffer, Buffer>::handleError(ctx, err);
     }
 
-    void AsyncChannel::handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
+    void AsyncChannel::handleRead(const Context &ctx, const Buffer &event) {
         fireMessage(ctx, event);
     }
 
-    void AsyncChannel::handleWrite(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
+    void AsyncChannel::handleWrite(const Context &ctx, const Buffer &event) {
         bool inProgress = !_outBufs.empty();
         _outBufs.emplace_back(event.data(), event.data() + event.size());
         if (!inProgress) {
@@ -102,7 +102,7 @@ namespace network {
                     boost::asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
                     [this](boost::system::error_code err, std::size_t size) {
                         if (!err) {
-                            network::log::debug("[net] onWrite: {}:{}, size: {}", _ctx.address, _ctx.port, size);
+                            network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
                             doWrite();
                         } else {
                             handleError(_ctx, err);

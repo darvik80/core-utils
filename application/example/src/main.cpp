@@ -13,6 +13,10 @@ protected:
         // TODO: register own services
         // registry.addService(std::make_shared<I2CServoDriver>());
     }
+
+    void destroy(Registry &registry) override {
+
+    }
 };
 
 int main(int argc, char *argv[]) {

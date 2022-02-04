@@ -11,20 +11,20 @@
 
 namespace network::zeromq {
 
-    void ZeroMQCodec::handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &buf) {
-        _incBuf.append((char *) buf.data(), (std::streamsize) buf.size());
+    void ZeroMQCodec::handleRead(const Context &ctx, const Buffer &buf) {
+        _incBuf.append(buf.data(), buf.size());
         if (_state == ZeroMQState::Greeting) {
             if (_incBuf.size() < 64) {
                 return;
             }
 
-            if (_incBuf.data()[0] != -1 || _incBuf.data()[9] != 0x7f) {
+            if (_incBuf.data()[0] != 0xff || _incBuf.data()[9] != 0x7f) {
                 fireShutdown();
                 return;
             }
 
             ZeroMQGreeting greeting(false);
-            std::istream inc(&_incBuf);
+            Reader inc(_incBuf);
             inc >> greeting;
             _incBuf.consume(64);
 
@@ -61,26 +61,27 @@ namespace network::zeromq {
     }
 
     void ZeroMQCodec::handleActive(const Context &ctx) {
-        ByteBufFix<64> buf;
+        ArrayBuffer<64> buf;
         ZeroMQGreeting greeting(true);
-        std::ostream out(&buf);
+
+        Writer out(buf);
         out << greeting;
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 
     void ZeroMQCodec::handleWrite(const Context &ctx, const ZeroMQCommand &msg) {
-        ByteBufFix<2048> buf;
+        ArrayBuffer<2048> buf;
         _encoder->write(buf, msg);
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 
     void ZeroMQCodec::handleWrite(const Context &ctx, const ZeroMQMessage &msg) {
-        ByteBufFix<2048> buf;
+        ArrayBuffer<2048> buf;
         _encoder->write(buf, msg);
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 
 }

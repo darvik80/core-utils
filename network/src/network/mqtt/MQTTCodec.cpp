@@ -88,28 +88,27 @@ namespace network::mqtt {
         fireMessage(ctx, msg);
     }
 
-    void MQTTCodec::handleRead(const network::Context &ctx, const network::ByteBufferRef<uint8_t> &msg) {
-        _incBuf.append((char *) msg.data(), (std::streamsize) msg.size());
+    void MQTTCodec::handleRead(const network::Context &ctx, const network::Buffer &msg) {
+        _incBuf.write(msg.readData(), msg.readAvailable());
 
-        if (_incBuf.size()) {
-            std::istream stream(&_incBuf);
-            MQTTReader reader;
+        if (_incBuf.readAvailable()) {
+            Reader inc(_incBuf);
 
             Header header{};
-            header.all = reader.readUint8(stream);
+            inc >> header.all;
 
             size_t encSize = 0;
             int multiplier = 1;
             int result = 0;
 
-            auto available = _incBuf.size() - 1;
             uint8_t encoded = 0;
             do {
-                if (available--) {
+                if (inc >> encoded; !inc) {
                     return;
                 }
+
                 encSize++;
-                encoded = reader.readUint8(stream);
+                inc >> encoded;
                 result += (encoded & 0x7F) * multiplier;
                 if (multiplier > 0x80 * 0x80 * 0x80) {
                     fireShutdown();
@@ -118,7 +117,7 @@ namespace network::mqtt {
                 multiplier *= 0x80;
             } while ((encoded & 0x80) != 0);
 
-            if (available < result) {
+            if (_incBuf.readAvailable() < result) {
                 return;
             }
 

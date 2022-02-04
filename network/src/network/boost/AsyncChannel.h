@@ -7,13 +7,13 @@
 #ifdef RASPBERRY_ARCH
 
 #include <boost/asio.hpp>
-#include "network/ByteBuf.h"
+#include "network/Buffer.h"
 #include "network/Handler.h"
 #include <deque>
 
 namespace network {
 
-    class AsyncChannel : public InboundOutboundMessageHandler<ByteBufferRef<uint8_t>, ByteBufferRef<uint8_t>>, public std::enable_shared_from_this<AsyncChannel> {
+    class AsyncChannel : public InboundOutboundMessageHandler<Buffer, Buffer>, public std::enable_shared_from_this<AsyncChannel> {
         boost::asio::ip::tcp::socket _socket;
 
         std::vector<uint8_t> _incBuf;
@@ -37,9 +37,9 @@ namespace network {
 
         void handleInactive(const Context &ctx) override;
 
-        void handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) override;
+        void handleRead(const Context &ctx, const Buffer &event) override;
 
-        void handleWrite(const Context &ctx, const ByteBufferRef<uint8_t> &event) override;
+        void handleWrite(const Context &ctx, const Buffer &event) override;
 
         void handleError(const Context &ctx, std::error_code err) override;
 

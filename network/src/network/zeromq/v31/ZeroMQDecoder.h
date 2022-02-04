@@ -11,27 +11,27 @@ namespace network::zeromq::v31 {
     class ZeroMQDecoder : public network::zeromq::ZeroMQDecoder {
         std::unique_ptr<ZeroMQMessage> _msg;
     public:
-        std::error_code read(ByteBuffer &buf) {
-            ZeroMQReader reader(buf);
+        std::error_code read(Buffer &buf) {
+            Reader reader(buf);
 
             if (!reader.available()) {
                 return std::make_error_code(std::errc::message_size);
             }
 
             uint8_t flag;
-            if (auto err = reader.readFlag(flag)) {
-                return err;
+            if (reader >> flag; !reader) {
+                return reader.status();
             }
 
             uint64_t size{0};
             if (flag & flag_long) {
-                if (auto err = reader.readSize(size)) {
-                    return err;
-                }
+                reader >> size;
             } else {
-                if (auto err = reader.readSize((uint8_t &) size)) {
-                    return err;
-                }
+                reader >> (uint8_t&)size;
+            }
+
+            if (!reader) {
+                return reader.status();
             }
 
             if (size > reader.available()) {
@@ -40,45 +40,33 @@ namespace network::zeromq::v31 {
 
             if (flag & flag_cmd) {
                 ZeroMQCommand cmd;
-                uint8_t nameSize;
-                if (auto err = reader.readSize(nameSize)) {
-                    return err;
-                }
 
-                if (auto err = reader.readString(nameSize, cmd.name)) {
-                    return err;
+                if (reader << reader.read() >> cmd.name; !reader) {
+                    return reader.status();
                 }
                 size -= 1 + cmd.name.size();
-
                 if (cmd.name == ZERO_MQ_CMD_READY) {
                     std::string prop, val;
                     while (size) {
-                        if (auto err = reader.readSize(nameSize)) {
-                            return err;
-                        }
-
-                        if (auto err = reader.readString(nameSize, prop)) {
-                            return err;
+                        if (auto err = reader.read(reader.read(), prop); err) {
+                            return reader.status();
                         }
 
                         uint32_t propSize;
-                        if (auto err = reader.readSize(propSize)) {
-                            return err;
+                        reader.read(IOFlag::be, propSize);
+                        if (auto err = reader.read(propSize, val); err) {
+                            return reader.status();
                         }
 
-                        if (auto err = reader.readString(propSize, val)) {
-                            return err;
-                        }
                         cmd.props.emplace(prop, val);
 
-                        size -= (5 + prop.size() + val.size());
+                        size -= (1 + prop.size()) + (4 + val.size());
                     }
                 } else if (cmd.name == ZERO_MQ_CMD_SUBSCRIBE || cmd.name == ZERO_MQ_CMD_CANCEL) {
                     std::string topic;
-                    if (auto err = reader.readString(size, topic)) {
-                        return err;
+                    if (auto err = reader.read(size, topic); err) {
+                        return reader.status();
                     }
-
                     cmd.props.emplace(ZERO_MQ_PROP_SUBSCRIPTION, topic);
                 } else {
                     return std::make_error_code(std::errc::invalid_argument);
@@ -92,8 +80,8 @@ namespace network::zeromq::v31 {
                     _msg = std::make_unique<ZeroMQMessage>();
                 }
                 std::string val;
-                if (auto err = reader.readString(size, val)) {
-                    return err;
+                if (reader << size >> val; !reader) {
+                    return reader.status();
                 }
 
                 *_msg << val;
@@ -106,8 +94,7 @@ namespace network::zeromq::v31 {
                 }
             }
 
-            buf.consume(buf.size() - buf.in_avail());
-
+            buf.consume(reader.consumed());
             return {};
         }
     };

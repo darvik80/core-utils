@@ -46,7 +46,7 @@ namespace network::handler {
 
     std::once_flag flag;
 
-    std::string NetworkLogger::dump(const ByteBufferRef<uint8_t> &buf) {
+    std::string NetworkLogger::dump(const Buffer &buf) {
         std::call_once(flag, init);
         if (!buf.size()) {
             return {};
@@ -110,14 +110,19 @@ namespace network::handler {
         InboundMessageHandler::handleError(ctx, err);
     }
 
-    void NetworkLogger::handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
-        network::log::debug("[log] onRead: {}:{}, {}{}", ctx.address, ctx.port, event.size(), dump(event));
+    void NetworkLogger::handleRead(const Context &ctx, const Buffer &event) {
+        if (event.size()) {
+            network::log::debug("[log] onRead: {}:{}, {}{}", ctx.address, ctx.port, event.size(), dump(event));
+        }
         fireMessage(ctx, event);
     }
 
-    void NetworkLogger::handleWrite(const Context &ctx, const ByteBufferRef<uint8_t> &event) {
-        network::log::debug("[log] onWrite: {}:{} {}{}", ctx.address, ctx.port, event.size(), dump(event));
+    void NetworkLogger::handleWrite(const Context &ctx, const Buffer &event) {
+        if (event.size()) {
+            network::log::debug("[log] onWrite: {}:{} {}{}", ctx.address, ctx.port, event.size(), dump(event));
+        }
         write(ctx, event);
+
     }
 
 }

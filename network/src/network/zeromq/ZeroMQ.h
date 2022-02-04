@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <variant>
 
+#include "network/Buffer.h"
+
 namespace network::zeromq {
 
     enum ZeroMQFlag {
@@ -38,41 +40,35 @@ namespace network::zeromq {
         ZeroMQGreeting(const ZeroMQVersion &version, const std::string &mechanism, bool isServer)
                 : version(version), mechanism(mechanism), isServer(isServer) {}
 
-        friend std::ostream &operator<<(std::ostream &out, const ZeroMQGreeting &greeting) {
-            out << (uint8_t) 0xFF << std::setfill((char) 0x00) << std::setw(8) << (uint8_t) 0x00 << (uint8_t) 0x7F;
+        friend Writer &operator<<(Writer &out, ZeroMQGreeting &greeting) {
+            out << (uint8_t) 0xFF << SetFill((uint8_t) 0x00, 8) << (uint8_t) 0x7F;
             out << (uint8_t) greeting.version.major << (uint8_t) greeting.version.minor;
-            out << std::left << std::setw(20) << greeting.mechanism;
+            out << greeting.mechanism << SetFill((uint8_t) 0x00, 20 - greeting.mechanism.size());
             out << (uint8_t) (greeting.isServer ? 0x01 : 0x00);
-            out << std::setw(31) << (uint8_t) 0x00;
+            out << SetFill((uint8_t) 0x00, 31);
 
             return out;
         }
 
-        friend std::istream &operator>>(std::istream &inc, ZeroMQGreeting &greeting) {
-            if (inc.get() != 0xFF) {
-                inc.setstate(std::ios::badbit);
+        friend Reader &operator>>(Reader &inc, ZeroMQGreeting &greeting) {
+            if (inc.read() != 0xFF) {
                 return inc;
             }
-            inc.ignore(8);
-            if (inc.get() != 0x7f) {
-                inc.setstate(std::ios::badbit);
+            inc << Ignore(8);
+            if (inc.read() != 0x7f) {
                 return inc;
             }
 
-            greeting.version.major = inc.get();
-            greeting.version.minor = inc.get();
+            inc >> greeting.version.major >> greeting.version.minor;
+            greeting.mechanism.clear();
             for (auto idx = 0; idx < 20; idx++) {
-                auto ch = inc.get();
+                auto ch = inc.read();
                 if (ch) {
                     greeting.mechanism += (char) ch;
                 }
             }
-            greeting.isServer = inc.get() > 0;
-            inc.ignore(31);
-            if (inc.eof()) {
-                return inc;
-
-            }
+            greeting.isServer = inc.read() > 0;
+            inc << Ignore(31);
 
             return inc;
         }
@@ -112,6 +108,4 @@ namespace network::zeromq {
             return *this;
         }
     };
-
-    typedef std::variant<ZeroMQCommand, ZeroMQMessage> ZeroMQMsg;
 }

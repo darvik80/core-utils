@@ -5,7 +5,7 @@
 #pragma once
 
 #include "network/Handler.h"
-#include "network/ByteBuf.h"
+#include "network/Buffer.h"
 #include <memory>
 #include <variant>
 
@@ -15,8 +15,8 @@
 
 namespace network::mqtt {
 
-    class MQTTCodec : public InboundOutboundMessageHandler<ByteBufferRef<uint8_t>, ConnectMessage, ConnAckMessage, PingReqMessage, PingRespMessage> {
-        ByteBufFix<2048> _incBuf;
+    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, ConnectMessage, ConnAckMessage, PingReqMessage, PingRespMessage> {
+        ArrayBuffer<2048> _incBuf;
     private:
         void handleReadConnect(const Context &ctx, std::istream& inc);
         void handleReadConnAck(const Context &ctx, std::istream& inc);

@@ -11,27 +11,24 @@ namespace network::zeromq::v30 {
     class ZeroMQDecoder : public network::zeromq::ZeroMQDecoder {
         std::unique_ptr<ZeroMQMessage> _msg;
     public:
-        std::error_code read(ByteBuffer &buf) override {
-            ZeroMQReader reader(buf);
+        std::error_code read(Buffer &buf) override {
+            Reader reader(buf);
 
             if (!reader.available()) {
                 return std::make_error_code(std::errc::message_size);
             }
 
-            uint8_t flag;
-            if (auto err = reader.readFlag(flag)) {
-                return err;
-            }
+            uint8_t flag = reader.read();
 
             uint64_t size{0};
             if (flag & flag_long) {
-                if (auto err = reader.readSize(size)) {
-                    return err;
-                }
+                reader >> size;
             } else {
-                if (auto err = reader.readSize((uint8_t &) size)) {
-                    return err;
-                }
+                reader >> (uint8_t&)size;
+            }
+
+            if (!reader) {
+                return reader.status();
             }
 
             if (size > reader.available()) {
@@ -40,12 +37,7 @@ namespace network::zeromq::v30 {
 
             if (flag & flag_cmd) {
                 ZeroMQCommand cmd;
-                uint8_t nameSize;
-                if (auto err = reader.readSize(nameSize)) {
-                    return err;
-                }
-
-                if (auto err = reader.readString(nameSize, cmd.name)) {
+                if (auto err = reader.read(reader.read(), cmd.name)) {
                     return err;
                 }
                 size -= 1 + cmd.name.size();
@@ -53,22 +45,19 @@ namespace network::zeromq::v30 {
                 if (cmd.name == ZERO_MQ_CMD_READY) {
                     std::string prop, val;
                     while (size) {
-                        if (auto err = reader.readSize(nameSize)) {
-                            return err;
-                        }
-
-                        if (auto err = reader.readString(nameSize, prop)) {
+                        if (auto err = reader.read(reader.read(), prop)) {
                             return err;
                         }
 
                         uint32_t propSize;
-                        if (auto err = reader.readSize(propSize)) {
+                        if (auto err = reader.read(IOFlag::be, propSize)) {
                             return err;
                         }
 
-                        if (auto err = reader.readString(propSize, val)) {
+                        if (auto err = reader.read(propSize, val)) {
                             return err;
                         }
+
                         cmd.props.emplace(prop, val);
 
                         size -= (5 + prop.size() + val.size());
@@ -85,7 +74,7 @@ namespace network::zeromq::v30 {
                     _msg = std::make_unique<ZeroMQMessage>();
                 }
                 std::string val;
-                if (auto err = reader.readString(size, val)) {
+                if (auto err = reader.read(size, val)) {
                     return err;
                 }
 
@@ -118,7 +107,7 @@ namespace network::zeromq::v30 {
                 }
             }
 
-            buf.consume(buf.size() - buf.in_avail());
+            buf.consume(reader.consumed());
 
             return {};
         }

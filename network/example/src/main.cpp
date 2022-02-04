@@ -18,7 +18,7 @@ LOG_COMPONENT_SETUP(app, app_logger);
 
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;
-    logProps.level = "info";
+    logProps.level = "debug";
     logger::setup(logProps);
 
     boost::asio::io_service service;
@@ -36,37 +36,40 @@ int main(int argc, char *argv[]) {
     subscriber->subscribe("joystick", [](std::string_view topic, std::string_view data) {
         logger::info("sub: {}:{}", topic, data);
     });
-    AsyncTcpServer server(service, [subscriber](const std::shared_ptr<AsyncChannel> &channel) {
+
+    auto producer = std::make_shared<zeromq::CompositeProducer>();
+    AsyncTcpServer server(service, [subscriber, producer](const std::shared_ptr<AsyncChannel> &channel) {
         link(
                 channel,
                 std::make_shared<handler::NetworkLogger>(),
                 std::make_shared<zeromq::ZeroMQCodec>(),
+                //std::make_shared<zeromq::ZeroMQPublisher>(producer)
                 subscriber
         );
     });
     server.bind(port);
 
-    auto producer = std::make_shared<zeromq::CompositeProducer>();
-
-    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
-        link(
-                channel,
-                std::make_shared<handler::NetworkLogger>(),
-                std::make_shared<zeromq::ZeroMQCodec>(),
-                std::make_shared<zeromq::ZeroMQPublisher>(producer)
-        );
-    });
-    client.connect("192.168.100.86", port);
-
-    boost::asio::deadline_timer deadline(service);
-    deadline.expires_from_now(boost::posix_time::seconds(10));
-    deadline.async_wait([producer](boost::system::error_code err) {
-        if (!err) {
-            producer->publish("joystick", "Hello World");
-            producer->publish("test", "Skipped message");
-            producer->publish("joystick", "Second message");
-        }
-    });
+//    auto producer = std::make_shared<zeromq::CompositeProducer>();
+//
+//    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
+//        link(
+//                channel,
+//                std::make_shared<handler::NetworkLogger>(),
+//                std::make_shared<zeromq::ZeroMQCodec>(),
+//                std::make_shared<zeromq::ZeroMQPublisher>(producer)
+//        );
+//    });
+//    client.connect("127.0.0.1", port);
+//
+//    boost::asio::deadline_timer deadline(service);
+//    deadline.expires_from_now(boost::posix_time::seconds(10));
+//    deadline.async_wait([producer](boost::system::error_code err) {
+//        if (!err) {
+//            producer->publish("joystick", "Hello World");
+//            producer->publish("test", "Skipped message");
+//            producer->publish("joystick", "Second message");
+//        }
+//    });
 
     signals.async_wait(
             [&service](boost::system::error_code ec, int signal) {

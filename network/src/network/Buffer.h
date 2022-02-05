@@ -26,6 +26,8 @@ namespace network {
         be,
     };
 
+    typedef int varInt;
+
     class Buffer {
         uint8_t *_pointer{};
         size_t _capacity{};
@@ -167,11 +169,33 @@ namespace network {
                 val = reverse(val);
             }
 
-            return write((const uint8_t*)&val, sizeof(val));
+            return write((const uint8_t *) &val, sizeof(val));
         }
 
         friend Writer &operator<<(Writer &out, IOFlag val) {
             out._flag = val;
+            return out;
+        }
+
+        std::error_code write(varInt val) {
+            size_t res = 0;
+            do {
+                uint8_t encoded = val % 0x80;
+                val /= 0x80;
+                if (val > 0) {
+                    encoded |= 0x80;
+                }
+
+                if (auto err = write(IOFlag::le, encoded); err) {
+                    return err;
+                }
+            } while (val > 0);
+
+            return {};
+        }
+
+        friend Writer &operator<<(Writer &out, Buffer& val) {
+            out.write(val.data(), val.size());
             return out;
         }
 
@@ -304,11 +328,34 @@ namespace network {
             return {};
         }
 
+        std::error_code read(varInt& val) {
+            int multiplier = 1;
+            int result = 0;
+
+            uint8_t encoded = 0;
+            do {
+                if (encoded = read(); status()) {
+                    return status();
+                }
+                result += (encoded & 0x7F) * multiplier;
+                if (multiplier > 0x80 * 0x80 * 0x80) {
+                    return std::make_error_code(std::errc::message_size);
+                }
+                multiplier *= 0x80;
+            } while ((encoded & 0x80) != 0);
+
+            return {};
+        }
+
         friend Reader &operator<<(Reader &inc, IOFlag val) {
             inc._flag = val;
             return inc;
         }
 
+        friend Reader &operator>>(Reader &inc, varInt val) {
+            inc.read(val);
+            return inc;
+        }
 
         template<class T>
         friend Reader &operator>>(Reader &inc, T &val) {

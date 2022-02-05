@@ -10,20 +10,18 @@
 #include <variant>
 
 #include "MQTT.h"
-#include "MQTTWriter.h"
-#include "MQTTReader.h"
 
 namespace network::mqtt {
 
     class MQTTCodec : public InboundOutboundMessageHandler<Buffer, ConnectMessage, ConnAckMessage, PingReqMessage, PingRespMessage> {
         ArrayBuffer<2048> _incBuf;
     private:
-        void handleReadConnect(const Context &ctx, std::istream& inc);
-        void handleReadConnAck(const Context &ctx, std::istream& inc);
-        void handleReadPingReq(const Context &ctx, std::istream& inc);
-        void handleReadPingResp(const Context &ctx, std::istream& inc);
+        void handleReadConnect(const Context &ctx, Reader& inc);
+        void handleReadConnAck(const Context &ctx, Reader& inc);
+        void handleReadPingReq(const Context &ctx, Reader& inc);
+        void handleReadPingResp(const Context &ctx, Reader& inc);
     public:
-        void handleRead(const Context &ctx, const ByteBufferRef<uint8_t> &msg) override;
+        void handleRead(const Context &ctx, const Buffer &msg) override;
 
         void handleWrite(const Context &ctx, const ConnectMessage &msg) override;
 

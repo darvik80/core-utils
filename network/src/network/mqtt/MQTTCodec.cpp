@@ -5,229 +5,198 @@
 #include "MQTTCodec.h"
 
 namespace network::mqtt {
-    void MQTTCodec::handleReadConnect(const Context &ctx, std::istream &inc) {
-        MQTTReader reader;
-
+    void MQTTCodec::handleReadConnect(const Context &ctx, Reader &inc) {
         ConnectMessage msg;
-        msg.setHeader(reader.readUint8(inc));
-        msg.setSize(reader.readVariableInt(inc));
+        inc >> msg._header.all >> msg._size >> msg._protocolName;
 
-        msg.setProtocolName(reader.readString(inc));
         /// 3.1.2.2 Protocol Level
-        msg.setProtocolLevel(reader.readUint8(inc));
+        inc >> msg._protocolLevel;
         if (msg.getProtocolLevel() != 3) {
             fireShutdown();
             return;
         }
         /// 3.1.2.3 Connect Flags
-        msg.setFlags(reader.readUint8(inc));
+        inc >>msg._flags.all;
 
         /// 3.1.2.10 Keep Alive
-        msg.setKeepAlive(reader.readUint16(inc));
+        inc >>msg._keepAlive;
         /// 3.1.3.1 DefaultConnection Identifier
-        msg.setClientId(reader.readString(inc));
+        inc >>msg._clientId;
 
         if (msg.getFlags().bits.willFlag) {
             /// 3.1.3.2 Will Topic
-            msg.setWillTopic(reader.readString(inc));
+            uint16_t size;
+            inc >> size;
+            inc.read(size, msg._willTopic);
             /// 3.1.3.3 Will Message
-            msg.setWillMessage(reader.readString(inc));
+            inc >> size;
+            inc.read(size, msg._willMessage);
         }
 
         if (msg.getFlags().bits.username) {
             /// 3.1.3.4 User Name
-            msg.setUserName(reader.readString(inc));
+            uint16_t size;
+            inc >> size;
+            inc.read(size, msg._userName);
         }
 
         if (msg.getFlags().bits.password) {
             /// 3.1.3.5 Password
-            msg.setPassword(reader.readString(inc));
+            uint16_t size;
+            inc >> size;
+            inc.read(size, msg._password);
         }
 
         fireMessage(ctx, msg);
     }
 
-    void MQTTCodec::handleReadConnAck(const Context &ctx, std::istream &inc) {
-        MQTTReader reader;
-
+    void MQTTCodec::handleReadConnAck(const Context &ctx, Reader &inc) {
         ConnAckMessage msg;
         /// 3.2.1 Fixed header
-        msg.setHeader(reader.readUint8(inc));
-        msg.setSize(reader.readVariableInt(inc));
+        inc >> msg._header.all >> msg._size;
 
         /// 3.2.2 Variable header
         /// 3.2.2.1 Connect Acknowledge Flags
         /// 3.2.2.2 Session Present
-        msg.setFlags(reader.readUint8(inc));
+        inc >> msg._flags.all;
 
         /// 3.2.2.3 Connect Return code
-        msg.setReasonCode(reader.readUint8(inc));
+        inc >> msg._rc;
 
         fireMessage(ctx, msg);
     }
 
-    void MQTTCodec::handleReadPingReq(const Context &ctx, std::istream &inc) {
-        MQTTReader reader;
-
+    void MQTTCodec::handleReadPingReq(const Context &ctx, Reader &inc) {
         PingReqMessage msg;
         /// 3.12.1 Fixed header
-        msg.setHeader(reader.readUint8(inc));
-        msg.setSize(reader.readVariableInt(inc));
+        inc >> msg._header.all >> msg._size;
 
         fireMessage(ctx, msg);
     }
 
-    void MQTTCodec::handleReadPingResp(const Context &ctx, std::istream &inc) {
-        MQTTReader reader;
-
+    void MQTTCodec::handleReadPingResp(const Context &ctx, Reader &inc) {
         PingRespMessage msg;
         /// 3.13.1 Fixed header
-        msg.setHeader(reader.readUint8(inc));
-        msg.setSize(reader.readVariableInt(inc));
+        inc >> msg._header.all >> msg._size;
 
         fireMessage(ctx, msg);
     }
 
     void MQTTCodec::handleRead(const network::Context &ctx, const network::Buffer &msg) {
-        _incBuf.write(msg.readData(), msg.readAvailable());
+        _incBuf.append(msg.data(), msg.size());
 
-        if (_incBuf.readAvailable()) {
-            Reader inc(_incBuf);
+        if (_incBuf.size()) {
+            Reader hdr(_incBuf);
 
             Header header{};
-            inc >> header.all;
-
-            size_t encSize = 0;
-            int multiplier = 1;
-            int result = 0;
-
-            uint8_t encoded = 0;
-            do {
-                if (inc >> encoded; !inc) {
-                    return;
-                }
-
-                encSize++;
-                inc >> encoded;
-                result += (encoded & 0x7F) * multiplier;
-                if (multiplier > 0x80 * 0x80 * 0x80) {
-                    fireShutdown();
-                    return;
-                }
-                multiplier *= 0x80;
-            } while ((encoded & 0x80) != 0);
-
-            if (_incBuf.readAvailable() < result) {
+            varInt size;
+            if (hdr >> header.all >> size; !hdr) {
                 return;
             }
 
+            if (hdr.available() < size) {
+                return;
+            }
+
+            Reader inc(_incBuf);
             switch ((MessageType) header.bits.type) {
                 case MessageType::connect:
-                    handleReadConnect(ctx, stream);
+                    handleReadConnect(ctx, inc);
                     break;
                 case MessageType::conn_ack:
-                    handleReadConnect(ctx, stream);
+                    handleReadConnect(ctx, inc);
                     break;
                 case MessageType::ping_req:
-                    handleReadConnect(ctx, stream);
+                    handleReadConnect(ctx, inc);
                     break;
                 case MessageType::ping_resp:
-                    handleReadConnect(ctx, stream);
+                    handleReadConnect(ctx, inc);
                     break;
                 default:
                     break;
 
             }
-            _incBuf.consume(1 + encSize + available);
+
+            _incBuf.consume(inc.consumed());
         }
     }
 
     void MQTTCodec::handleWrite(const network::Context &ctx, const network::mqtt::ConnectMessage &msg) {
-        ByteBufFix<1024> buf;
-        std::ostream stream(&buf);
+        ArrayBuffer<1024> buf;
+        Writer writer(buf);
 
-        MQTTWriter writer;
         size_t res = 0;
 
         /// 3.1.2.1 Protocol name
-        res += writer.writeString(msg.getProtocolName(), stream);
+        writer << IOFlag::be << (uint16_t)msg.getProtocolName().size() << msg.getProtocolName();
         /// 3.1.2.2 Protocol version
-        res += writer.writeUint8(msg.getProtocolLevel(), stream);
+        writer << msg.getProtocolLevel();
+
         /// 3.1.2.2 Protocol flags
-        res += writer.writeUint8(msg.getFlags().all, stream);
+        writer << msg.getFlags().all;
         /// 3.1.2.10 Keep alive
-        res += writer.writeUint16(msg.getKeepAlive(), stream);
+        writer << msg.getKeepAlive();
 
         /// 3.1.3 Payload
         /// 3.1.3.1 DefaultConnection Id
-        res += writer.writeString(msg.getClientId(), stream);
+        writer << IOFlag::be << (uint16_t)msg.getClientId().size() << msg.getClientId();
 
         if (msg.getFlags().bits.willFlag) {
             /// 3.1.3.2 Will Topic
-            res += writer.writeString(msg.getWillTopic(), stream);
+            writer << IOFlag::be << (uint16_t)msg.getWillTopic().size() << msg.getWillTopic();
             /// 3.1.3.3 Will Message
-            res += writer.writeString(msg.getWillMessage(), stream);
+            writer << IOFlag::be << (uint16_t)msg.getWillMessage().size() << msg.getWillMessage();
         }
 
         if (msg.getFlags().bits.username) {
             /// 3.1.3.4 User Name
-            res += writer.writeString(msg.getUserName(), stream);
+            writer << IOFlag::be << (uint16_t)msg.getUserName().size() << msg.getUserName();
         }
 
         if (msg.getFlags().bits.password) {
             /// 3.1.3.5 Password
-            res += writer.writeString(msg.getPassword(), stream);
+            writer << IOFlag::be << (uint16_t)msg.getPassword().size() << msg.getPassword();
         }
 
-        ByteBufFix<1024> data;
-        std::ostream out(&data);
+        ArrayBuffer<1024> data;
+        Writer out(data);
+        out << msg.getHeader().all << IOFlag::variable << writer.available() << data;
 
-        writer.writeUint8(msg.getHeader().all, out);
-        writer.writeVariableInt(res, out);
-        writer.writeData(data, out);
-
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, data);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const ConnAckMessage &msg) {
-        ByteBufFix<32> buf;
-        std::ostream out(&buf);
+        ArrayBuffer<32> buf;
+        Writer out(buf);
 
-        MQTTWriter writer;
-        size_t res = 0;
-
-        writer.writeUint8(msg.getHeader().all, out);
-        writer.writeVariableInt(2, out);
+        out << msg.getHeader().all << IOFlag::variable << 2;
 
         /// 3.2.2 Variable header
         /// 3.2.2.1 Connect Acknowledge Flags
-        res += writer.writeUint8(msg.getFlags(), out);
+        out << msg.getFlags();
+
         /// 3.2.2.2 Session Present
         /// 3.2.2.3 Connect Return code
-        res += writer.writeUint8(msg.getReasonCode(), out);
+        out << msg.getReasonCode();
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const PingReqMessage &msg) {
-        ByteBufFix<4> buf;
-        std::ostream out(&buf);
+        ArrayBuffer<4> buf;
+        Writer out(buf);
 
-        MQTTWriter writer;
-        writer.writeUint8(msg.getHeader().all, out);
-        writer.writeVariableInt(0, out);
+        out << msg.getHeader().all << IOFlag::variable << 0;
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const PingRespMessage &msg) {
-        ByteBufFix<4> buf;
-        std::ostream out(&buf);
+        ArrayBuffer<4> buf;
+        Writer out(buf);
 
-        MQTTWriter writer;
-        writer.writeUint8(msg.getHeader().all, out);
-        writer.writeVariableInt(0, out);
+        out << msg.getHeader().all << IOFlag::variable << 0;
 
-        write(ctx, ByteBufferRef<uint8_t>{buf});
+        write(ctx, buf);
     }
 }

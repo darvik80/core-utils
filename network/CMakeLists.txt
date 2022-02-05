@@ -17,6 +17,7 @@ file(GLOB SRCS_G
         src/network/zeromq/*.cpp
         src/network/zeromq/v30/*.cpp
         src/network/zeromq/v31/*.cpp
+        src/network/mqtt/*.cpp
         )
 
 set(MAIN_LIBS logging)
@@ -25,3 +26,4 @@ add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
 
 add_subdirectory(example)
+add_subdirectory(testsuite)

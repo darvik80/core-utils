@@ -43,33 +43,30 @@ int main(int argc, char *argv[]) {
                 channel,
                 std::make_shared<handler::NetworkLogger>(),
                 std::make_shared<zeromq::ZeroMQCodec>(),
-                //std::make_shared<zeromq::ZeroMQPublisher>(producer)
-                subscriber
+                std::make_shared<zeromq::ZeroMQPublisher>(producer)
         );
     });
     server.bind(port);
 
-//    auto producer = std::make_shared<zeromq::CompositeProducer>();
-//
-//    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
-//        link(
-//                channel,
-//                std::make_shared<handler::NetworkLogger>(),
-//                std::make_shared<zeromq::ZeroMQCodec>(),
-//                std::make_shared<zeromq::ZeroMQPublisher>(producer)
-//        );
-//    });
-//    client.connect("127.0.0.1", port);
-//
-//    boost::asio::deadline_timer deadline(service);
-//    deadline.expires_from_now(boost::posix_time::seconds(10));
-//    deadline.async_wait([producer](boost::system::error_code err) {
-//        if (!err) {
-//            producer->publish("joystick", "Hello World");
-//            producer->publish("test", "Skipped message");
-//            producer->publish("joystick", "Second message");
-//        }
-//    });
+    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
+        link(
+                channel,
+                std::make_shared<handler::NetworkLogger>(),
+                std::make_shared<zeromq::ZeroMQCodec>(),
+                std::make_shared<zeromq::ZeroMQPublisher>(producer)
+        );
+    });
+    client.connect("127.0.0.1", port);
+
+    boost::asio::deadline_timer deadline(service);
+    deadline.expires_from_now(boost::posix_time::seconds(10));
+    deadline.async_wait([producer](boost::system::error_code err) {
+        if (!err) {
+            producer->publish("joystick", "Hello World");
+            producer->publish("test", "Skipped message");
+            producer->publish("joystick", "Second message");
+        }
+    });
 
     signals.async_wait(
             [&service](boost::system::error_code ec, int signal) {

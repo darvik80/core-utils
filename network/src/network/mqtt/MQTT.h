@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include "network/Buffer.h"
 
 namespace network::mqtt {
 
@@ -52,9 +53,9 @@ namespace network::mqtt {
         } bits;
     } Flags;
 
-    class Message {
+    struct Message {
         Header _header{};
-        uint32_t _size{};
+        varInt _size{};
     public:
         explicit Message(MessageType type) {
             _header.bits.type = (unsigned)type;
@@ -84,19 +85,18 @@ namespace network::mqtt {
             _header.all = header;
         }
 
-        [[nodiscard]] uint32_t getSize() const {
+        [[nodiscard]] varInt getSize() const {
             return _size;
         }
 
-        void setSize(uint32_t size) {
+        void setSize(varInt size) {
             _size = size;
         }
 
         virtual ~Message() = default;
     };
 
-    class ConnectMessage : public Message {
-    private:
+    struct ConnectMessage : public Message {
         std::string _protocolName{"MQIsdp"};
         uint8_t _protocolLevel{3};
         Flags _flags{0};
@@ -201,8 +201,7 @@ namespace network::mqtt {
         RESP_CODE_NOT_AUTHORIZED,                   // DefaultConnection refused, not authorized
     };
 
-    class ConnAckMessage : public Message {
-    private:
+    struct ConnAckMessage : public Message {
         union {
             uint8_t all;    /**< all connack flags */
             struct {
@@ -249,12 +248,12 @@ namespace network::mqtt {
         }
     };
 
-    class PingReqMessage : public Message {
+    struct PingReqMessage : public Message {
     public:
         PingReqMessage() : Message(MessageType::ping_req){ }
     };
 
-    class PingRespMessage : public Message {
+    struct PingRespMessage : public Message {
     public:
         PingRespMessage() : Message(MessageType::ping_resp){ }
     };

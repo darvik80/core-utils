@@ -114,7 +114,6 @@ int main(int argc, char *argv[]) {
 
     app::log::info("service started");
     service.run();
-    //server.shutdown();
 
     return 0;
 }

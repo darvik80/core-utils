@@ -7,6 +7,7 @@ file(GLOB TEST_SRCS
         src/*.cpp
         src/zeromq/v30/*.cpp
         src/zeromq/v31/*.cpp
+        src/mqtt/v31/*.cpp
         )
 
 include_directories(

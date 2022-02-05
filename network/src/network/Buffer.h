@@ -151,6 +151,10 @@ namespace network {
             return _buf.available();
         }
 
+        std::error_code status() {
+            return _code;
+        }
+
         std::error_code write(const uint8_t* data, size_t size) {
             if (_code) {
                 return _code;
@@ -165,7 +169,20 @@ namespace network {
 
         template<class T>
         std::error_code write(IOFlag flag, T val) {
-            if (flag == IOFlag::be) {
+            if (flag == IOFlag::variable) {
+                do {
+                    uint8_t encoded = val % 0x80;
+                    val /= 0x80;
+                    if (val > 0) {
+                        encoded |= 0x80;
+                    }
+
+                    if (auto err = write(&encoded, sizeof(uint8_t)); err) {
+                        return err;
+                    }
+                } while (val > 0);
+                return {};
+            } else if (flag == IOFlag::be) {
                 val = reverse(val);
             }
 
@@ -177,22 +194,6 @@ namespace network {
             return out;
         }
 
-        std::error_code write(varInt val) {
-            size_t res = 0;
-            do {
-                uint8_t encoded = val % 0x80;
-                val /= 0x80;
-                if (val > 0) {
-                    encoded |= 0x80;
-                }
-
-                if (auto err = write(IOFlag::le, encoded); err) {
-                    return err;
-                }
-            } while (val > 0);
-
-            return {};
-        }
 
         friend Writer &operator<<(Writer &out, Buffer& val) {
             out.write(val.data(), val.size());
@@ -235,9 +236,18 @@ namespace network {
             return out;
         }
 
+        friend Writer &operator<<(Writer &out, uint8_t val) {
+            out.write(&val, sizeof(uint8_t));
+            return out;
+        }
+
         template<class T>
         friend Writer &operator<<(Writer &out, T val) {
-            out.write(out._flag, val);
+            if constexpr(std::is_base_of<Buffer, T>::value) {
+                out.write(val.data(), val.size());
+            } else {
+                out.write(out._flag, val);
+            }
             return out;
         }
 
@@ -315,8 +325,27 @@ namespace network {
 
         template<class T>
         std::error_code read(IOFlag flag, T& val) {
-            const auto valSize = sizeof(val);
+            if (flag == IOFlag::variable) {
+                int multiplier = 1;
+                int result = 0;
 
+                uint8_t encoded = 0;
+                do {
+                    if (encoded = read(); status()) {
+                        return status();
+                    }
+                    result += (encoded & 0x7F) * multiplier;
+                    if (multiplier > 0x80 * 0x80 * 0x80) {
+                        return std::make_error_code(std::errc::message_size);
+                    }
+                    multiplier *= 0x80;
+                } while ((encoded & 0x80) != 0);
+
+                val = result;
+                return {};
+            }
+
+            const auto valSize = sizeof(val);
             if (auto err = read((uint8_t*)&val, valSize); err) {
                 return err;
             }
@@ -349,11 +378,6 @@ namespace network {
 
         friend Reader &operator<<(Reader &inc, IOFlag val) {
             inc._flag = val;
-            return inc;
-        }
-
-        friend Reader &operator>>(Reader &inc, varInt val) {
-            inc.read(val);
             return inc;
         }
 

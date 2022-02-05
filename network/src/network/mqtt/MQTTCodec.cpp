@@ -125,8 +125,6 @@ namespace network::mqtt {
         ArrayBuffer<1024> buf;
         Writer writer(buf);
 
-        size_t res = 0;
-
         /// 3.1.2.1 Protocol name
         writer << IOFlag::be << (uint16_t)msg.getProtocolName().size() << msg.getProtocolName();
         /// 3.1.2.2 Protocol version

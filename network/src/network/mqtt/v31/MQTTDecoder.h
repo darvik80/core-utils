@@ -1,0 +1,130 @@
+//
+// Created by Ivan Kishchenko on 05.02.2022.
+//
+
+#pragma once
+
+#include "network/mqtt/MQTTDecoder.h"
+
+namespace network::mqtt::v31 {
+
+    class MQTTDecoder : public network::mqtt::MQTTDecoder {
+    private:
+        void handleReadConnect(Reader& inc) {
+            ConnectMessage msg;
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            uint16_t size;
+            inc << IOFlag::be >> size;
+            inc << size >> msg._protocolName;
+
+            /// 3.1.2.2 Protocol Level
+            inc << IOFlag::be >> msg._protocolLevel;
+            if (msg.getProtocolLevel() != 3) {
+                return;
+            }
+            /// 3.1.2.3 Connect Flags
+            inc >> msg._flags.all;
+
+            /// 3.1.2.10 Keep Alive
+            inc >> msg._keepAlive;
+            /// 3.1.3.1 DefaultConnection Identifier
+            inc << IOFlag::be >> size;
+            inc << size >> msg._clientId;
+
+            if (msg.getFlags().bits.willFlag) {
+                /// 3.1.3.2 Will Topic
+                inc >> size;
+                inc.read(size, msg._willTopic);
+                /// 3.1.3.3 Will Message
+                inc >> size;
+                inc.read(size, msg._willMessage);
+            }
+
+            if (msg.getFlags().bits.username) {
+                /// 3.1.3.4 User Name
+                inc << IOFlag::be >> size;
+                inc.read(size, msg._userName);
+            }
+
+            if (msg.getFlags().bits.password) {
+                /// 3.1.3.5 Password
+                inc << IOFlag::be >> size;
+                inc.read(size, msg._password);
+            }
+
+            _connHandler(msg);
+        }
+
+        void handleReadConnAck(Reader& inc) {
+            ConnAckMessage msg;
+            /// 3.2.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.2.2 Variable header
+            /// 3.2.2.1 Connect Acknowledge Flags
+            /// 3.2.2.2 Session Present
+            inc >> msg._flags.all;
+
+            /// 3.2.2.3 Connect Return code
+            inc >> msg._rc;
+
+            _connAckHandler(msg);
+        }
+
+        void handleReadPingReq(Reader& inc) {
+            PingReqMessage msg;
+            /// 3.2.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            _pingHandler(msg);
+        }
+
+        void handleReadPingResp(Reader& inc) {
+            PingRespMessage msg;
+            /// 3.2.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            _pongHandler(msg);
+        }
+    public:
+        std::error_code read(Buffer &buf) override {
+            Reader hdr(buf);
+
+            Header header{};
+            varInt size = 0;
+            if (hdr >> header.all << IOFlag::variable >> size; !hdr) {
+                return std::make_error_code(std::errc::message_size);
+            }
+
+            if (hdr.available() < size) {
+                return std::make_error_code(std::errc::message_size);
+            }
+
+            Reader inc(buf);
+            switch ((MessageType) header.bits.type) {
+                case MessageType::connect:
+                    handleReadConnect(inc);
+                    break;
+                case MessageType::conn_ack:
+                    handleReadConnAck(inc);
+                    break;
+                case MessageType::ping_req:
+                    handleReadPingReq(inc);
+                    break;
+                case MessageType::ping_resp:
+                    handleReadPingResp(inc);
+                    break;
+                default:
+                    break;
+
+            }
+
+            buf.consume(inc.consumed());
+
+
+            return {};
+        }
+    };
+}
+

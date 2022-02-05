@@ -3,12 +3,6 @@
 //
 
 #include "ZeroMQDecoderTest.h"
-
-//
-// Created by Ivan Kishchenko on 05.02.2022.
-//
-
-#include "ZeroMQEncoderTest.h"
 #include "ZeroMQTestData.h"
 #include "network/zeromq/v31/ZeroMQDecoder.h"
 
@@ -36,7 +30,7 @@ namespace network::zeromq::v31 {
             ZeroMQDecoder decoder;
             decoder.onCommand([](ZeroMQCommand &cmd) {
                 BOOST_REQUIRE_EQUAL(ZERO_MQ_CMD_SUBSCRIBE, cmd.getName().c_str());
-                BOOST_REQUIRE_EQUAL("Test", cmd.props[ZERO_MQ_PROP_SUBSCRIPTION]);
+                BOOST_REQUIRE_EQUAL("test", cmd.props[ZERO_MQ_PROP_SUBSCRIPTION]);
             });
             BOOST_REQUIRE_EQUAL(0, decoder.read(buf).value());
         }

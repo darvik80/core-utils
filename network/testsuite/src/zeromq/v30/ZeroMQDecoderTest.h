@@ -6,9 +6,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-namespace network::zeromq::v31 {
+namespace network::zeromq::v30 {
 
-    class ZeroMQDecoderV31Fixture {
+    class ZeroMQDecoderV30Fixture {
 
     };
 

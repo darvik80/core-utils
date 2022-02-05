@@ -8,7 +8,7 @@
 
 namespace network::zeromq::v31 {
 
-    class ZeroMQEncoderFixture {
+    class ZeroMQEncoderV31Fixture {
 
     };
 

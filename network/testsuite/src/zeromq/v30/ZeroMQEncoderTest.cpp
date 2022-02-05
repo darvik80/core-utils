@@ -4,13 +4,13 @@
 
 #include "ZeroMQEncoderTest.h"
 #include "ZeroMQTestData.h"
-#include "network/zeromq/v31/ZeroMQEncoder.h"
+#include "network/zeromq/v30/ZeroMQEncoder.h"
 
-namespace network::zeromq::v31 {
+namespace network::zeromq::v30 {
 
-    BOOST_FIXTURE_TEST_SUITE(ZeroMQEncoderV31Test, ZeroMQEncoderV31Fixture)
+    BOOST_FIXTURE_TEST_SUITE(ZeroMQEncoderV30Test, ZeroMQEncoderV30Fixture)
 
-        BOOST_AUTO_TEST_CASE(testCmdReadyEncode) {
+        BOOST_AUTO_TEST_CASE(testCmdEncode) {
             ZeroMQEncoder encoder;
 
             ZeroMQCommand cmd(ZERO_MQ_CMD_READY);
@@ -20,8 +20,6 @@ namespace network::zeromq::v31 {
             std::error_code success;
             BOOST_REQUIRE_EQUAL(success, encoder.write(buf, cmd));
             BOOST_REQUIRE_EQUAL(27, buf.size());
-
-            BOOST_REQUIRE_EQUAL_COLLECTIONS(&rawCmdReady[0], &rawCmdReady[26], &buf.data()[0], &buf.data()[26]);
         }
 
         BOOST_AUTO_TEST_CASE(testCmdSubEncode) {
@@ -33,9 +31,9 @@ namespace network::zeromq::v31 {
             network::ArrayBuffer<128> buf;
             std::error_code success;
             BOOST_REQUIRE_EQUAL(success, encoder.write(buf, cmd));
-            BOOST_REQUIRE_EQUAL(16, buf.size());
+            BOOST_REQUIRE_EQUAL(7, buf.size());
 
-            BOOST_REQUIRE_EQUAL_COLLECTIONS(&rawCmdSub[0], &rawCmdSub[15], &buf.data()[0], &buf.data()[15]);
+            BOOST_REQUIRE_EQUAL_COLLECTIONS(&rawCmdSub[0], &rawCmdSub[6], &buf.data()[0], &buf.data()[6]);
         }
 
         BOOST_AUTO_TEST_CASE(testMsgEncode) {

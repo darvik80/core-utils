@@ -5,6 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fvisibility=hidden")
 
 file(GLOB TEST_SRCS
         src/*.cpp
+        src/zeromq/v30/*.cpp
         src/zeromq/v31/*.cpp
         )
 

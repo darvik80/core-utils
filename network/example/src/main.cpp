@@ -37,25 +37,60 @@ int main(int argc, char *argv[]) {
         logger::info("sub: {}:{}", topic, data);
     });
 
-    auto producer = std::make_shared<zeromq::CompositeProducer>();
-    AsyncTcpServer server(service, [subscriber, producer](const std::shared_ptr<AsyncChannel> &channel) {
-        link(
-                channel,
-                std::make_shared<handler::NetworkLogger>(),
-                std::make_shared<zeromq::ZeroMQCodec>(),
-                std::make_shared<zeromq::ZeroMQPublisher>(producer)
-        );
-    });
+//    AsyncServer<SslSocket> server(
+//            service,
+//            [subscriber](const std::shared_ptr<AsyncChannel<SslSocket>> &channel) {
+//                link(
+//                        channel,
+//                        std::make_shared<handler::NetworkLogger>(),
+//                        std::make_shared<zeromq::ZeroMQCodec>(),
+//                        subscriber
+//                );
+//            },
+//            "/Users/darvik/server.pem",
+//            "/Users/darvik/server_key.pem"
+//    );
+    AsyncServer<TcpSocket> server(
+            service,
+            [subscriber](const std::shared_ptr<AsyncChannel<TcpSocket>> &channel) {
+                link(
+                        channel,
+                        std::make_shared<handler::NetworkLogger>(),
+                        std::make_shared<zeromq::ZeroMQCodec>(),
+                        subscriber
+                );
+            }
+    );
+
     server.bind(port);
 
-    AsyncTcpClient client(service, [producer](const std::shared_ptr<AsyncChannel> &channel) {
-        link(
-                channel,
-                std::make_shared<handler::NetworkLogger>(),
-                std::make_shared<zeromq::ZeroMQCodec>(),
-                std::make_shared<zeromq::ZeroMQPublisher>(producer)
-        );
-    });
+    auto producer = std::make_shared<zeromq::CompositeProducer>();
+//    AsyncClient<SslSocket> client(
+//            service,
+//            [producer](const std::shared_ptr<AsyncChannel<SslSocket>> &channel) {
+//                link(
+//                        channel,
+//                        std::make_shared<handler::NetworkLogger>(),
+//                        std::make_shared<zeromq::ZeroMQCodec>(),
+//                        std::make_shared<zeromq::ZeroMQPublisher>(producer)
+//                );
+//            },
+//            "/Users/darvik/server.pem"
+//    );
+
+    AsyncClient<TcpSocket> client(
+            service,
+            [producer](const std::shared_ptr<AsyncChannel<TcpSocket>> &channel) {
+                link(
+                        channel,
+                        std::make_shared<handler::NetworkLogger>(),
+                        std::make_shared<zeromq::ZeroMQCodec>(),
+                        std::make_shared<zeromq::ZeroMQPublisher>(producer)
+                );
+            },
+            "/Users/darvik/server.pem"
+    );
+
     client.connect("127.0.0.1", port);
 
     boost::asio::deadline_timer deadline(service);

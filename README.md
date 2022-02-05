@@ -20,7 +20,7 @@ LOG_COMPONENT_SETUP(em, em_logger);
 #### main.cpp
 
 ```cpp
-#include "Logging"
+#include "Logging.h"
 
 int main(int argc, char *argv[]) {
     logger::LoggingProperties logProps;

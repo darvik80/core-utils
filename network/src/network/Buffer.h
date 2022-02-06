@@ -44,6 +44,7 @@ namespace network {
     public:
         Buffer()
                 : _pointer(nullptr), _capacity(0), _pos(0) {}
+
         Buffer(uint8_t *pointer, size_t size)
                 : _pointer(pointer), _capacity(size), _pos(size) {}
 
@@ -83,7 +84,7 @@ namespace network {
                 size = _pos;
             }
 
-            std::memcpy(_pointer, _pointer + size, _pos-size);
+            std::memcpy(_pointer, _pointer + size, _pos - size);
             _pos -= size;
         }
 
@@ -155,7 +156,7 @@ namespace network {
             return _code;
         }
 
-        std::error_code write(const uint8_t* data, size_t size) {
+        std::error_code write(const uint8_t *data, size_t size) {
             if (_code) {
                 return _code;
             }
@@ -195,7 +196,7 @@ namespace network {
         }
 
 
-        friend Writer &operator<<(Writer &out, Buffer& val) {
+        friend Writer &operator<<(Writer &out, Buffer &val) {
             out.write(val.data(), val.size());
             return out;
         }
@@ -213,25 +214,19 @@ namespace network {
         }
 
         friend Writer &operator<<(Writer &out, const std::string &val) {
-            if (out._code) {
-                return out;
-            }
+            out.write((const uint8_t *) val.data(), val.size());
 
-            if (auto err = out._buf.append((const uint8_t *) val.data(), val.size()); err) {
-                out._code = err;
-            }
+            return out;
+        }
+
+        friend Writer &operator<<(Writer &out, const std::vector<uint8_t> &val) {
+            out.write((const uint8_t *) val.data(), val.size());
 
             return out;
         }
 
         friend Writer &operator<<(Writer &out, const char *val) {
-            if (out._code) {
-                return out;
-            }
-
-            if (auto err = out._buf.append((const uint8_t *) val, std::strlen(val)); err) {
-                out._code = err;
-            }
+            out.write((const uint8_t *) val, std::strlen(val));
 
             return out;
         }
@@ -278,7 +273,7 @@ namespace network {
         size_t _pos{};
 
     private:
-        const uint8_t* data() {
+        const uint8_t *data() {
             return _buf.data() + _pos;
         }
 
@@ -306,7 +301,7 @@ namespace network {
             return _buf.data()[_pos++];
         }
 
-        std::error_code read(uint8_t* ptr, size_t size) {
+        std::error_code read(uint8_t *ptr, size_t size) {
             if (available() < size) {
                 _code = std::make_error_code(std::errc::message_size);
             } else {
@@ -318,13 +313,13 @@ namespace network {
             return _code;
         }
 
-        std::error_code read(size_t size, std::string& str) {
+        std::error_code read(size_t size, std::string &str) {
             str.resize(size);
-            return read((uint8_t*)str.data(), size);
+            return read((uint8_t *) str.data(), size);
         }
 
         template<class T>
-        std::error_code read(IOFlag flag, T& val) {
+        std::error_code read(IOFlag flag, T &val) {
             if (flag == IOFlag::variable) {
                 int multiplier = 1;
                 int result = 0;
@@ -346,7 +341,7 @@ namespace network {
             }
 
             const auto valSize = sizeof(val);
-            if (auto err = read((uint8_t*)&val, valSize); err) {
+            if (auto err = read((uint8_t *) &val, valSize); err) {
                 return err;
             }
 
@@ -357,7 +352,7 @@ namespace network {
             return {};
         }
 
-        std::error_code read(varInt& val) {
+        std::error_code read(varInt &val) {
             int multiplier = 1;
             int result = 0;
 
@@ -394,7 +389,18 @@ namespace network {
 
         friend Reader &operator>>(Reader &inc, std::string &val) {
             if (inc._expectingSize > inc.available()) {
-                inc._code =std::make_error_code(std::errc::message_size);
+                inc._code = std::make_error_code(std::errc::message_size);
+            } else {
+                val.resize(inc._expectingSize);
+                inc.read((uint8_t *) val.data(), val.size());
+            }
+
+            return inc;
+        }
+
+        friend Reader &operator>>(Reader &inc, std::vector<uint8_t> &val) {
+            if (inc._expectingSize > inc.available()) {
+                inc._code = std::make_error_code(std::errc::message_size);
             } else {
                 val.resize(inc._expectingSize);
                 inc.read((uint8_t *) val.data(), val.size());

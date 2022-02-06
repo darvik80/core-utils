@@ -83,5 +83,4 @@ namespace network::zeromq {
 
         write(ctx, buf);
     }
-
 }

@@ -20,6 +20,7 @@ namespace network::zeromq {
         ZeroMQMessageHandler _msgHandler;
     public:
         typedef std::shared_ptr<ZeroMQDecoder> Ptr;
+
         virtual std::error_code read(Buffer &buf) = 0;
 
         void onCommand(const ZeroMQCommandHandler &handler) {

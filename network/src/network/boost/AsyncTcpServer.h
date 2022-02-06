@@ -19,7 +19,7 @@ namespace network {
     template<typename Socket>
     class AsyncServer {
     public:
-        typedef std::function<void(const std::shared_ptr<AsyncChannel< Socket>> &)> Callback;
+        typedef std::function<void(const std::shared_ptr<AsyncChannel<Socket>> &)> Callback;
     private:
         boost::asio::ssl::context _context;
         boost::asio::ip::tcp::acceptor _acceptor;
@@ -83,7 +83,7 @@ namespace network {
                 : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server), _callback(std::move(callback)) {
         }
 
-        explicit AsyncServer(boost::asio::io_service &service, Callback callback, const std::string& certFile, const std::string& keyFile)
+        explicit AsyncServer(boost::asio::io_service &service, Callback callback, const std::string &certFile, const std::string &keyFile)
                 : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server), _callback(std::move(callback)) {
             _context.use_certificate_file(certFile, boost::asio::ssl::context::pem);
             _context.use_private_key_file(keyFile, boost::asio::ssl::context::pem);
@@ -102,7 +102,7 @@ namespace network {
         void shutdown() {
             _acceptor.close();
             network::log::info("[net] shutdown tcp server");
-            for (auto& channel : _channels) {
+            for (auto &channel: _channels) {
                 network::log::info("[net] shutdown tcp client");
                 channel->handleShutdown();
             }

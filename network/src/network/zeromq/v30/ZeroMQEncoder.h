@@ -21,9 +21,9 @@ namespace network::zeromq::v30 {
             }
 
             if (expected > UINT8_MAX) {
-                writer << (uint8_t)(flag_msg | flag_long) << expected;
+                writer << (uint8_t) (flag_msg | flag_long) << expected;
             } else {
-                writer << (uint8_t)(flag_msg) << (uint8_t)expected;
+                writer << (uint8_t) (flag_msg) << (uint8_t) expected;
             }
 
             writer << subFlag << topic;
@@ -44,9 +44,9 @@ namespace network::zeromq::v30 {
             }
 
             if (expected > UINT8_MAX) {
-                writer << (uint8_t)(flag_cmd | flag_long) << expected;
+                writer << (uint8_t) (flag_cmd | flag_long) << expected;
             } else {
-                writer << (uint8_t)(flag_cmd) << (uint8_t)expected;
+                writer << (uint8_t) (flag_cmd) << (uint8_t) expected;
             }
 
             writer << (uint8_t) cmd.name.size() << cmd.name;
@@ -82,11 +82,11 @@ namespace network::zeromq::v30 {
             }
 
             for (size_t idx = 0; idx < msg.data.size(); idx++) {
-                uint8_t  flag = (idx < (msg.data.size() - 1) ? flag_more : flag_msg);
+                uint8_t flag = (idx < (msg.data.size() - 1) ? flag_more : flag_msg);
                 if (expected > UINT8_MAX) {
-                    writer << (uint8_t)(flag | flag_long) << expected;
+                    writer << (uint8_t) (flag | flag_long) << expected;
                 } else {
-                    writer << (uint8_t)(flag) << (uint8_t)expected;
+                    writer << (uint8_t) (flag) << (uint8_t) expected;
                 }
                 writer << msg.data[idx];
             }

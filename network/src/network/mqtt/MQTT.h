@@ -58,7 +58,7 @@ namespace network::mqtt {
         varInt _size{};
     public:
         explicit Message(MessageType type) {
-            _header.bits.type = (unsigned)type;
+            _header.bits.type = (unsigned) type;
         }
 
         void setQos(uint8_t qos) {
@@ -110,9 +110,11 @@ namespace network::mqtt {
         std::string _userName;
         std::string _password;
     public:
-        ConnectMessage() : Message(MessageType::connect){ }
+        ConnectMessage()
+                : Message(MessageType::connect) {}
 
-        ConnectMessage(std::string_view clientId) : Message(MessageType::connect), _clientId(clientId) { }
+        ConnectMessage(std::string_view clientId)
+                : Message(MessageType::connect), _clientId(clientId) {}
 
         [[nodiscard]] const std::string &getProtocolName() const {
             return _protocolName;
@@ -156,6 +158,7 @@ namespace network::mqtt {
         }
 
         void setUserName(std::string_view userName) {
+            _flags.bits.username = true;
             _userName = userName;
         }
 
@@ -164,6 +167,7 @@ namespace network::mqtt {
         }
 
         void setPassword(std::string_view password) {
+            _flags.bits.password = true;
             _password = password;
         }
 
@@ -205,18 +209,20 @@ namespace network::mqtt {
         union {
             uint8_t all;    /**< all connack flags */
             struct {
-                bool sessionPresent : 1;    /**< was a session found on the server? */
-                unsigned int reserved : 7;    /**< message type nibble */
+                bool sessionPresent: 1;    /**< was a session found on the server? */
+                unsigned int reserved: 7;    /**< message type nibble */
             } bits;
         } _flags{};     /**< connack flags byte */
         uint8_t _rc{}; /**< connack reason code */
     public:
-        ConnAckMessage() : Message(MessageType::conn_ack){ }
+        ConnAckMessage()
+                : Message(MessageType::conn_ack) {}
 
         [[nodiscard]] uint8_t getReasonCode() const {
             return _rc;
         }
-        [[nodiscard]] const char* getReasonCodeDescription() const {
+
+        [[nodiscard]] const char *getReasonCodeDescription() const {
             switch (_rc) {
                 case RESP_CODE_ACCEPTED:
                     return "DefaultConnection accepted";
@@ -250,11 +256,180 @@ namespace network::mqtt {
 
     struct PingReqMessage : public Message {
     public:
-        PingReqMessage() : Message(MessageType::ping_req){ }
+        PingReqMessage()
+                : Message(MessageType::ping_req) {}
     };
 
     struct PingRespMessage : public Message {
     public:
-        PingRespMessage() : Message(MessageType::ping_resp){ }
+        PingRespMessage()
+                : Message(MessageType::ping_resp) {}
+    };
+
+    struct MessagePacketIdentifier {
+        uint16_t _packetIdentifier{};
+    public:
+        [[nodiscard]] uint16_t getPacketIdentifier() const {
+            return _packetIdentifier;
+        }
+
+        void setPacketIdentifier(uint16_t packetIdentifier) {
+            _packetIdentifier = packetIdentifier;
+        }
+    };
+
+
+    struct PublishMessage : public Message, public MessagePacketIdentifier {
+        std::string _topic;
+        std::vector<uint8_t> _message;
+    public:
+        PublishMessage(std::string_view topic, uint16_t packetIdentifier)
+                : Message(MessageType::publish), _topic(topic) {
+            setRetain(true);
+            setPacketIdentifier(packetIdentifier);
+        }
+
+        PublishMessage(std::string_view topic, std::string_view data)
+                : Message(MessageType::publish), _topic(topic) {
+            setMessage(data);
+        }
+
+        PublishMessage(std::string_view topic, uint8_t qos, uint16_t packetIdentifier, std::string_view data)
+                : Message(MessageType::publish), _topic(topic) {
+            setQos(qos);
+            setPacketIdentifier(packetIdentifier);
+            setMessage(data);
+        }
+
+        PublishMessage(std::string_view topic, uint8_t qos, uint16_t packetIdentifier, const std::vector<uint8_t> &data)
+                : Message(MessageType::publish), _topic(topic) {
+            setRetain(true);
+            setQos(qos);
+            setPacketIdentifier(_packetIdentifier);
+            setMessage(data);
+        }
+
+        PublishMessage()
+                : Message(MessageType::publish) {
+            setRetain(true);
+        }
+
+        [[nodiscard]] const std::string &getTopic() const {
+            return _topic;
+        }
+
+        void setTopic(std::string_view topic) {
+            _topic = topic;
+        }
+
+        [[nodiscard]] const std::vector<uint8_t> &getMessage() const {
+            return _message;
+        }
+
+        void setMessage(const std::vector<uint8_t> &message) {
+            _message = message;
+        }
+
+        void setMessage(const uint8_t *message, size_t size) {
+            _message.resize(size);
+            std::memcpy(_message.data(), message, size);
+        }
+
+        void setMessage(std::string_view message) {
+            _message.resize(message.size());
+            std::memcpy(_message.data(), message.data(), message.size());
+        }
+    };
+
+    class PubAckMessage : public Message, public MessagePacketIdentifier {
+    public:
+        explicit PubAckMessage(uint16_t id)
+                : Message(MessageType::pub_ack) {
+            setPacketIdentifier(id);
+        }
+
+        PubAckMessage()
+                : Message(MessageType::pub_ack) {}
+    };
+
+    class PubRecMessage : public Message, public MessagePacketIdentifier {
+    public:
+        PubRecMessage()
+                : Message(MessageType::pub_rec) {}
+    };
+
+    class PubRelMessage : public Message, public MessagePacketIdentifier {
+    public:
+        PubRelMessage()
+                : Message(MessageType::pub_rel) {}
+    };
+
+    class PubCompMessage : public Message, public MessagePacketIdentifier {
+    public:
+        PubCompMessage()
+                : Message(MessageType::pub_comp) {}
+    };
+
+    class SubscribePayload {
+    private:
+        std::string _topicFilter;
+        union {
+            uint8_t all;    /**< all connack flags */
+            struct {
+                unsigned int reserved: 7;    /**< message type nibble */
+                unsigned int qos: 3;    /**< message type nibble */
+            } bits;
+        } _requestedQos{};     /**< connack flags byte */
+    public:
+        SubscribePayload(std::string_view topicFilter, uint8_t qos)
+                : _topicFilter(topicFilter) {
+            _requestedQos.all = qos;
+        }
+
+        [[nodiscard]] const std::string &getTopicFilter() const {
+            return _topicFilter;
+        }
+
+        [[nodiscard]] uint8_t getQos() const {
+            return _requestedQos.all;
+        }
+    };
+
+    class SubscribeMessage : public Message, public MessagePacketIdentifier {
+    private:
+        std::vector<SubscribePayload> _topics;
+    public:
+        SubscribeMessage()
+                : Message(MessageType::subscribe) {}
+
+        SubscribeMessage(std::string_view topicFilter, uint8_t qos, uint16_t pid)
+                : Message(MessageType::subscribe) {
+            addTopic(topicFilter, qos);
+            setPacketIdentifier(pid);
+        }
+
+        [[nodiscard]] const std::vector<SubscribePayload> &getTopics() const {
+            return _topics;
+        }
+
+
+        void addTopic(std::string_view topicFilter, uint8_t qos) {
+            _topics.emplace_back(topicFilter.data(), qos);
+        }
+    };
+
+    struct SubAckMessage : public Message, public MessagePacketIdentifier {
+        uint8_t _returnCode{};
+    public:
+        SubAckMessage()
+                : Message(MessageType::sub_ack) {}
+
+        [[nodiscard]] uint8_t getReturnCode() const {
+            return _returnCode;
+        }
+
+        void setReturnCode(uint8_t returnCode) {
+            _returnCode = returnCode;
+        }
     };
 }

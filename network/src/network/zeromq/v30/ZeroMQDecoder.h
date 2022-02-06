@@ -24,7 +24,7 @@ namespace network::zeromq::v30 {
             if (flag & flag_long) {
                 reader >> size;
             } else {
-                reader >> (uint8_t&)size;
+                reader >> (uint8_t &) size;
             }
 
             if (!reader) {
@@ -85,14 +85,14 @@ namespace network::zeromq::v30 {
                     if (_msg->data.size() == 1 && !(flag & flag_long) && _msg->data[0].size() > 1) {
                         if (_msg->data[0][0] == 0x01) {
                             ZeroMQCommand cmd{ZERO_MQ_CMD_SUBSCRIBE};
-                            cmd.props.emplace(ZERO_MQ_PROP_SUBSCRIPTION, std::string(_msg->data[0].begin()+1, _msg->data[0].end()));
+                            cmd.props.emplace(ZERO_MQ_PROP_SUBSCRIPTION, std::string(_msg->data[0].begin() + 1, _msg->data[0].end()));
                             if (_cmdHandler) {
                                 _cmdHandler(cmd);
                             }
                             return {};
                         } else if (_msg->data[0][0] == 0x00) {
                             ZeroMQCommand cmd{ZERO_MQ_CMD_CANCEL};
-                            cmd.props.emplace(ZERO_MQ_PROP_SUBSCRIPTION, std::string(_msg->data[0].begin()+1, _msg->data[0].end()));
+                            cmd.props.emplace(ZERO_MQ_PROP_SUBSCRIPTION, std::string(_msg->data[0].begin() + 1, _msg->data[0].end()));
                             if (_cmdHandler) {
                                 _cmdHandler(cmd);
                             }

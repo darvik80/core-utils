@@ -16,9 +16,21 @@ namespace network::mqtt {
     class MQTTEncoder {
     public:
         typedef std::shared_ptr<MQTTEncoder> Ptr;
+
         virtual std::error_code write(Buffer &buf, const ConnectMessage &msg) = 0;
+
         virtual std::error_code write(Buffer &buf, const ConnAckMessage &msg) = 0;
+
         virtual std::error_code write(Buffer &buf, const PingReqMessage &msg) = 0;
+
         virtual std::error_code write(Buffer &buf, const PingRespMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const PublishMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const PubAckMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const SubscribeMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const SubAckMessage &msg) = 0;
     };
 }

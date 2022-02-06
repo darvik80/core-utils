@@ -34,7 +34,7 @@ namespace network {
                     boost::asio::buffer(_incBuf.data(), _incBuf.size()),
                     [this, self](boost::system::error_code err, std::size_t size) {
                         if (size > 0) {
-                            network::log::debug("[net] onRead: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
+                            //network::log::debug("[net] onRead: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
                             Buffer ref(_incBuf.data(), size);
                             handleRead(_ctx, ref);
                             if (!err) {
@@ -60,7 +60,7 @@ namespace network {
                         boost::asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
                         [this, self](boost::system::error_code err, std::size_t size) {
                             if (!err) {
-                                network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
+                                //network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
                                 doWrite();
                             } else {
                                 handleError(_ctx, err);
@@ -76,9 +76,9 @@ namespace network {
                 : _socket(std::move(socket)) {
             _incBuf.resize(2048);
 
-            if constexpr(std::is_base_of<SslSocket , Socket>::value) {
+            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
                 _socket.set_verify_mode(boost::asio::ssl::verify_peer);
-                _socket.set_verify_callback([](bool preverified, boost::asio::ssl::verify_context& ctx) -> bool {
+                _socket.set_verify_callback([](bool preverified, boost::asio::ssl::verify_context &ctx) -> bool {
                     // The verify callback can be used to check whether the certificate that is
                     // being presented is valid for the peer. For example, RFC 2818 describes
                     // the steps involved in doing this for HTTPS. Consult the OpenSSL
@@ -88,21 +88,21 @@ namespace network {
 
                     // In this example we will simply print the certificate's subject name.
                     char subject_name[256];
-                    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+                    X509 *cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
                     X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
-                    network::log::info("Verifying {}, {}", subject_name, preverified);
+                    network::log::info("verifying {}, {}", subject_name, preverified);
 
                     return preverified;
                 });
 
                 _ctx.address = _socket.lowest_layer().remote_endpoint().address().to_string();
                 _ctx.port = _socket.lowest_layer().remote_endpoint().port();
-                network::log::info("[net] init ssl channel: {}:{}", _ctx.address, _ctx.port);
+                network::log::info("init ssl channel: {}:{}", _ctx.address, _ctx.port);
             }
-            if constexpr(std::is_base_of<TcpSocket , Socket>::value) {
+            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
                 _ctx.address = _socket.remote_endpoint().address().to_string();
                 _ctx.port = _socket.remote_endpoint().port();
-                network::log::info("[net] init tcp channel: {}:{}", _ctx.address, _ctx.port);
+                network::log::info("init tcp channel: {}:{}", _ctx.address, _ctx.port);
             }
         }
 
@@ -111,18 +111,18 @@ namespace network {
         }
 
         void handleShutdown() override {
-            if constexpr(std::is_base_of<SslSocket , Socket>::value) {
+            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
                 if (_socket.lowest_layer().is_open()) {
                     handleInactive(_ctx);
                     _socket.lowest_layer().close();
-                    network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
+                    //network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
                 }
             }
-            if constexpr(std::is_base_of<TcpSocket , Socket>::value) {
+            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
                 if (_socket.is_open()) {
                     handleInactive(_ctx);
                     _socket.close();
-                    network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
+                    //network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
                 }
             }
 
@@ -130,14 +130,14 @@ namespace network {
         }
 
         void handleActive(const Context &ctx) override {
-            network::log::debug("[net] onActive: {}:{}", ctx.address, ctx.port);
+            //network::log::debug("[net] onActive: {}:{}", ctx.address, ctx.port);
             InboundMessageHandler<Buffer, Buffer>::handleActive(ctx);
             doRead();
         }
 
         void handleInactive(const Context &ctx) override {
             InboundMessageHandler<Buffer, Buffer>::handleInactive(ctx);
-            network::log::debug("[net] onInactive: {}:{}", ctx.address, ctx.port);
+            //network::log::debug("[net] onInactive: {}:{}", ctx.address, ctx.port);
         }
 
         void handleRead(const Context &ctx, const Buffer &event)
@@ -155,7 +155,7 @@ namespace network {
                         boost::asio::buffer(_outBufs.front().data(), _outBufs.front().size()),
                         [this](boost::system::error_code err, std::size_t size) {
                             if (!err) {
-                                network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
+                                //network::log::debug("[net] onWrite: {}:{}, capacity: {}", _ctx.address, _ctx.port, size);
                                 doWrite();
                             } else {
                                 handleError(_ctx, err);
@@ -167,15 +167,8 @@ namespace network {
         }
 
         void handleError(const Context &ctx, std::error_code err) override {
-            network::log::warning("[net] onError: {}:{}, {}", ctx.address, ctx.port, err.message());
+            //network::log::warning("[net] onError: {}:{}, {}", ctx.address, ctx.port, err.message());
             InboundMessageHandler<Buffer, Buffer>::handleError(ctx, err);
-        }
-
-        void shutdown();
-
-        ~AsyncChannel()
-        override {
-            network::log::debug("~Channel");
         }
     };
 }

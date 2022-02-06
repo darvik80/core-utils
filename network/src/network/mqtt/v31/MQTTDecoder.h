@@ -10,7 +10,7 @@ namespace network::mqtt::v31 {
 
     class MQTTDecoder : public network::mqtt::MQTTDecoder {
     private:
-        void handleReadConnect(Reader& inc) {
+        void handleReadConnect(Reader &inc) {
             ConnectMessage msg;
             inc >> msg._header.all << IOFlag::variable >> msg._size;
 
@@ -56,7 +56,7 @@ namespace network::mqtt::v31 {
             _connHandler(msg);
         }
 
-        void handleReadConnAck(Reader& inc) {
+        void handleReadConnAck(Reader &inc) {
             ConnAckMessage msg;
             /// 3.2.1 Fixed header
             inc >> msg._header.all << IOFlag::variable >> msg._size;
@@ -72,7 +72,7 @@ namespace network::mqtt::v31 {
             _connAckHandler(msg);
         }
 
-        void handleReadPingReq(Reader& inc) {
+        void handleReadPingReq(Reader &inc) {
             PingReqMessage msg;
             /// 3.2.1 Fixed header
             inc >> msg._header.all << IOFlag::variable >> msg._size;
@@ -80,13 +80,87 @@ namespace network::mqtt::v31 {
             _pingHandler(msg);
         }
 
-        void handleReadPingResp(Reader& inc) {
+        void handleReadPingResp(Reader &inc) {
             PingRespMessage msg;
             /// 3.2.1 Fixed header
             inc >> msg._header.all << IOFlag::variable >> msg._size;
 
             _pongHandler(msg);
         }
+
+        void handleReadPublish(Reader &inc) {
+            PublishMessage msg;
+            /// 3.2.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            uint16_t size;
+            inc << IOFlag::be >> size;
+            inc << size >> msg._topic;
+
+            if (msg._header.bits.qos) {
+                /// 3.3.2.2 Packet Identifier
+                inc << IOFlag::be >> msg._packetIdentifier;
+            }
+
+            inc << IOFlag::be >> size;
+            inc << size >> msg._message;
+
+            _pubHandler(msg);
+        }
+
+        void handleReadPubAck(Reader &inc) {
+            PubAckMessage msg;
+
+            /// 3.4.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.4.2 Variable header
+            inc << IOFlag::be << msg._packetIdentifier;
+
+            _pubAckHandler(msg);
+        }
+
+        void handleReadSubscribe(Reader &inc) {
+            SubscribeMessage msg;
+
+            /// 3.8.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.8.2.1 Variable header non normative example
+            inc << IOFlag::be << msg._packetIdentifier;
+
+            /// 3.8.3 Payload
+            size_t msgSize = msg.getSize() - sizeof(uint16_t);
+            while (msgSize > 0) {
+                uint16_t size = 0;
+                std::string topicFilter;
+                uint8_t qos;
+
+                inc << IOFlag::be >> size;
+                inc << size >> topicFilter >> qos;
+                msg.addTopic(topicFilter, qos);
+
+                msgSize -= (sizeof(uint16_t) + topicFilter.size() + sizeof(uint8_t));
+            }
+
+            _subHandler(msg);
+        }
+
+        void handleReadSubAck(Reader &inc) {
+            SubAckMessage msg;
+
+            /// 3.9.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.9.2 Variable header
+            inc << IOFlag::be << msg._packetIdentifier;
+
+            /// 3.9.3 Payload
+            inc << IOFlag::be << msg._returnCode;
+
+            _subAckHandler(msg);
+        }
+
     public:
         std::error_code read(Buffer &buf) override {
             Reader hdr(buf);
@@ -115,13 +189,24 @@ namespace network::mqtt::v31 {
                 case MessageType::ping_resp:
                     handleReadPingResp(inc);
                     break;
+                case MessageType::publish:
+                    handleReadPublish(inc);
+                    break;
+                case MessageType::pub_ack:
+                    handleReadPubAck(inc);
+                    break;
+                case MessageType::subscribe:
+                    handleReadSubscribe(inc);
+                    break;
+                case MessageType::sub_ack:
+                    handleReadSubAck(inc);
+                    break;
                 default:
                     break;
 
             }
 
             buf.consume(inc.consumed());
-
 
             return {};
         }

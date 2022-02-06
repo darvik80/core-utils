@@ -27,7 +27,7 @@ namespace network::zeromq::v31 {
             if (flag & flag_long) {
                 reader >> size;
             } else {
-                reader >> (uint8_t&)size;
+                reader >> (uint8_t &) size;
             }
 
             if (!reader) {

@@ -18,6 +18,23 @@ namespace network {
     class Void {
     };
 
+    enum UserMsgId {
+        read_idle,
+        write_idle,
+    };
+
+    class UserMessage {
+        int _id;
+
+    public:
+        UserMessage(int id)
+                : _id(id) {}
+
+        int getId() const {
+            return _id;
+        }
+    };
+
     class NetworkHandler {
     public:
         virtual void handleActive(const Context &ctx) {};
@@ -25,6 +42,8 @@ namespace network {
         virtual void handleInactive(const Context &ctx) {};
 
         virtual void handleError(const Context &ctx, std::error_code err) {};
+
+        virtual void handleUserMessage(const Context &ctx, const UserMessage &err) {};
     };
 
     class StreamHandler {
@@ -88,6 +107,12 @@ namespace network {
                 _next->handleError(ctx, err);
             }
         }
+
+        virtual void fireUserMessage(const Context &ctx, const UserMessage &msg) {
+            if (_next) {
+                _next->handleUserMessage(ctx, msg);
+            }
+        }
     };
 
     template<typename T, typename... Tn>
@@ -144,6 +169,10 @@ namespace network {
 
         void handleError(const Context &ctx, std::error_code err) override {
             this->fireError(ctx, err);
+        }
+
+        void handleUserMessage(const Context &ctx, const UserMessage &msg) override {
+            this->fireUserMessage(ctx, msg);
         }
     };
 

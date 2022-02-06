@@ -20,6 +20,10 @@ namespace network::mqtt {
         std::function<void(const ConnAckMessage &msg)> _connAckHandler;
         std::function<void(const PingReqMessage &msg)> _pingHandler;
         std::function<void(const PingRespMessage &msg)> _pongHandler;
+        std::function<void(const PublishMessage &msg)> _pubHandler;
+        std::function<void(const PubAckMessage &msg)> _pubAckHandler;
+        std::function<void(const SubscribeMessage &msg)> _subHandler;
+        std::function<void(const SubAckMessage &msg)> _subAckHandler;
     public:
         typedef std::shared_ptr<MQTTDecoder> Ptr;
 
@@ -39,6 +43,22 @@ namespace network::mqtt {
 
         void onPong(const std::function<void(const PingRespMessage &msg)> &handler) {
             _pongHandler = handler;
+        }
+
+        void onPublish(const std::function<void(const PublishMessage &msg)> &handler) {
+            _pubHandler = handler;
+        }
+
+        void onPubAck(const std::function<void(const PubAckMessage &msg)> &handler) {
+            _pubAckHandler = handler;
+        }
+
+        void onSubscribe(const std::function<void(const SubscribeMessage &msg)> &handler) {
+            _subHandler = handler;
+        }
+
+        void onSubAck(const std::function<void(const SubAckMessage &msg)> &handler) {
+            _subAckHandler = handler;
         }
     };
 }

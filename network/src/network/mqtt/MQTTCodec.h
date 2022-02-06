@@ -10,26 +10,32 @@
 #include <variant>
 
 #include "MQTT.h"
+#include "MQTTDecoder.h"
+#include "MQTTEncoder.h"
 
 namespace network::mqtt {
 
-    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, ConnectMessage, ConnAckMessage, PingReqMessage, PingRespMessage> {
+    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage> {
         ArrayBuffer<2048> _incBuf;
-    private:
-        void handleReadConnect(const Context &ctx, Reader& inc);
-        void handleReadConnAck(const Context &ctx, Reader& inc);
-        void handleReadPingReq(const Context &ctx, Reader& inc);
-        void handleReadPingResp(const Context &ctx, Reader& inc);
+        MQTTDecoder::Ptr _decoder;
+        MQTTEncoder::Ptr _encoder;
+
     public:
+        MQTTCodec();
+
+        void handleActive(const Context &ctx) override;
+
         void handleRead(const Context &ctx, const Buffer &msg) override;
 
-        void handleWrite(const Context &ctx, const ConnectMessage &msg) override;
+        void handleWrite(const Context &ctx, const PublishMessage &msg) override;
 
-        void handleWrite(const Context &ctx, const ConnAckMessage &msg) override;
+        void handleWrite(const Context &ctx, const PubAckMessage &msg) override;
 
-        void handleWrite(const Context &ctx, const PingReqMessage &msg) override;
+        void handleWrite(const Context &ctx, const SubscribeMessage &msg) override;
 
-        void handleWrite(const Context &ctx, const PingRespMessage &msg) override;
+        void handleWrite(const Context &ctx, const SubAckMessage &msg) override;
+
+        void handleUserMessage(const Context &ctx, const UserMessage &msg) override;
     };
 
 }

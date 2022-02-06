@@ -15,7 +15,8 @@ namespace network {
     template<typename Socket>
     class AsyncClient {
     public:
-        typedef std::function<void(const std::shared_ptr<AsyncChannel< Socket>> &)> Callback;
+        typedef std::function<void(const std::shared_ptr<AsyncChannel < Socket>> &)>
+        Callback;
     private:
         boost::asio::ssl::context _context;
 
@@ -99,12 +100,12 @@ namespace network {
         }
 
     public:
-        explicit AsyncClient(boost::asio::io_service &service, const Callback& callback)
-        : _service (service), _context(boost::asio::ssl::context::tlsv12_client), _resolver(service), _deadline(service), _callback(callback) {
+        explicit AsyncClient(boost::asio::io_service &service, const Callback &callback)
+                : _service(service), _context(boost::asio::ssl::context::tlsv12_client), _resolver(service), _deadline(service), _callback(callback) {
         }
 
-        explicit AsyncClient(boost::asio::io_service &service, const Callback& callback, const std::string& caFile)
-                : _service (service), _context(boost::asio::ssl::context::tlsv12_client), _resolver(service), _deadline(service), _callback(callback) {
+        explicit AsyncClient(boost::asio::io_service &service, const Callback &callback, const std::string &caFile)
+                : _service(service), _context(boost::asio::ssl::context::tlsv12_client), _resolver(service), _deadline(service), _callback(callback) {
             _context.use_certificate_file(caFile, boost::asio::ssl::context::pem);
             _context.set_options(boost::asio::ssl::context::default_workarounds);
         }

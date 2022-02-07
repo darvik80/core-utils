@@ -32,5 +32,9 @@ namespace network::mqtt {
         virtual std::error_code write(Buffer &buf, const SubscribeMessage &msg) = 0;
 
         virtual std::error_code write(Buffer &buf, const SubAckMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const UnSubscribeMessage &msg) = 0;
+
+        virtual std::error_code write(Buffer &buf, const UnSubAckMessage &msg) = 0;
     };
 }

@@ -100,16 +100,19 @@ void exampleZeroMQ(boost::asio::io_service &service) {
 void exampleMQTT(boost::asio::io_service &service) {
     uint16_t port = 1883;
 
-    auto producer = std::make_shared<mqtt::MQTTPublisher>();
+    auto agent = std::make_shared<mqtt::MQTTAgent>();
+    agent->connect([](mqtt::MQTTAgent& agent) {
+        agent.subscribe("v1/devices/me/rpc/request/+", 0);
+    });
     AsyncClient<TcpSocket> client(
             service,
-            [producer, &service](const std::shared_ptr<AsyncChannel<TcpSocket>> &channel) {
+            [agent, &service](const std::shared_ptr<AsyncChannel<TcpSocket>> &channel) {
                 link(
                         channel,
                         std::make_shared<handler::NetworkLogger>(),
                         std::make_shared<handler::IdleStateHandler>(service, posix_time::seconds(5), posix_time::seconds(5)),
                         std::make_shared<mqtt::MQTTCodec>(),
-                        producer
+                        agent
                 );
             },
             "/Users/darvik/server.pem"
@@ -119,10 +122,11 @@ void exampleMQTT(boost::asio::io_service &service) {
 
     boost::asio::deadline_timer deadline(service);
     deadline.expires_from_now(boost::posix_time::seconds(10));
-    deadline.async_wait([producer](boost::system::error_code err) {
+    deadline.async_wait([agent](boost::system::error_code err) {
         if (!err) {
-            producer->publish("v1/devices/me/telemetry", R"({ "status": "active" })");
-            producer->publish("v1/devices/me/telemetry", R"({ "cpu-temp": "471000" })");
+            agent->publish("v1/devices/me/telemetry", 1, R"({ "status": "active" })");
+            agent->publish("v1/devices/me/telemetry", 0, R"({ "cpu-temp": "471000" })");
+            agent->unSubscribe("v1/devices/me/rpc/request/+");
         }
     });
 

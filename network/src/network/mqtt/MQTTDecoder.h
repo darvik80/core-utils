@@ -24,6 +24,8 @@ namespace network::mqtt {
         std::function<void(const PubAckMessage &msg)> _pubAckHandler;
         std::function<void(const SubscribeMessage &msg)> _subHandler;
         std::function<void(const SubAckMessage &msg)> _subAckHandler;
+        std::function<void(const UnSubscribeMessage &msg)> _unSubHandler;
+        std::function<void(const UnSubAckMessage &msg)> _unSubAckHandler;
     public:
         typedef std::shared_ptr<MQTTDecoder> Ptr;
 
@@ -59,6 +61,14 @@ namespace network::mqtt {
 
         void onSubAck(const std::function<void(const SubAckMessage &msg)> &handler) {
             _subAckHandler = handler;
+        }
+
+        void onUnSubscribe(const std::function<void(const UnSubscribeMessage &msg)> &handler) {
+            _unSubHandler = handler;
+        }
+
+        void onUnSubAck(const std::function<void(const UnSubAckMessage &msg)> &handler) {
+            _unSubAckHandler = handler;
         }
     };
 }

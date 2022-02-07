@@ -125,7 +125,6 @@ namespace network::mqtt::v31 {
         std::error_code write(Buffer &buf, const SubscribeMessage &msg) override {
             Writer out(buf);
 
-
             size_t size = 2;
             for (auto &topic: msg.getTopics()) {
                 size += 3 + topic.getTopicFilter().size();
@@ -134,7 +133,7 @@ namespace network::mqtt::v31 {
 
             /// 3.8.2 Variable header
             /// 3.8.2.1 Variable header non normative example
-            out << msg.getPacketIdentifier();
+            out << IOFlag::be << msg.getPacketIdentifier();
 
             /// 3.8.3.1 Payload non normative example
             for (auto &topic: msg.getTopics()) {
@@ -149,9 +148,39 @@ namespace network::mqtt::v31 {
 
             out << msg.getHeader().all << IOFlag::variable << 3;
             /// 3.9.2 Variable header
-            out << msg.getPacketIdentifier();
+            out << IOFlag::be << msg.getPacketIdentifier();
             /// 3.9.3 Payload
             out << msg.getReturnCode();
+
+            return out.status();
+        }
+
+        std::error_code write(Buffer &buf, const UnSubscribeMessage &msg) override {
+            Writer out(buf);
+
+            size_t size = 2;
+            for (auto &topic: msg.getTopicFilters()) {
+                size += 2 + topic.size();
+            }
+            out << msg.getHeader().all << IOFlag::variable << size;
+
+            /// 3.10.2 Variable header
+            out << IOFlag::be << msg.getPacketIdentifier();
+
+            /// 3.10.3.1 Payload non normative example
+            for (auto &topic: msg.getTopicFilters()) {
+                out << IOFlag::be << (uint16_t) topic.size() << topic;
+            }
+
+            return out.status();
+        }
+
+        std::error_code write(Buffer &buf, const UnSubAckMessage &msg) override {
+            Writer out(buf);
+
+            out << msg.getHeader().all << IOFlag::variable << 2;
+            /// 3.11.2 Variable header
+            out << IOFlag::be << msg.getPacketIdentifier();
 
             return out.status();
         }

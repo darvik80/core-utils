@@ -115,7 +115,7 @@ namespace network::mqtt::v31 {
             inc >> msg._header.all << IOFlag::variable >> msg._size;
 
             /// 3.4.2 Variable header
-            inc << IOFlag::be << msg._packetIdentifier;
+            inc << IOFlag::be >> msg._packetIdentifier;
 
             _pubAckHandler(msg);
         }
@@ -127,7 +127,7 @@ namespace network::mqtt::v31 {
             inc >> msg._header.all << IOFlag::variable >> msg._size;
 
             /// 3.8.2.1 Variable header non normative example
-            inc << IOFlag::be << msg._packetIdentifier;
+            inc << IOFlag::be >> msg._packetIdentifier;
 
             /// 3.8.3 Payload
             size_t msgSize = msg.getSize() - sizeof(uint16_t);
@@ -153,12 +153,49 @@ namespace network::mqtt::v31 {
             inc >> msg._header.all << IOFlag::variable >> msg._size;
 
             /// 3.9.2 Variable header
-            inc << IOFlag::be << msg._packetIdentifier;
+            inc << IOFlag::be >> msg._packetIdentifier;
 
             /// 3.9.3 Payload
-            inc << IOFlag::be << msg._returnCode;
+            inc >> msg._returnCode;
 
             _subAckHandler(msg);
+        }
+
+        void handleReadUnSubscribe(Reader &inc) {
+            UnSubscribeMessage msg;
+
+            /// 3.8.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.8.2.1 Variable header non normative example
+            inc << IOFlag::be >> msg._packetIdentifier;
+
+            /// 3.8.3 Payload
+            size_t msgSize = msg.getSize() - sizeof(uint16_t);
+            while (msgSize > 0) {
+                uint16_t size = 0;
+                std::string topicFilter;
+
+                inc << IOFlag::be >> size;
+                inc << size >> topicFilter;
+                msg.addTopicFilter(topicFilter);
+
+                msgSize -= (sizeof(uint16_t) + topicFilter.size());
+            }
+
+            _unSubHandler(msg);
+        }
+
+        void handleReadUnSubAck(Reader &inc) {
+            UnSubAckMessage msg;
+
+            /// 3.11.1 Fixed header
+            inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+            /// 3.11.2 Variable header
+            inc << IOFlag::be >> msg._packetIdentifier;
+
+            _unSubAckHandler(msg);
         }
 
     public:
@@ -200,6 +237,12 @@ namespace network::mqtt::v31 {
                     break;
                 case MessageType::sub_ack:
                     handleReadSubAck(inc);
+                    break;
+                case MessageType::unsubscribe:
+                    handleReadUnSubscribe(inc);
+                    break;
+                case MessageType::unsub_ack:
+                    handleReadUnSubAck(inc);
                     break;
                 default:
                     break;

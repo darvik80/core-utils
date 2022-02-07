@@ -96,30 +96,30 @@ namespace network::handler {
     }
 
     void NetworkLogger::handleActive(const Context &ctx) {
-        network::log::debug("onActive");
+        network::log::debug("on-active");
         InboundMessageHandler::handleActive(ctx);
     }
 
     void NetworkLogger::handleInactive(const Context &ctx) {
-        network::log::debug("onInactive {}:{}", ctx.address, ctx.port);
+        network::log::debug("on-inactive {}:{}", ctx.address, ctx.port);
         InboundMessageHandler::handleInactive(ctx);
     }
 
     void NetworkLogger::handleError(const Context &ctx, std::error_code err) {
-        network::log::debug("onError: {}:{}, {}", ctx.address, ctx.port, err.message());
+        network::log::debug("on-error: {}:{}, {}", ctx.address, ctx.port, err.message());
         InboundMessageHandler::handleError(ctx, err);
     }
 
     void NetworkLogger::handleRead(const Context &ctx, const Buffer &event) {
         if (event.size()) {
-            network::log::debug("onRead: {}:{}, {}{}", ctx.address, ctx.port, event.size(), dump(event));
+            network::log::debug("on-read: {}:{}, {}{}", ctx.address, ctx.port, event.size(), dump(event));
         }
         fireMessage(ctx, event);
     }
 
     void NetworkLogger::handleWrite(const Context &ctx, const Buffer &event) {
         if (event.size()) {
-            network::log::debug("onWrite: {}:{} {}{}", ctx.address, ctx.port, event.size(), dump(event));
+            network::log::debug("on-write: {}:{} {}{}", ctx.address, ctx.port, event.size(), dump(event));
         }
         write(ctx, event);
     }

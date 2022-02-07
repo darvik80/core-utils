@@ -15,7 +15,7 @@
 
 namespace network::mqtt {
 
-    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage> {
+    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage, UnSubscribeMessage, UnSubAckMessage> {
         ArrayBuffer<2048> _incBuf;
         MQTTDecoder::Ptr _decoder;
         MQTTEncoder::Ptr _encoder;
@@ -34,6 +34,10 @@ namespace network::mqtt {
         void handleWrite(const Context &ctx, const SubscribeMessage &msg) override;
 
         void handleWrite(const Context &ctx, const SubAckMessage &msg) override;
+
+        void handleWrite(const Context &ctx, const UnSubscribeMessage &msg) override;
+
+        void handleWrite(const Context &ctx, const UnSubAckMessage &msg) override;
 
         void handleUserMessage(const Context &ctx, const UserMessage &msg) override;
     };

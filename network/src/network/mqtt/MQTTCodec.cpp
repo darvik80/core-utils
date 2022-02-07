@@ -14,37 +14,55 @@ namespace network::mqtt {
     }
 
 
-    void MQTTCodec::handleRead(const network::Context &ctx, const network::Buffer &msg) {
+    void MQTTCodec::handleRead(const Context &ctx, const Buffer &msg) {
         _incBuf.append(msg.data(), msg.size());
         _decoder->read(_incBuf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const PublishMessage &msg) {
+        mqtt::log::debug("write Pub");
         ArrayBuffer<1024> buf;
         _encoder->write(buf, msg);
         write(ctx, buf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const PubAckMessage &msg) {
+        mqtt::log::debug("write PubAck");
         ArrayBuffer<1024> buf;
         _encoder->write(buf, msg);
         write(ctx, buf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const SubscribeMessage &msg) {
+        mqtt::log::debug("write Sub");
         ArrayBuffer<1024> buf;
         _encoder->write(buf, msg);
         write(ctx, buf);
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const SubAckMessage &msg) {
+        mqtt::log::debug("write SubAck");
         ArrayBuffer<1024> buf;
         _encoder->write(buf, msg);
         write(ctx, buf);
     }
 
+    void MQTTCodec::handleWrite(const Context &ctx, const UnSubscribeMessage &msg) {
+        mqtt::log::debug("write UnSub");
+        ArrayBuffer<1024> buf;
+        _encoder->write(buf, msg);
+        write(ctx, buf);
+    }
+
+    void MQTTCodec::handleWrite(const Context &ctx, const UnSubAckMessage &msg) {
+        mqtt::log::debug("write UnSubAck");
+        ArrayBuffer<1024> buf;
+        _encoder->write(buf, msg);
+        write(ctx, buf);
+    }
+
+
     void MQTTCodec::handleActive(const Context &ctx) {
-        //InboundMessageHandler::handleActive(ctx);
         ArrayBuffer<128> buf;
         ConnectMessage msg;
         msg.setClientId("mqtt-tester");
@@ -52,10 +70,12 @@ namespace network::mqtt {
         _encoder->write(buf, msg);
         write(ctx, buf);
 
-        _decoder->onConnAck([this](const ConnAckMessage &msg) {
+        _decoder->onConnAck([this, ctx](const ConnAckMessage &msg) {
             mqtt::log::info("handle ConnAck: {}:{}", msg.getReasonCode(), msg.getReasonCodeDescription());
             if (msg.getReasonCode()) {
                 fireShutdown();
+            } else {
+                InboundMessageHandler::handleActive(ctx);
             }
         });
 
@@ -65,6 +85,14 @@ namespace network::mqtt {
 
         _decoder->onPong([](const PingRespMessage &msg) {
             mqtt::log::debug("handle PingResp");
+        });
+
+        _decoder->onSubAck([](const SubAckMessage &msg) {
+            mqtt::log::debug("handle SubAck: {}", msg.getPacketIdentifier(), msg.getReturnCode());
+        });
+
+        _decoder->onUnSubAck([](const UnSubAckMessage &msg) {
+            mqtt::log::debug("handle UnSubAck: {}", msg.getPacketIdentifier());
         });
     }
 

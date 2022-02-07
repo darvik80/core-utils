@@ -400,10 +400,13 @@ namespace network::mqtt {
         std::vector<SubscribePayload> _topics;
     public:
         SubscribeMessage()
-                : Message(MessageType::subscribe) {}
+                : Message(MessageType::subscribe) {
+            setQos(1);
+        }
 
         SubscribeMessage(std::string_view topicFilter, uint8_t qos, uint16_t pid)
                 : Message(MessageType::subscribe) {
+            setQos(1);
             addTopic(topicFilter, qos);
             setPacketIdentifier(pid);
         }
@@ -431,5 +434,35 @@ namespace network::mqtt {
         void setReturnCode(uint8_t returnCode) {
             _returnCode = returnCode;
         }
+    };
+
+    class UnSubscribeMessage : public Message, public MessagePacketIdentifier {
+    private:
+        std::vector<std::string> _topicFilters;
+    public:
+        UnSubscribeMessage() : Message(MessageType::unsubscribe) {
+            setQos(1);
+        }
+
+        UnSubscribeMessage(const std::string_view topicFilter, uint16_t pid) : Message(MessageType::unsubscribe) {
+            setQos(1);
+            addTopicFilter(topicFilter);
+            setPacketIdentifier(pid);
+        }
+
+
+        [[nodiscard]] const std::vector<std::string> &getTopicFilters() const {
+            return _topicFilters;
+        }
+
+        void addTopicFilter(std::string_view topicFilter) {
+            _topicFilters.emplace_back(topicFilter);
+        }
+    };
+
+    class UnSubAckMessage : public Message, public MessagePacketIdentifier {
+    public:
+        UnSubAckMessage() : Message(MessageType::unsub_ack) { }
+
     };
 }

@@ -17,4 +17,6 @@ public:
     }
 
     void getProperties(LoggingProperties &props) override;
+
+    void getProperties(JoystickProperties &props) override;
 };

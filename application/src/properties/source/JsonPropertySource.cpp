@@ -23,3 +23,20 @@ void JsonPropertySource::getProperties(LoggingProperties &props) {
         }
     }
 }
+
+void JsonPropertySource::getProperties(JoystickProperties &props) {
+    if (auto it = _json.find("joystick"); it != _json.end()) {
+        if (auto key = it->find("type"); key != it->end()) {
+            auto type = key->get<std::string>();
+            if (type == "xbox") {
+                props.type = JoystickType::xbox;
+            } else if (type == "ps3") {
+                props.type = JoystickType::ps3;
+            }
+        }
+
+        if (auto key = it->find("name"); key != it->end()) {
+            key->get_to(props.name);
+        }
+    }
+}

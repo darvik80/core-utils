@@ -226,3 +226,9 @@ int main(int argc, char *argv[]) {
 
 ```
 
+#### services
+
+* Logging
+* Scheduler
+* Event
+* Joystick - support HID (/dev/input/js0): XBox360, PS3

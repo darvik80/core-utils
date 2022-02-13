@@ -12,6 +12,7 @@ include_directories(
 file(GLOB SRCS_G
         src/*.cpp
         src/properties/source/*.cpp
+        src/joystick/*.cpp
         )
 
 set(MAIN_LIBS logging event-manager network)

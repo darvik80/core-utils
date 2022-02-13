@@ -25,4 +25,8 @@ public:
     void getProperties(LoggingProperties &props) override {
         merge(props);
     }
+
+    void getProperties(JoystickProperties &props) override {
+        merge(props);
+    }
 };

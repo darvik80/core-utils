@@ -6,7 +6,7 @@
 
 #include "event/Event.h"
 #include <nlohmann/json.hpp>
-#include "Joystick.h"
+#include "joystick/Joystick.h"
 
 class JoystickEvent : public em::Event, public Joystick {
 };

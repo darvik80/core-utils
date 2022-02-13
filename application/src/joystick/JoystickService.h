@@ -8,7 +8,7 @@
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <linux/joystick.h>
 #include "event/EventManagerService.h"
-#include "JoystickEvent.h"
+#include "joystick/JoystickEvent.h"
 
 class JoystickService : public BaseServiceShared<JoystickService> {
     js_event _events[64];

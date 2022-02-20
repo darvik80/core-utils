@@ -7,11 +7,11 @@
 
 #include "Service.h"
 #include "Properties.h"
+#include "properties/source/CompositePropertiesSource.h"
 #include <string>
 
 #include <boost/asio.hpp>
 #include <unordered_map>
-#include <properties/source/PropertySource.h>
 
 class Registry {
     friend class LoggingService;
@@ -20,11 +20,14 @@ class Registry {
     Service::VecPtr _services;
     Properties::VecPtr _properties;
 
-    PropertySource::Ptr _propsSource;
-
+    CompositePropertiesSource _propsSource;
 public:
-    explicit Registry(PropertySource::Ptr propsSource)
-            : _propsSource(std::move(propsSource)) {
+    explicit Registry(std::string_view jsonProps)
+            : _propsSource(jsonProps) {
+    }
+
+    explicit Registry(std::ifstream& fileJsonProps)
+            : _propsSource(fileJsonProps) {
     }
 
     void addService(const Service::Ptr &service) {
@@ -56,19 +59,10 @@ public:
     }
 
     template<class C>
-    C &getProperties() {
-        for (auto &ptr : _properties) {
-            const C *pC = dynamic_cast<const C *>(ptr.get());
-            if (pC) {
-                return *const_cast<C *>(pC);
-            }
-        }
-
-        auto ptr = std::make_shared<C>();
-        _propsSource->getProperties(*ptr);
-        _properties.emplace_back(ptr);
-
-        return *ptr;
+    C getProperties() {
+        C props;
+        _propsSource.getProperties(props);
+        return props;
     }
 
 private:

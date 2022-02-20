@@ -214,7 +214,7 @@ protected:
         //wiringPiSetup();
         
         // TODO: register own services
-        // registry.addService(std::make_shared<I2CServoDriver>());
+        // registry.addService(std::make_shared<I2CServoMotor>());
     }
 };
 

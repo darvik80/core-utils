@@ -47,7 +47,7 @@ namespace logger {
         bool file{false};
     };
 
-    void setup(LoggingProperties &properties);
+    void setup(const LoggingProperties &properties);
 
     DECLARE_LEVEL(g_logger, trace)
 

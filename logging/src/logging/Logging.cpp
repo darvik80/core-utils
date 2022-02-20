@@ -90,7 +90,7 @@ void fileFormatter(boost::log::record_view const &rec, boost::log::formatting_os
     strm << "[ " << rec[threadId] << " ] : " << rec[boost::log::expressions::smessage];
 }
 
-void logger::setup(logger::LoggingProperties &props) {
+void logger::setup(const logger::LoggingProperties &props) {
     boost::log::register_simple_formatter_factory<boost::log::trivial::severity_level, char>("Severity");
 
     if (props.file) {

@@ -2,9 +2,6 @@
 // Created by Ivan Kishchenko on 11.04.2021.
 //
 
-#include "properties/source/JsonPropertySource.h"
-#include "properties/source/EnvPropertySource.h"
-#include "properties/source/CompositePropertySource.h"
 #include "Application.h"
 
 #include "logging/LoggingService.h"
@@ -12,19 +9,13 @@
 #include "event/ApplicationEvent.h"
 #include "scheduler/SchedulerService.h"
 
-#include <logging/Logging.h>
+#include <fstream>
 
 using namespace boost;
 
 void Application::run(int argc, char **argv) {
-    Registry registry(
-            std::make_shared<CompositePropertySource>(
-                    std::vector<PropertySource::Ptr>{
-                            //std::make_shared<JsonPropertySource>(ResourceManager::instance().getResourceAsString("settings.json").value()),
-                            std::make_shared<EnvPropertySource>()
-                    }
-            )
-    );
+    std::ifstream props("settings.json");
+    Registry registry(props);
 
     postConstruct(registry);
     run(registry);

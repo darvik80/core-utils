@@ -2,16 +2,29 @@
 // Created by Ivan Kishchenko on 11.04.2021.
 //
 
-#include "JsonPropertySource.h"
+#pragma once
 
-using namespace nlohmann;
+#include "PropertiesSource.h"
+#include <nlohmann/json.hpp>
+#include <fstream>
 
-JsonPropertySource::JsonPropertySource(std::string_view source) {
-    _json = json::parse(source);
-}
+class JsonPropertiesSource : public PropertiesSource {
+    nlohmann::json _json;
+public:
+    explicit JsonPropertiesSource(std::string_view source) {
+        _json = nlohmann::json::parse(source);
+    }
 
-void JsonPropertySource::getProperties(LoggingProperties &props) {
-    if (auto it = _json.find("logging"); it != _json.end()) {
+    explicit JsonPropertiesSource(std::ifstream &stream) {
+        stream >> _json;
+    }
+    [[nodiscard]] const nlohmann::json &getJson() const {
+        return _json;
+    }
+};
+
+inline void fromJson(JsonPropertiesSource& source, LoggingProperties& props) {
+    if (auto it = source.getJson().find("logging"); it != source.getJson().end()) {
         if (auto key = it->find("level"); key != it->end()) {
             key->get_to(props.level);
         }
@@ -24,8 +37,8 @@ void JsonPropertySource::getProperties(LoggingProperties &props) {
     }
 }
 
-void JsonPropertySource::getProperties(JoystickProperties &props) {
-    if (auto it = _json.find("joystick"); it != _json.end()) {
+inline void fromJson(JsonPropertiesSource& source, JoystickProperties &props) {
+    if (auto it = source.getJson().find("joystick"); it != source.getJson().end()) {
         if (auto key = it->find("type"); key != it->end()) {
             auto type = key->get<std::string>();
             if (type == "xbox") {

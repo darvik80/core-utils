@@ -16,5 +16,3 @@ struct JoystickProperties : Properties {
     JoystickType type{JoystickType::detect};
     std::string name{"/dev/input/js0"};
 };
-
-

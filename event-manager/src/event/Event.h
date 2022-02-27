@@ -14,18 +14,11 @@ namespace em {
         typedef std::shared_ptr<EventSource> Ptr;
     };
 
-    class Event {
-        EventSource::Ptr _source;
-    public:
+    struct Event {
+        EventSource::Ptr source{};
+
         Event() = default;
-
-        explicit Event(EventSource::Ptr source)
-                : _source(std::move(source)) {}
-
-        [[nodiscard]] EventSource::Ptr source() const {
-            return _source;
-        }
-
+        explicit Event(EventSource::Ptr src) : source(src) {}
         virtual ~Event() = default;
     };
 }

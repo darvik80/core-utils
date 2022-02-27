@@ -4,8 +4,6 @@
 
 #pragma once
 
-#ifdef RASPBERRY_ARCH
-
 #include <boost/asio.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include "AsyncChannel.h"
@@ -122,5 +120,3 @@ namespace network {
         }
     };
 }
-
-#endif

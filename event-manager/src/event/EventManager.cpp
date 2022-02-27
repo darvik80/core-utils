@@ -3,7 +3,7 @@
 
 namespace em {
     void EventManager::raiseEvent(const Event &event) {
-        em::log::debug("event {}:{}", typeid(event.source().get()).name(), typeid(event).name());
+        em::log::debug("event {}:{}", typeid(event.source.get()).name(), typeid(event).name());
         if (auto iter = _signals.find(typeid(event)); iter != _signals.end()) {
             iter->second(event);
         } else {

@@ -3,6 +3,9 @@
 //
 
 #include "JoystickService.h"
+
+#ifdef __linux__
+
 #include "JoystickLogger.h"
 
 void JoystickService::postConstruct(Registry &registry) {
@@ -208,3 +211,4 @@ void JoystickService::preDestroy(Registry &registry) {
     BaseService::preDestroy(registry);
 }
 
+#endif

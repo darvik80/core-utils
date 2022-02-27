@@ -111,7 +111,10 @@ void exampleMQTT(boost::asio::io_service &service) {
                         channel,
                         std::make_shared<handler::NetworkLogger>(),
                         std::make_shared<handler::IdleStateHandler>(service, posix_time::seconds(5), posix_time::seconds(5)),
-                        std::make_shared<mqtt::MQTTCodec>(),
+                        std::make_shared<mqtt::MQTTCodec>(mqtt::MQTTOptions{
+                            .clientId = "mqtt-tester",
+                            .accessToken = "hello-world"
+                        }),
                         agent
                 );
             },

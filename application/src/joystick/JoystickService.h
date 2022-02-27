@@ -4,11 +4,15 @@
 
 #pragma once
 
+#include <boost/predef.h>
+
+#ifdef __linux__
+
 #include "BaseService.h"
+#include "joystick/JoystickEvent.h"
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <linux/joystick.h>
 #include "event/EventManagerService.h"
-#include "joystick/JoystickEvent.h"
 
 class JoystickService : public BaseServiceShared<JoystickService> {
     js_event _events[64];
@@ -18,8 +22,10 @@ class JoystickService : public BaseServiceShared<JoystickService> {
     em::EventManager::Ptr _eventManager;
 
 private:
-    bool extractEventXbox(js_event& event, JoystickEvent& jsEvent);
-    bool extractEventPs3(js_event& event, JoystickEvent& jsEvent);
+    bool extractEventXbox(js_event &event, JoystickEvent &jsEvent);
+
+    bool extractEventPs3(js_event &event, JoystickEvent &jsEvent);
+
 public:
     const char *name() override {
         return "joystick";
@@ -32,3 +38,5 @@ public:
 private:
     void onRead(JoystickType type, size_t readable);
 };
+
+#endif

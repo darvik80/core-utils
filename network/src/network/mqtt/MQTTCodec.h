@@ -15,13 +15,21 @@
 
 namespace network::mqtt {
 
+    struct MQTTOptions {
+        std::string clientId;
+        std::string accessToken;
+        std::string username;
+        std::string password;
+    };
+
     class MQTTCodec : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage, UnSubscribeMessage, UnSubAckMessage> {
         ArrayBuffer<2048> _incBuf;
         MQTTDecoder::Ptr _decoder;
         MQTTEncoder::Ptr _encoder;
 
+        MQTTOptions _options;
     public:
-        MQTTCodec();
+        MQTTCodec(const MQTTOptions options);
 
         void handleActive(const Context &ctx) override;
 

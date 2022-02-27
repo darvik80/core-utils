@@ -4,8 +4,6 @@
 
 #pragma once
 
-#ifdef RASPBERRY_ARCH
-
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/ssl.hpp>
@@ -172,5 +170,3 @@ namespace network {
         }
     };
 }
-
-#endif

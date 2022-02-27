@@ -8,7 +8,8 @@
 #include "MQTTLogging.h"
 
 namespace network::mqtt {
-    MQTTCodec::MQTTCodec() {
+    MQTTCodec::MQTTCodec(const MQTTOptions options)
+            : _options(options) {
         _decoder = std::make_shared<v31::MQTTDecoder>();
         _encoder = std::make_shared<v31::MQTTEncoder>();
     }
@@ -65,8 +66,13 @@ namespace network::mqtt {
     void MQTTCodec::handleActive(const Context &ctx) {
         ArrayBuffer<128> buf;
         ConnectMessage msg;
-        msg.setClientId("mqtt-tester");
-        msg.setUserName("hello-world");
+        msg.setClientId(_options.clientId);
+        if (!_options.accessToken.empty()) {
+            msg.setUserName(_options.accessToken);
+        } else {
+            msg.setUserName(_options.username);
+            msg.setPassword(_options.password);
+        }
         _encoder->write(buf, msg);
         write(ctx, buf);
 

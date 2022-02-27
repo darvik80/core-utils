@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "event/Event.h"
-#include <nlohmann/json.hpp>
 #include "joystick/Joystick.h"
+
+#include <nlohmann/json.hpp>
+#include "event/Event.h"
 
 class JoystickEvent : public em::Event, public Joystick {
 };

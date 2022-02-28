@@ -104,7 +104,7 @@ namespace network::mqtt {
 
     void MQTTCodec::handleUserMessage(const Context &ctx, const UserMessage &msg) {
         if (msg.getId() == read_idle) {
-            mqtt::log::info("handle read timeout idle: {}", msg.getId());
+            mqtt::log::debug("handle read timeout idle: {}", msg.getId());
             ArrayBuffer<8> buf;
             PingReqMessage ping;
             _encoder->write(buf, ping);

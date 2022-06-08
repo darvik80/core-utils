@@ -86,7 +86,7 @@ namespace network::mqtt {
         });
 
         _decoder->onPubAck([](const PubAckMessage &msg) {
-            mqtt::log::debug("handle PubAck: {}", msg.getPacketIdentifier());
+            mqtt::log::info("handle PubAck: {}", msg.getPacketIdentifier());
         });
 
         _decoder->onPong([](const PingRespMessage &msg) {

@@ -8,18 +8,21 @@
 #include <boost/asio.hpp>
 
 namespace network {
+    namespace asio = boost::asio;
+    namespace ip = boost::asio::ip;
 
     class DnsResolver {
-        boost::asio::io_service& _service;
-        boost::asio::ip::tcp::resolver::results_type _result;
-        boost::asio::ip::tcp::resolver::iterator _iter;
-    public:
-        DnsResolver(boost::asio::io_service &service, std::string_view host, uint16_t port);
 
-        DnsResolver(boost::asio::io_service &service);
+        asio::io_service& _service;
+        ip::tcp::resolver::results_type _result;
+        ip::tcp::resolver::iterator _iter;
+    public:
+        DnsResolver(asio::io_service &service, std::string_view host, uint16_t port);
+
+        explicit DnsResolver(asio::io_service &service);
 
         void resolve(std::string_view host, uint16_t port);
-        boost::asio::ip::tcp::resolver::endpoint_type next();
+        ip::tcp::resolver::endpoint_type next();
         std::size_t size();
     };
 

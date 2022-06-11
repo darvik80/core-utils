@@ -105,7 +105,9 @@ namespace network::mqtt::v31 {
             inc << IOFlag::be >> size;
             inc << size >> msg._message;
 
-            _pubHandler(msg);
+            if (_pubHandler) {
+                _pubHandler(msg);
+            }
         }
 
         void handleReadPubAck(Reader &inc) {

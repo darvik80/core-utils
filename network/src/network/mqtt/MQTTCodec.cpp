@@ -8,7 +8,7 @@
 #include "MQTTLogging.h"
 
 namespace network::mqtt {
-    MQTTCodec::MQTTCodec(const MQTTOptions options)
+    MQTTCodec::MQTTCodec(const MQTTOptions& options)
             : _options(options) {
         _decoder = std::make_shared<v31::MQTTDecoder>();
         _encoder = std::make_shared<v31::MQTTEncoder>();
@@ -83,6 +83,12 @@ namespace network::mqtt {
             } else {
                 InboundMessageHandler::handleActive(ctx);
             }
+        });
+
+        _decoder->onPublish([this, ctx](const PublishMessage &msg) {
+            mqtt::log::info("handle Publish: {}", msg.getPacketIdentifier());
+            mqtt::log::info("{}", std::string_view((const char*)msg.getMessage().data(), msg.getMessage().size()));
+            fireMessage(ctx, msg);
         });
 
         _decoder->onPubAck([](const PubAckMessage &msg) {

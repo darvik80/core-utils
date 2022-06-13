@@ -38,6 +38,8 @@ namespace network::mqtt {
     public:
         typedef std::shared_ptr<MQTTAgent> Ptr;
         MQTTConnectCallback _connCallback;
+
+        MQTTMessageCallback _callback;
         std::unordered_map<std::string, MQTTMessageCallback> _callbacks;
     public:
         void handleActive(const Context &ctx) override;
@@ -52,5 +54,6 @@ namespace network::mqtt {
 
         virtual void connect(const MQTTConnectCallback& fn);
         virtual void callback(std::string_view topic, const MQTTMessageCallback &fn);
+        virtual void callback(const MQTTMessageCallback &fn);
     };
 }

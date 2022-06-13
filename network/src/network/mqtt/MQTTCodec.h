@@ -29,7 +29,7 @@ namespace network::mqtt {
 
         MQTTOptions _options;
     public:
-        MQTTCodec(const MQTTOptions options);
+        explicit MQTTCodec(const MQTTOptions& options);
 
         void handleActive(const Context &ctx) override;
 

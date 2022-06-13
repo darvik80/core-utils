@@ -14,8 +14,12 @@ namespace network::mqtt {
     }
 
     void MQTTAgent::handleRead(const Context &ctx, const PublishMessage &msg) {
+        std::string_view data((const char*)msg.getMessage().data(), msg.getMessage().size());
         if (auto it = _callbacks.find(msg.getTopic()); it != _callbacks.end()) {
-            it->second(*this, msg.getTopic(), std::string((const char*)msg.getMessage().data(), msg.getMessage().size()));
+            it->second(*this, msg.getTopic(), data);
+        }
+        if (_callback) {
+            _callback(*this, msg.getTopic(), data);
         }
 
         if (msg.getQos() == 1) {
@@ -45,5 +49,9 @@ namespace network::mqtt {
 
     void MQTTAgent::callback(std::string_view topic, const MQTTMessageCallback &fn) {
         _callbacks.emplace(topic, fn);
+    }
+
+    void MQTTAgent::callback(const MQTTMessageCallback &fn) {
+        _callback = fn;
     }
 }

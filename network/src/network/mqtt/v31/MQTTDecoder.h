@@ -90,20 +90,24 @@ namespace network::mqtt::v31 {
 
         void handleReadPublish(Reader &inc) {
             PublishMessage msg;
+            uint16_t restSize;
             /// 3.2.1 Fixed header
-            inc >> msg._header.all << IOFlag::variable >> msg._size;
+            inc >> msg._header.all << IOFlag::variable >> restSize;
+
+            msg._size = restSize;
 
             uint16_t size;
             inc << IOFlag::be >> size;
             inc << size >> msg._topic;
+            restSize -= 2 + size;
 
             if (msg._header.bits.qos) {
                 /// 3.3.2.2 Packet Identifier
                 inc << IOFlag::be >> msg._packetIdentifier;
+                restSize -= 2;
             }
 
-            inc << IOFlag::be >> size;
-            inc << size >> msg._message;
+            inc << restSize >> msg._message;
 
             if (_pubHandler) {
                 _pubHandler(msg);

@@ -7,6 +7,13 @@
 #include <string>
 #include <string_view>
 
+enum class JoystickType {
+    detect,
+    xbox,
+    ps3,
+    gamepad,
+};
+
 enum AxisId {
     axis_left,
     axis_mid,
@@ -18,6 +25,7 @@ struct JoystickAxis {
 };
 
 struct Joystick {
+    JoystickType type;
     JoystickAxis axis[3];
 
     bool rb{false};

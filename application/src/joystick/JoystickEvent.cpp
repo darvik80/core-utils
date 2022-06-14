@@ -5,7 +5,21 @@
 #include "JoystickEvent.h"
 
 void to_json(nlohmann::json &j, const JoystickEvent &event) {
+    std::string type;
+    switch (event.type) {
+        case JoystickType::gamepad:
+            type = "gamepad";
+            break;
+        case JoystickType::ps3:
+            type = "ps3";
+            break;
+        default:
+            type = "xbox";
+            break;
+    }
+
     j = {
+            {"type",       type},
             {"rb",         event.rb},
             {"lb",         event.lb},
             {"rt",         event.rt},
@@ -24,6 +38,15 @@ void to_json(nlohmann::json &j, const JoystickEvent &event) {
 }
 
 void from_json(const nlohmann::json &j, JoystickEvent &event) {
+    auto type = j.at("name").get<std::string>();
+    if (type == "gamepad") {
+        event.type = JoystickType::gamepad;
+    } else if (type == "ps3") {
+        event.type = JoystickType::ps3;
+    } else if (type == "xbox") {
+        event.type = JoystickType::xbox;
+    }
+
     event.rb = j.at("rb").get<bool>();
     event.lb = j.at("lb").get<bool>();
 

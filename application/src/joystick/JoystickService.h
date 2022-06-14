@@ -26,6 +26,8 @@ private:
 
     bool extractEventPs3(js_event &event, JoystickEvent &jsEvent);
 
+    bool extractEventGamepad(js_event &event, JoystickEvent &jsEvent);
+
 public:
     const char *name() override {
         return "joystick";

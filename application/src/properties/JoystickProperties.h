@@ -5,12 +5,7 @@
 #pragma once
 
 #include "Properties.h"
-
-enum class JoystickType {
-    detect,
-    xbox,
-    ps3,
-};
+#include "joystick/Joystick.h"
 
 struct JoystickProperties : Properties {
     JoystickType type{JoystickType::detect};

@@ -16,6 +16,8 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/../src
 )
 
+set(Boost_USE_STATIC_LIBS ON)
+
 add_definitions(-DBOOST_TEST_DYN_LINK)
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
 

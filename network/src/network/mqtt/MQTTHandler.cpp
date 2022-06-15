@@ -3,6 +3,7 @@
 //
 
 #include "MQTTHandler.h"
+#include "MQTTUtils.h"
 
 namespace network::mqtt {
 
@@ -15,8 +16,10 @@ namespace network::mqtt {
 
     void MQTTAgent::handleRead(const Context &ctx, const PublishMessage &msg) {
         std::string_view data((const char*)msg.getMessage().data(), msg.getMessage().size());
-        if (auto it = _callbacks.find(msg.getTopic()); it != _callbacks.end()) {
-            it->second(*this, msg.getTopic(), data);
+        for (auto& it : _callbacks) {
+            if (MQTTUtils::compareTopics(it.first, msg.getTopic())) {
+                it.second(*this, msg.getTopic(), data);
+            }
         }
         if (_callback) {
             _callback(*this, msg.getTopic(), data);

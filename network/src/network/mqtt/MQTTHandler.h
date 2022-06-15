@@ -35,6 +35,8 @@ namespace network::mqtt {
 
     class MQTTAgent : public MQTTHandler {
         int _id{1};
+    private:
+        bool compareTopics(std::string_view topic, std::string_view origin);
     public:
         typedef std::shared_ptr<MQTTAgent> Ptr;
         MQTTConnectCallback _connCallback;

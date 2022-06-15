@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include "Config.h"
+#define BOOST_TEST_MODULE network
+
+#include <boost/test/unit_test.hpp>
 
 namespace network {
-    class BufferFixture {
-    public:
-        BufferFixture();
-    };
+    class BufferFixture { };
 }
 
 

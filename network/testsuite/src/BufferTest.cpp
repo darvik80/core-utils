@@ -7,8 +7,6 @@
 
 namespace network {
 
-    BufferFixture::BufferFixture() {}
-
     BOOST_FIXTURE_TEST_SUITE(BufferTest, BufferFixture)
 
         BOOST_AUTO_TEST_CASE(testMainFunctions) {

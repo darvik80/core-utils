@@ -18,7 +18,7 @@ include_directories(
 
 link_directories(
         /usr/local/lib
-        /usr/local/Cellar/icu4c/69.1/lib
+        /usr/local/Cellar/icu4c/70.1/lib
 )
 
 add_subdirectory(logging)

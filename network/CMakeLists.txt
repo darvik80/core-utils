@@ -29,7 +29,7 @@ include_directories(
 
 set(MAIN_LIBS logging)
 
-add_library(${PROJECT_NAME} ${SRCS_G} src/network/boost/DnsResolver.h src/network/boost/DnsResolver.cpp src/network/mqtt/MQTTUtils.cpp src/network/mqtt/MQTTUtils.h)
+add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS} ${OPENSSL_LIBRARIES})
 
 add_subdirectory(example)

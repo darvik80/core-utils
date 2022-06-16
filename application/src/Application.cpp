@@ -10,11 +10,13 @@
 #include "scheduler/SchedulerService.h"
 
 #include <fstream>
+#include <filesystem>
 
 using namespace boost;
 
 void Application::run(int argc, char **argv) {
-    std::ifstream props("settings.json");
+    std::string path = std::filesystem::exists("settings.json") ? "settings.json" : "../etc/settings.json";
+    std::ifstream props(path);
     Registry registry(props);
 
     postConstruct(registry);

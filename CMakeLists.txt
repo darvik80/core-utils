@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 project(core_utils)
 
 set(CMAKE_CXX_STANDARD 17)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
@@ -22,7 +21,7 @@ link_directories(
 )
 
 add_subdirectory(logging)
-add_subdirectory(audioplayer)
+#add_subdirectory(audioplayer)
 add_subdirectory(event-manager)
 add_subdirectory(serial)
 add_subdirectory(network)

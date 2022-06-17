@@ -404,6 +404,12 @@ namespace network::mqtt {
             setQos(1);
         }
 
+        SubscribeMessage(uint16_t pid)
+                : Message(MessageType::subscribe) {
+            setQos(1);
+            setPacketIdentifier(pid);
+        }
+
         SubscribeMessage(std::string_view topicFilter, uint8_t qos, uint16_t pid)
                 : Message(MessageType::subscribe) {
             setQos(1);

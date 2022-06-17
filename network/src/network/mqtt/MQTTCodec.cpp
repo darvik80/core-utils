@@ -86,13 +86,12 @@ namespace network::mqtt {
         });
 
         _decoder->onPublish([this, ctx](const PublishMessage &msg) {
-            mqtt::log::info("handle Publish: {}", msg.getPacketIdentifier());
-            mqtt::log::info("{}", std::string_view((const char*)msg.getMessage().data(), msg.getMessage().size()));
+            mqtt::log::debug("handle Publish: {}", msg.getPacketIdentifier());
             fireMessage(ctx, msg);
         });
 
         _decoder->onPubAck([](const PubAckMessage &msg) {
-            mqtt::log::info("handle PubAck: {}", msg.getPacketIdentifier());
+            mqtt::log::debug("handle PubAck: {}", msg.getPacketIdentifier());
         });
 
         _decoder->onPong([](const PingRespMessage &msg) {

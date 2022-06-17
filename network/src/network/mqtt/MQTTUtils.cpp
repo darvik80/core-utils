@@ -42,5 +42,9 @@ bool MQTTUtils::compareTopics(std::string_view topic, std::string_view origin) {
         ++it, ++oit;
     }
 
+    if (it != topic.end() && *it == '+') {
+        ++it;
+    }
+
     return it == topic.end() && oit == origin.end();
 }

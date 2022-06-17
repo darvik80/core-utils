@@ -9,6 +9,7 @@ namespace network::mqtt {
     BOOST_FIXTURE_TEST_SUITE(MQTTUtilsTest, MQTTUtilsFixture)
 
         BOOST_AUTO_TEST_CASE(testCompareTopic) {
+            BOOST_REQUIRE_EQUAL(true, MQTTUtils::compareTopics("/mail/+/+", "/mail/test/hello"));
             BOOST_REQUIRE_EQUAL(true, MQTTUtils::compareTopics("/test/+/hello", "/test/test/hello"));
             BOOST_REQUIRE_EQUAL(true, MQTTUtils::compareTopics("/test/+/hello/", "/test/test/hello/"));
             BOOST_REQUIRE_EQUAL(true, MQTTUtils::compareTopics("/test/+/#", "/test/test/hello"));

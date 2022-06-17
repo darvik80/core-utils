@@ -25,6 +25,14 @@ namespace network {
         DnsResolver _resolver;
         boost::asio::deadline_timer _deadline;
     private:
+        void doReconnect(boost::asio::io_service &service) {
+            _deadline.expires_from_now(boost::posix_time::seconds(10));
+            _deadline.async_wait([this, &service](const boost::system::error_code &err) {
+                if (!err) {
+                    doConnect(service);
+                }
+            });
+        }
         void doConnect(boost::asio::io_service &service) {
             if constexpr(std::is_base_of<SslSocket, Socket>::value) {
                 auto sslSocket = std::make_shared<Socket>(service, _context);
@@ -41,13 +49,7 @@ namespace network {
                                                 std::shared_ptr<AsyncChannel<Socket>> channel(
                                                         new AsyncChannel<Socket>(std::move(*sslSocket)),
                                                         [this, &service](AsyncChannel<Socket> *chan) {
-                                                            _deadline.expires_from_now(boost::posix_time::seconds(10));
-                                                            _deadline.async_wait([this, &service](const boost::system::error_code &err) {
-                                                                if (!err) {
-                                                                    doConnect(service);
-                                                                }
-                                                            });
-
+                                                            doReconnect(service);
                                                             network::log::info("destroy channel");
                                                             delete chan;
                                                         }
@@ -57,6 +59,7 @@ namespace network {
                                             } else {
                                                 network::log::warning("client handshake failed: {}", ec.message());
                                                 sslSocket->lowest_layer().close();
+                                                doReconnect(service);
                                             }
                                         }
                                 );
@@ -75,13 +78,7 @@ namespace network {
                             } else {
                                 std::shared_ptr<AsyncChannel<Socket>> channel(
                                         new AsyncChannel<Socket>(std::move(*socket)), [this, &service](AsyncChannel<Socket> *chan) {
-                                            _deadline.expires_from_now(boost::posix_time::seconds(10));
-                                            _deadline.async_wait([this, &service](const boost::system::error_code &err) {
-                                                if (!err) {
-                                                    doConnect(service);
-                                                }
-                                            });
-
+                                            doReconnect(service);
                                             network::log::info("destroy channel");
                                             delete chan;
                                         }

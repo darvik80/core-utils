@@ -13,3 +13,14 @@ struct IotMessage : em::Event {
     std::string topic;
     std::string message;
 };
+
+struct IotTelemetry : em::Event {
+    IotTelemetry(int qos, std::string_view message) : qos(qos), message(message) {}
+
+    IotTelemetry(int qos, const nlohmann::json &json) : qos(qos) {
+        message = json.dump();
+    }
+
+    int qos{0};
+    std::string message;
+};

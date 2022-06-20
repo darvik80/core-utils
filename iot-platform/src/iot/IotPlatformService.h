@@ -42,10 +42,10 @@ public:
         }
         if (_delegate) {
             registry.getService<EventManagerService>()
-                    .subscribe<SystemInfoEvent>(
-                            [this](const SystemInfoEvent &event) -> bool {
-                                info("Temp: cpu: {}", event.cpuTemp);
-                                _delegate->telemetry(1, to_string(nlohmann::json{event}));
+                    .subscribe<IotTelemetry>(
+                            [this](const IotTelemetry &event) -> bool {
+                                info("telemetry: {}", event.message);
+                                _delegate->telemetry(event.qos, event.message);
                                 return true;
 
                             }

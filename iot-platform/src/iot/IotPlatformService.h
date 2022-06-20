@@ -6,7 +6,6 @@
 
 #include "BaseService.h"
 #include "network/boost/AsyncTcpClient.h"
-#include "IotProperties.h"
 
 #include "event/EventManagerService.h"
 #include "network/handler/NetworkLogger.h"
@@ -15,8 +14,8 @@
 #include "network/mqtt/MQTTHandler.h"
 #include "network/mqtt/MQTTCodec.h"
 
-#include "../../../../monitor/src/SystemMonitorService.h"
 #include "IotPlatform.h"
+#include "IotProperties.h"
 #include "ThingsBoardIotPlatform.h"
 
 class IotPlatformService : public BaseService {

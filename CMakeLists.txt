@@ -11,8 +11,12 @@ endif ()
 include_directories(
         /usr/include
         /usr/local/include
-       logging/src
-       event-manager/src
+        /usr/local/opt/openssl/include
+        logging/src
+        network/src
+        event-manager/src
+        application/src
+        iot-platform/src
 )
 
 link_directories(

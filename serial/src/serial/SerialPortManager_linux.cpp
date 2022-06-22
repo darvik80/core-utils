@@ -48,8 +48,8 @@ glob(const vector<string>& patterns)
 {
     vector<string> paths_found;
 
-	if(patterns.size() == 0)
-	    return paths_found;
+    if(patterns.size() == 0)
+        return paths_found;
 
     glob_t glob_results;
 

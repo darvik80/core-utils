@@ -15,7 +15,7 @@
 #include <boost/log/support/date_time.hpp>
 #include <boost/stacktrace.hpp>
 
-BOOST_LOG_GLOBAL_LOGGER_INIT(g_logger, src::severity_logger_mt<trivial::severity_level>) {
+BOOST_LOG_GLOBAL_LOGGER_INIT(g_logger, src::severity_logger_mt < trivial::severity_level >) {
     boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level> logger;
 
     return logger;
@@ -86,6 +86,11 @@ void fileFormatter(boost::log::record_view const &rec, boost::log::formatting_os
     date_time_formatter(rec, strm);
     strm << "] [";
 
+    auto ch = rec[channel];
+    if (ch) {
+        strm << std::setw(10) << std::right << ch << "] [";
+    }
+
     strm << std::setw(7) << std::right << rec[boost::log::trivial::severity] << "] ";
     strm << "[ " << rec[threadId] << " ] : " << rec[boost::log::expressions::smessage];
 }
@@ -95,7 +100,7 @@ void logger::setup(const logger::LoggingProperties &props) {
 
     if (props.file) {
         boost::log::add_file_log(
-                boost::log::keywords::file_name = "./application.log",
+                boost::log::keywords::file_name = "/tmp/1c-application.log",
                 boost::log::keywords::rotation_size = 10 * 1024 * 1024,
                 boost::log::keywords::time_based_rotation = boost::log::sinks::file::rotation_at_time_point(0, 0, 0),
                 boost::log::keywords::auto_flush = true

@@ -17,7 +17,9 @@ namespace network {
     typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> SslSocket;
 
     template<typename Socket = TcpSocket>
-    class AsyncChannel : public InboundOutboundMessageHandler<Buffer, Buffer>, public std::enable_shared_from_this<AsyncChannel<Socket>> {
+    class AsyncChannel
+            : public InboundOutboundMessageHandler<Buffer, Buffer>,
+              public std::enable_shared_from_this<AsyncChannel<Socket>> {
         Socket _socket;
 
         std::vector<uint8_t> _incBuf;

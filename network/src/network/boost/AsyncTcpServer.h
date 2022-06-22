@@ -30,7 +30,8 @@ namespace network {
             _acceptor.async_accept(
                     [this](const boost::system::error_code &ec, boost::asio::ip::tcp::socket socket) {
                         if (!ec) {
-                            network::log::debug("[net] onAccept: {}:{}", socket.remote_endpoint().address().to_string(), socket.remote_endpoint().port());
+                            network::log::debug("[net] onAccept: {}:{}", socket.remote_endpoint().address().to_string(),
+                                                socket.remote_endpoint().port());
 
                             // SSL Support
                             if constexpr(std::is_base_of<SslSocket, Socket>::value) {
@@ -39,11 +40,13 @@ namespace network {
                                         boost::asio::ssl::stream_base::server,
                                         [this, sslSocket](const boost::system::error_code &ec) {
                                             if (!ec) {
-                                                std::shared_ptr<AsyncChannel<SslSocket>> channel(new AsyncChannel<Socket>(std::move(*sslSocket)), [this](AsyncChannel<Socket> *chan) {
-                                                    _channels.erase(chan);
-                                                    network::log::info("[net] destroy channel");
-                                                    delete chan;
-                                                });
+                                                std::shared_ptr<AsyncChannel<SslSocket>> channel(
+                                                        new AsyncChannel<Socket>(std::move(*sslSocket)),
+                                                        [this](AsyncChannel<Socket> *chan) {
+                                                            _channels.erase(chan);
+                                                            network::log::info("[net] destroy channel");
+                                                            delete chan;
+                                                        });
                                                 _channels.insert(channel.get());
 
                                                 _callback(channel);
@@ -57,11 +60,13 @@ namespace network {
                             }
 
                             if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
-                                std::shared_ptr<AsyncChannel<Socket>> channel(new AsyncChannel(std::move(socket)), [this](AsyncChannel<Socket> *chan) {
-                                    _channels.erase(chan);
-                                    network::log::info("[net] destroy channel");
-                                    delete chan;
-                                });
+                                std::shared_ptr<AsyncChannel<Socket>> channel(new AsyncChannel(std::move(socket)),
+                                                                              [this](AsyncChannel<Socket> *chan) {
+                                                                                  _channels.erase(chan);
+                                                                                  network::log::info(
+                                                                                          "[net] destroy channel");
+                                                                                  delete chan;
+                                                                              });
                                 _channels.insert(channel.get());
 
                                 _callback(channel);
@@ -78,11 +83,14 @@ namespace network {
 
     public:
         explicit AsyncServer(boost::asio::io_service &service, Callback callback)
-                : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server), _callback(std::move(callback)) {
+                : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server),
+                  _callback(std::move(callback)) {
         }
 
-        explicit AsyncServer(boost::asio::io_service &service, Callback callback, const std::string &certFile, const std::string &keyFile)
-                : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server), _callback(std::move(callback)) {
+        explicit AsyncServer(boost::asio::io_service &service, Callback callback, const std::string &certFile,
+                             const std::string &keyFile)
+                : _acceptor(service, boost::asio::ip::tcp::v4()), _context(boost::asio::ssl::context::tlsv12_server),
+                  _callback(std::move(callback)) {
             _context.use_certificate_file(certFile, boost::asio::ssl::context::pem);
             _context.use_private_key_file(keyFile, boost::asio::ssl::context::pem);
             _context.set_options(boost::asio::ssl::context::default_workarounds);

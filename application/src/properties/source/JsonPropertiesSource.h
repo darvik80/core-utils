@@ -18,12 +18,13 @@ public:
     explicit JsonPropertiesSource(std::ifstream &stream) {
         stream >> _json;
     }
+
     [[nodiscard]] const nlohmann::json &getJson() const {
         return _json;
     }
 };
 
-inline void fromJson(JsonPropertiesSource& source, LoggingProperties& props) {
+inline void fromJson(JsonPropertiesSource &source, LoggingProperties &props) {
     if (auto it = source.getJson().find("logging"); it != source.getJson().end()) {
         if (auto key = it->find("level"); key != it->end()) {
             key->get_to(props.level);
@@ -37,7 +38,7 @@ inline void fromJson(JsonPropertiesSource& source, LoggingProperties& props) {
     }
 }
 
-inline void fromJson(JsonPropertiesSource& source, JoystickProperties &props) {
+inline void fromJson(JsonPropertiesSource &source, JoystickProperties &props) {
     if (auto it = source.getJson().find("joystick"); it != source.getJson().end()) {
         if (auto key = it->find("type"); key != it->end()) {
             auto type = key->get<std::string>();

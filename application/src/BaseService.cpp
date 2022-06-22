@@ -9,7 +9,7 @@ void BaseService::postConstruct(Registry &registry) {
     debug("post constructor");
 }
 
-void BaseService::preDestroy(Registry& registry) {
+void BaseService::preDestroy(Registry &registry) {
     debug("pre destroy");
 }
 

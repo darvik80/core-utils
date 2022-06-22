@@ -26,7 +26,7 @@ public:
             : _propsSource(jsonProps) {
     }
 
-    explicit Registry(std::ifstream& fileJsonProps)
+    explicit Registry(std::ifstream &fileJsonProps)
             : _propsSource(fileJsonProps) {
     }
 
@@ -39,8 +39,8 @@ public:
         return _service;
     }
 
-    void visitService(const std::function<void(Service& service)>& visitor) {
-        for (auto &ptr : _services) {
+    void visitService(const std::function<void(Service &service)> &visitor) {
+        for (auto &ptr: _services) {
             visitor(*ptr);
         }
     }
@@ -48,7 +48,7 @@ public:
 
     template<class C>
     C &getService() {
-        for (auto &ptr : _services) {
+        for (auto &ptr: _services) {
             const C *pC = dynamic_cast<const C *>(ptr.get());
             if (pC) {
                 return *const_cast<C *>(pC);

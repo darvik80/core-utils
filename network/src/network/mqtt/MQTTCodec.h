@@ -22,14 +22,15 @@ namespace network::mqtt {
         std::string password;
     };
 
-    class MQTTCodec : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage, UnSubscribeMessage, UnSubAckMessage> {
+    class MQTTCodec
+            : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage, UnSubscribeMessage, UnSubAckMessage> {
         ArrayBuffer<2048> _incBuf;
         MQTTDecoder::Ptr _decoder;
         MQTTEncoder::Ptr _encoder;
 
         MQTTOptions _options;
     public:
-        explicit MQTTCodec(const MQTTOptions& options);
+        explicit MQTTCodec(const MQTTOptions &options);
 
         void handleActive(const Context &ctx) override;
 

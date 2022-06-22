@@ -468,7 +468,7 @@ namespace network::mqtt {
 
     class UnSubAckMessage : public Message, public MessagePacketIdentifier {
     public:
-        UnSubAckMessage() : Message(MessageType::unsub_ack) { }
+        UnSubAckMessage() : Message(MessageType::unsub_ack) {}
 
     };
 }

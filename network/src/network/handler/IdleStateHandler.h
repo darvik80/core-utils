@@ -23,7 +23,8 @@ namespace network::handler {
         void resetWriteTimer(const Context &ctx);
 
     public:
-        IdleStateHandler(boost::asio::io_service &service, boost::posix_time::time_duration readTimeout, boost::posix_time::time_duration writeTimeout)
+        IdleStateHandler(boost::asio::io_service &service, boost::posix_time::time_duration readTimeout,
+                         boost::posix_time::time_duration writeTimeout)
                 : _readTimer(service), _readTimeout(readTimeout), _writeTimer(service), _writeTimeout(writeTimeout) {}
 
         void handleActive(const Context &ctx) override;

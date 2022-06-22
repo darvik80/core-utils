@@ -13,7 +13,7 @@ enum class IotType {
     Yandex,
 };
 
-inline void from_json(const nlohmann::json& j, IotType& type) {
+inline void from_json(const nlohmann::json &j, IotType &type) {
     std::string str;
     j.get_to(str);
     if (str == "thingsboard") {
@@ -39,7 +39,7 @@ struct IotProperties : Properties {
     // } iot
 };
 
-inline void fromJson(JsonPropertiesSource& source, IotProperties& props) {
+inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
     if (auto it = source.getJson().find("iot-mqtt"); it != source.getJson().end()) {
         if (auto key = it->find("address"); key != it->end()) {
             key->get_to(props.address);
@@ -61,7 +61,7 @@ inline void fromJson(JsonPropertiesSource& source, IotProperties& props) {
     }
 }
 
-inline void fromEnv(EnvPropertiesSource& source, IotProperties& props) {
+inline void fromEnv(EnvPropertiesSource &source, IotProperties &props) {
 
 }
 

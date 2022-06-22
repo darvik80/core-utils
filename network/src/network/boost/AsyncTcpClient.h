@@ -14,8 +14,8 @@ namespace network {
     template<typename Socket>
     class AsyncClient {
     public:
-        typedef std::function<void(const std::shared_ptr<AsyncChannel < Socket>> &)>
-        Callback;
+        typedef std::function<void(const std::shared_ptr<AsyncChannel<Socket>> &)>
+                Callback;
     private:
         boost::asio::ssl::context _context;
 
@@ -33,6 +33,7 @@ namespace network {
                 }
             });
         }
+
         void doConnect(boost::asio::io_service &service) {
             if constexpr(std::is_base_of<SslSocket, Socket>::value) {
                 auto sslSocket = std::make_shared<Socket>(service, _context);
@@ -77,7 +78,8 @@ namespace network {
                                 doConnect(service);
                             } else {
                                 std::shared_ptr<AsyncChannel<Socket>> channel(
-                                        new AsyncChannel<Socket>(std::move(*socket)), [this, &service](AsyncChannel<Socket> *chan) {
+                                        new AsyncChannel<Socket>(std::move(*socket)),
+                                        [this, &service](AsyncChannel<Socket> *chan) {
                                             doReconnect(service);
                                             network::log::info("destroy channel");
                                             delete chan;
@@ -93,11 +95,13 @@ namespace network {
 
     public:
         explicit AsyncClient(boost::asio::io_service &service, const Callback &callback)
-                : _service(service), _resolver(service), _context(boost::asio::ssl::context::tlsv12_client), _deadline(service), _callback(callback) {
+                : _service(service), _resolver(service), _context(boost::asio::ssl::context::tlsv12_client),
+                  _deadline(service), _callback(callback) {
         }
 
         explicit AsyncClient(boost::asio::io_service &service, const Callback &callback, const std::string &caFile)
-                : _service(service), _resolver(service), _context(boost::asio::ssl::context::tlsv12_client), _deadline(service), _callback(callback) {
+                : _service(service), _resolver(service), _context(boost::asio::ssl::context::tlsv12_client),
+                  _deadline(service), _callback(callback) {
             _context.use_certificate_file(caFile, boost::asio::ssl::context::pem);
             _context.set_options(boost::asio::ssl::context::default_workarounds);
         }

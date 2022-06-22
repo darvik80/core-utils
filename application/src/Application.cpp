@@ -39,14 +39,18 @@ void Application::postConstruct(Registry &registry) {
         service.postConstruct(registry);
     });
 
-    registry.getService<EventManagerService>().subscribe<ApplicationStartedEvent>([this, now](const ApplicationStartedEvent &event) -> bool {
-        info("application started, {}ms", (boost::posix_time::microsec_clock::local_time()-now).total_milliseconds());
-        return true;
-    });
+    registry.getService<EventManagerService>().subscribe<ApplicationStartedEvent>(
+            [this, now](const ApplicationStartedEvent &event) -> bool {
+                info("application started, {}ms",
+                     (boost::posix_time::microsec_clock::local_time() - now).total_milliseconds());
+                return true;
+            });
 }
 
 void Application::run(Registry &registry) {
     auto &ioc = registry.getIoService();
+    auto &eventManager = registry.getService<EventManagerService>();
+
     asio::signal_set signals(ioc);
     signals.add(SIGINT);
     signals.add(SIGTERM);
@@ -54,7 +58,6 @@ void Application::run(Registry &registry) {
     signals.add(SIGQUIT);
 #endif
 
-    auto &eventManager = registry.getService<EventManagerService>();
 
     signals.async_wait(
             [&eventManager](boost::system::error_code ec, int signal) {

@@ -19,4 +19,3 @@ file(COPY resources/settings.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(${PROJECT_NAME} ${SRCS_G})
 
 target_link_libraries(${PROJECT_NAME} ${APP_EXAMPLE_MAIN_LIBS})
-

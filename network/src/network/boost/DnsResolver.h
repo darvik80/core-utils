@@ -13,7 +13,7 @@ namespace network {
 
     class DnsResolver {
 
-        asio::io_service& _service;
+        asio::io_service &_service;
         ip::tcp::resolver::results_type _result;
         ip::tcp::resolver::iterator _iter;
     public:
@@ -22,7 +22,9 @@ namespace network {
         explicit DnsResolver(asio::io_service &service);
 
         void resolve(std::string_view host, uint16_t port);
+
         ip::tcp::resolver::endpoint_type next();
+
         std::size_t size();
     };
 

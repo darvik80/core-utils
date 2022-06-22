@@ -137,7 +137,8 @@ namespace network::mqtt::v31 {
 
             /// 3.8.3.1 Payload non normative example
             for (auto &topic: msg.getTopics()) {
-                out << IOFlag::be << (uint16_t) topic.getTopicFilter().size() << topic.getTopicFilter() << topic.getQos();
+                out << IOFlag::be << (uint16_t) topic.getTopicFilter().size() << topic.getTopicFilter()
+                    << topic.getQos();
             }
 
             return out.status();

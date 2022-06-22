@@ -30,8 +30,8 @@ namespace network::mqtt {
 
     class MQTTAgent;
 
-    typedef std::function<void(MQTTAgent& agent, std::string_view, std::string_view data)> MQTTMessageCallback;
-    typedef std::function<void(MQTTAgent& agent)> MQTTConnectCallback;
+    typedef std::function<void(MQTTAgent &agent, std::string_view, std::string_view data)> MQTTMessageCallback;
+    typedef std::function<void(MQTTAgent &agent)> MQTTConnectCallback;
 
     class MQTTAgent : public MQTTHandler {
         int _id{1};
@@ -52,8 +52,10 @@ namespace network::mqtt {
 
         virtual void unSubscribe(std::string_view topicFilter);
 
-        virtual void connect(const MQTTConnectCallback& fn);
+        virtual void connect(const MQTTConnectCallback &fn);
+
         virtual void callback(std::string_view topic, const MQTTMessageCallback &fn);
+
         virtual void callback(const MQTTMessageCallback &fn);
     };
 }

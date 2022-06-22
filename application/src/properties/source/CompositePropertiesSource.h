@@ -17,7 +17,7 @@ public:
             : _jsonSource(json) {
     }
 
-    explicit CompositePropertiesSource(std::ifstream& stream)
+    explicit CompositePropertiesSource(std::ifstream &stream)
             : _jsonSource(stream) {
     }
 

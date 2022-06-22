@@ -3,6 +3,7 @@
 //
 
 #include "Application.h"
+#include "scheduler/SchedulerService.h"
 
 class MainApp : public Application {
 protected:
@@ -12,6 +13,11 @@ protected:
 
         // TODO: register own services
         // registry.addService(std::make_shared<I2CServoDriver>());
+        auto &scheduler = registry.getService<SchedulerService>();
+
+        scheduler.scheduleAtFixedRate([]() {
+            logger::info("thread IoTPlatformAddIn::schedule");
+        }, boost::posix_time::seconds{10}, boost::posix_time::seconds{10});
     }
 
     void destroy(Registry &registry) override {

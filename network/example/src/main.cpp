@@ -101,7 +101,7 @@ void exampleMQTT(boost::asio::io_service &service) {
     uint16_t port = 1883;
 
     auto agent = std::make_shared<mqtt::MQTTAgent>();
-    agent->connect([](mqtt::MQTTAgent& agent) {
+    agent->connect([](mqtt::MQTTAgent &agent) {
         agent.subscribe("v1/devices/me/rpc/request/+", 0);
     });
     AsyncClient<TcpSocket> client(
@@ -110,10 +110,11 @@ void exampleMQTT(boost::asio::io_service &service) {
                 link(
                         channel,
                         std::make_shared<handler::NetworkLogger>(),
-                        std::make_shared<handler::IdleStateHandler>(service, posix_time::seconds(5), posix_time::seconds(5)),
+                        std::make_shared<handler::IdleStateHandler>(service, posix_time::seconds(5),
+                                                                    posix_time::seconds(5)),
                         std::make_shared<mqtt::MQTTCodec>(mqtt::MQTTOptions{
-                            .clientId = "mqtt-tester",
-                            .accessToken = "hello-world"
+                                .clientId = "mqtt-tester",
+                                .accessToken = "hello-world"
                         }),
                         agent
                 );

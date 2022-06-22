@@ -242,7 +242,7 @@ void *visualizerOutput(void *arg) {
             for (int j = 0; j < THICKNESS; j++)
                 SDL_RenderDrawLine(wrap->audio->renderer,
                                    startx + (i * DISTANCE + j),
-                                   starty-200,
+                                   starty - 200,
                                    startx + (i * DISTANCE + j),
                                    starty - 200 - (FIT_FACTOR * max[i]));
         }
@@ -300,7 +300,8 @@ public:
             }
 
             //Create window
-            _window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
+            _window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+                                       SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
             if (_window == nullptr) {
                 printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
                 success = false;
@@ -313,7 +314,7 @@ public:
                 //_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
                 _audioData = new AudioData{};
 
-                _audioData->renderer=SDL_CreateRenderer(_window,-1,SDL_RENDERER_ACCELERATED);
+                _audioData->renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
                 if (_audioData->renderer == nullptr) {
                     printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
                     success = false;
@@ -364,9 +365,9 @@ public:
         //FFTW_FORWARD is a constant that select the forward method and
         //FFTW_ESTIMATE is an estimate of the time it should take(to verify)
         _audioData->plan = fftw_plan_dft_1d(NSAMPLES,
-                                           _audioData->in,
-                                           _audioData->out,
-                                           FFTW_FORWARD, FFTW_MEASURE);
+                                            _audioData->in,
+                                            _audioData->out,
+                                            FFTW_FORWARD, FFTW_MEASURE);
 
         return success;
     }
@@ -388,7 +389,8 @@ public:
         //Load splash image
         _helloWorld = SDL_LoadBMP("resources/hello_world.bmp");
         if (_helloWorld == nullptr) {
-            printf("Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError());
+            printf("Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp",
+                   SDL_GetError());
             success = false;
         }
 
@@ -440,6 +442,7 @@ public:
         mutex.unlock();
 
     }
+
     bool update() {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
@@ -471,7 +474,7 @@ public:
             SDL_Event e;
 
             float UPDATE_RATE = 60.0;
-            float UPDATE_INTERVAL = 1000/UPDATE_RATE;
+            float UPDATE_INTERVAL = 1000 / UPDATE_RATE;
             long IDLE_TIME = 1000000000;
 
             //While application is running
@@ -488,8 +491,8 @@ public:
 
                 lastTime = now;
 
-                bool  render = false;
-                delta += (float)elapsedTime / UPDATE_INTERVAL;
+                bool render = false;
+                delta += (float) elapsedTime / UPDATE_INTERVAL;
                 while (delta > 1) {
                     quit = update();
                     delta--;
@@ -505,12 +508,14 @@ public:
                     this->render();
                     fps++;
                 } else {
-                    std::this_thread::sleep_for(std::chrono::milliseconds {1});
+                    std::this_thread::sleep_for(std::chrono::milliseconds{1});
                 }
 
                 if (count >= 1000) {
                     SDL_SetWindowTitle(_window, fmt::format("fps: {}, upd: {}, updl: {}", fps, upd, updl).c_str());
-                    fps = 0; upd = 0; updl = 0;
+                    fps = 0;
+                    upd = 0;
+                    updl = 0;
                     count -= 1000;
                 }
             }

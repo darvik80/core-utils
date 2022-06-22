@@ -12,7 +12,7 @@ struct IotCommand : em::Event {
     nlohmann::json params;
 };
 
-inline void from_json(const nlohmann::json& j, IotCommand& cmd) {
+inline void from_json(const nlohmann::json &j, IotCommand &cmd) {
     j.at("method").get_to(cmd.name);
     j.at("params").get_to(cmd.params);
 }

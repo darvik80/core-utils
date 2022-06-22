@@ -18,7 +18,9 @@ namespace em {
         EventSource::Ptr source{};
 
         Event() = default;
-        explicit Event(const EventSource::Ptr& src) : source(src) {}
+
+        explicit Event(const EventSource::Ptr &src) : source(src) {}
+
         virtual ~Event() = default;
     };
 }

@@ -9,7 +9,8 @@
 #include <boost/test/unit_test.hpp>
 
 namespace network {
-    class BufferFixture { };
+    class BufferFixture {
+    };
 }
 
 

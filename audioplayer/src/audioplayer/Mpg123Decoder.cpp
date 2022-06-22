@@ -19,7 +19,7 @@ int Mpg123Decoder::open(std::string_view filePath, Mpg123DecoderCallback *callba
         return err;
     }
     auto size = mpg123_outblock(handler);
-    _buffer.resize(size/2);
+    _buffer.resize(size / 2);
     _callback = callback;
 
     err = mpg123_open(handler, filePath.data());
@@ -42,13 +42,13 @@ int Mpg123Decoder::open(std::string_view filePath, Mpg123DecoderCallback *callba
 
 int Mpg123Decoder::process() {
     size_t size = 0;
-    int res = mpg123_read(_handler, _buffer.data(), _buffer.size()*2, &size);
+    int res = mpg123_read(_handler, _buffer.data(), _buffer.size() * 2, &size);
     if (res == MPG123_OK && _callback) {
         for (int idx = 0; idx < size; idx += 2) {
             //_buffer[idx] = _buffer[idx]/2;
             //_buffer[idx+1] = 0;
         }
-        _callback.value()->onData((const uint8_t *)_buffer.data(), size);
+        _callback.value()->onData((const uint8_t *) _buffer.data(), size);
 
         //std::string str = fmt::sprintf("%.06d ", (*(uint16_t*)(_buffer.data())));
         //str += fmt::sprintf("%.06d ", (*(uint16_t*)(_buffer.data() + 2)));

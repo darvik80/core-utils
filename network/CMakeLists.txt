@@ -16,9 +16,7 @@ file(GLOB SRCS_G
         src/network/mqtt/*.cpp
         )
 
-if (APPLE)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@3)
-endif ()
+set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@3)
 
 find_package(OpenSSL REQUIRED)
 

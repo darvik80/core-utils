@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     SerialPortManager manager;
 
     std::vector<std::string> ports;
-    for (const auto& port : manager.listPorts()) {
+    for (const auto &port: manager.listPorts()) {
         ports.push_back(port.port);
     }
     serial::log::debug("Ports: {}", ports);

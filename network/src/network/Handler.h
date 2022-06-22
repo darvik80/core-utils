@@ -185,7 +185,8 @@ namespace network {
     };
 
     template<typename T, typename ...Tn>
-    class InboundOutboundMessageHandler : public InboundMessageHandler<T, Tn...>, public OutboundMessageHandler<T, Tn...> {
+    class InboundOutboundMessageHandler
+            : public InboundMessageHandler<T, Tn...>, public OutboundMessageHandler<T, Tn...> {
     };
 
     template<typename A, typename B>
@@ -214,7 +215,8 @@ namespace network {
     }
 
     template<typename A, typename B, typename C, typename D, typename E>
-    auto link(std::shared_ptr<A> a, std::shared_ptr<B> b, std::shared_ptr<C> c, std::shared_ptr<D> d, std::shared_ptr<E> e) {
+    auto
+    link(std::shared_ptr<A> a, std::shared_ptr<B> b, std::shared_ptr<C> c, std::shared_ptr<D> d, std::shared_ptr<E> e) {
         link(a, b, c, d);
         link(d, e);
 
@@ -222,7 +224,9 @@ namespace network {
     }
 
     template<typename A, typename B, typename C, typename D, typename E, typename F>
-    auto link(std::shared_ptr<A> a, std::shared_ptr<B> b, std::shared_ptr<C> c, std::shared_ptr<D> d, std::shared_ptr<E> e, std::shared_ptr<F> f) {
+    auto
+    link(std::shared_ptr<A> a, std::shared_ptr<B> b, std::shared_ptr<C> c, std::shared_ptr<D> d, std::shared_ptr<E> e,
+         std::shared_ptr<F> f) {
         link(a, b, c, d, e);
         link(e, f);
 

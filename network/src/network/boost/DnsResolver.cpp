@@ -4,7 +4,7 @@
 #include "DnsResolver.h"
 
 namespace network {
-    DnsResolver::DnsResolver(asio::io_service &service, std::string_view host, uint16_t port) : _service(service){
+    DnsResolver::DnsResolver(asio::io_service &service, std::string_view host, uint16_t port) : _service(service) {
         ip::tcp::resolver::query query(host.data(), std::to_string(port));
         ip::tcp::resolver resolver(service);
 

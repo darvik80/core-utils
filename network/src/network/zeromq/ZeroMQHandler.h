@@ -13,7 +13,8 @@
 
 namespace network::zeromq {
 
-    class ZeroMQHandler : public InboundHandler<ZeroMQCommand, ZeroMQMessage>, public PrevLink<ZeroMQCommand, ZeroMQMessage> {
+    class ZeroMQHandler
+            : public InboundHandler<ZeroMQCommand, ZeroMQMessage>, public PrevLink<ZeroMQCommand, ZeroMQMessage> {
         std::string _type;
     public:
         explicit ZeroMQHandler(std::string_view type);
@@ -65,7 +66,8 @@ namespace network::zeromq {
         }
     };
 
-    class ZeroMQPublisher : public ZeroMQHandler, public std::enable_shared_from_this<ZeroMQPublisher>, public Producer {
+    class ZeroMQPublisher
+            : public ZeroMQHandler, public std::enable_shared_from_this<ZeroMQPublisher>, public Producer {
         CompositeProducer::Ptr _pub;
         std::unordered_set<std::string> _topics;
     public:

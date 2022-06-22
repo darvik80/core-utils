@@ -92,9 +92,12 @@ public:
     void schedule(const TimeHandler &fn, const TimeDuration &duration);
 
     void scheduleAtFixedRate(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period);
+
     void scheduleWithFixedDelay(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period);
+
 private:
     void doScheduleAtFixedRate(TimerPtr timer, const TimeHandler &fn, const TimeDuration &period);
+
     void doScheduleWithFixedDelay(TimerPtr timer, const TimeHandler &fn, const TimeDuration &period);
 };
 

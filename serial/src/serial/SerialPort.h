@@ -27,7 +27,9 @@ struct SerialPortProperties {
 class SerialPort {
 public:
     virtual std::string deviceId() = 0;
+
     virtual boost::future<void> send(uint8_t msgId, const uint8_t *data, size_t size) = 0;
+
     virtual void onMessage(uint8_t msgId, const uint8_t *data, size_t size) = 0;
 };
 
@@ -36,11 +38,15 @@ public:
     typedef std::shared_ptr<SerialPortCallback> Ptr;
     typedef std::set<Ptr> SetPtr;
 public:
-    virtual void onConnect(SerialPort& port) = 0;
-    virtual void onDisconnect(SerialPort& port) = 0;
-    virtual void onIdle(SerialPort& port) = 0;
-    virtual void onMessage(SerialPort& port, uint8_t msgId, const uint8_t *data, size_t size) = 0;
-    virtual void onError(SerialPort& port, const boost::system::error_code& ec) = 0;
+    virtual void onConnect(SerialPort &port) = 0;
+
+    virtual void onDisconnect(SerialPort &port) = 0;
+
+    virtual void onIdle(SerialPort &port) = 0;
+
+    virtual void onMessage(SerialPort &port, uint8_t msgId, const uint8_t *data, size_t size) = 0;
+
+    virtual void onError(SerialPort &port, const boost::system::error_code &ec) = 0;
 };
 
 class BoostSerialPort : public SerialPort {
@@ -67,10 +73,12 @@ class BoostSerialPort : public SerialPort {
 
     SerialPortCallback::SetPtr _callbacks;
 public:
-    BoostSerialPort(boost::asio::io_service& service, const SerialPortProperties&  props);
+    BoostSerialPort(boost::asio::io_service &service, const SerialPortProperties &props);
 
     std::string deviceId() override;
+
     boost::future<void> send(uint8_t msgId, const uint8_t *data, size_t size) override;
+
     void onMessage(uint8_t msgId, const uint8_t *data, size_t size) override;
 
     void addCallback(SerialPortCallback::Ptr callback) {
@@ -79,7 +87,9 @@ public:
 
 private:
     void open();
-    void setTimer(boost::posix_time::time_duration duration, const std::function<void()>& fn);
+
+    void setTimer(boost::posix_time::time_duration duration, const std::function<void()> &fn);
+
     void cancelTimer();
 
 private:

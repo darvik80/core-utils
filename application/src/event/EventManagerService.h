@@ -17,6 +17,6 @@ public:
     }
 
     int order() override {
-        return INT_MAX-1;
+        return INT_MAX - 1;
     }
 };

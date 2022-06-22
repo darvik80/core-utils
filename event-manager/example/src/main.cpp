@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     }, boost::posix_time::seconds{10});
 
     em::EventManager mng;
-    mng.subscribe<em::Event>([](const em::Event& event) -> bool {
+    mng.subscribe<em::Event>([](const em::Event &event) -> bool {
         em::log::info("handle event");
         return false;
     });

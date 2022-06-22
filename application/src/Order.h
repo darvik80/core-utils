@@ -12,16 +12,15 @@ public:
 };
 
 template<typename T>
-struct OrderedLess
-{
+struct OrderedLess {
     bool operator()(std::shared_ptr<T> first, std::shared_ptr<T> second) const {
         int orderFirst = 0;
-        if (const auto obj = dynamic_cast<Ordered*>(first.get()); obj) {
+        if (const auto obj = dynamic_cast<Ordered *>(first.get()); obj) {
             orderFirst = obj->order();
         }
 
-        int orderSecond= 0;
-        if (const auto obj = dynamic_cast<Ordered*>(second.get()); obj) {
+        int orderSecond = 0;
+        if (const auto obj = dynamic_cast<Ordered *>(second.get()); obj) {
             orderSecond = obj->order();
         }
 

@@ -15,6 +15,7 @@ class ThingsBoardIotPlatform : public IotPlatform {
     const std::string RESPONSE_TOPIC = "v1/devices/me/rpc/response";
 protected:
     void onConnect(network::mqtt::MQTTAgent &agent) override;
+
 public:
     void telemetry(uint8_t qos, std::string_view data) override {
         publish(TELEMETRY_TOPIC, qos, data);

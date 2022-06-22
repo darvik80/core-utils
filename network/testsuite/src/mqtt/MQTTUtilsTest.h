@@ -7,5 +7,6 @@
 #include <boost/test/unit_test.hpp>
 
 namespace network::mqtt {
-    class MQTTUtilsFixture { };
+    class MQTTUtilsFixture {
+    };
 }

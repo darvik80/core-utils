@@ -44,7 +44,7 @@ namespace logger {
     struct LoggingProperties {
         std::string level{"debug"};
         bool console{true};
-        bool file{false};
+        bool file{true};
     };
 
     void setup(const LoggingProperties &properties);

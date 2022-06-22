@@ -15,7 +15,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/../src
 )
 
-find_package (Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
 add_executable(${PROJECT_NAME} ${TEST_SRCS})
 target_link_libraries(${PROJECT_NAME} PUBLIC logging network ${Boost_LIBRARIES})

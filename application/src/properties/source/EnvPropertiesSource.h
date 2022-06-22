@@ -21,7 +21,7 @@
 class EnvPropertiesSource : public PropertiesSource {
 };
 
-inline void fromEnv(EnvPropertiesSource& source, LoggingProperties& props) {
+inline void fromEnv(EnvPropertiesSource &source, LoggingProperties &props) {
     if (auto val = getenv(PROP_LOGGING_LEVEL); val != nullptr) {
         props.level = val;
     }
@@ -33,7 +33,7 @@ inline void fromEnv(EnvPropertiesSource& source, LoggingProperties& props) {
     }
 }
 
-inline void fromEnv(EnvPropertiesSource& source, JoystickProperties& props) {
+inline void fromEnv(EnvPropertiesSource &source, JoystickProperties &props) {
     if (auto val = getenv(PROP_JOYSTICK_TYPE); val != nullptr) {
         if (0 == strcasecmp(val, "xbox")) {
             props.type = JoystickType::xbox;

@@ -9,7 +9,7 @@
 
 using namespace boost;
 
-BoostSerialPort::BoostSerialPort(boost::asio::io_service &service, const SerialPortProperties& props)
+BoostSerialPort::BoostSerialPort(boost::asio::io_service &service, const SerialPortProperties &props)
         : _serial(service), _timer(service), _props(props) {
 
     open();
@@ -65,7 +65,7 @@ void BoostSerialPort::asyncRead() {
                         try {
                             open();
                             asyncRead();
-                        } catch (std::exception& ex) {
+                        } catch (std::exception &ex) {
                             serial::log::warning("can't reopen port: {}", ex.what());
                         }
                     });
@@ -118,7 +118,7 @@ void BoostSerialPort::asyncRead() {
                             break;
                         }
 
-                        onMessage( _cmd, _buffer.data(), _buffer.size());
+                        onMessage(_cmd, _buffer.data(), _buffer.size());
                         _recvState = IDLE;
                     }
                 }
@@ -136,7 +136,7 @@ std::string BoostSerialPort::deviceId() {
 
 void BoostSerialPort::onConnect() {
     std::for_each(_callbacks.begin(), _callbacks.end(), [this](SerialPortCallback::Ptr callback) {
-       callback->onConnect(*this);
+        callback->onConnect(*this);
     });
 }
 
@@ -173,7 +173,7 @@ void BoostSerialPort::open() {
         try {
             _serial.cancel();
             _serial.close();
-        } catch (std::exception& ex) {
+        } catch (std::exception &ex) {
             serial::log::warning("can't close port {}, {}", _props.port, ex.what());
         }
 
@@ -189,9 +189,9 @@ void BoostSerialPort::open() {
     onConnect();
 }
 
-void BoostSerialPort::setTimer(posix_time::time_duration duration, const std::function<void()>& fn) {
+void BoostSerialPort::setTimer(posix_time::time_duration duration, const std::function<void()> &fn) {
     _timer.expires_from_now(duration);
-    _timer.async_wait([fn](const boost::system::error_code& ec) {
+    _timer.async_wait([fn](const boost::system::error_code &ec) {
         if (!ec) {
             fn();
         }

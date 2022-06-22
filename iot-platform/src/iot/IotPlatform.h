@@ -91,6 +91,7 @@ public:
             _agent->publish(topic, qos, data);
         }
     }
+
     virtual void telemetry(uint8_t qos, std::string_view data) = 0;
 
     virtual ~IotPlatform() = default;

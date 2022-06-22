@@ -15,8 +15,8 @@ namespace network::mqtt {
     }
 
     void MQTTAgent::handleRead(const Context &ctx, const PublishMessage &msg) {
-        std::string_view data((const char*)msg.getMessage().data(), msg.getMessage().size());
-        for (auto& it : _callbacks) {
+        std::string_view data((const char *) msg.getMessage().data(), msg.getMessage().size());
+        for (auto &it: _callbacks) {
             if (MQTTUtils::compareTopics(it.first, msg.getTopic())) {
                 it.second(*this, msg.getTopic(), data);
             }
@@ -46,7 +46,7 @@ namespace network::mqtt {
         write(Context{}, msg);
     }
 
-    void MQTTAgent::connect(const MQTTConnectCallback& fn) {
+    void MQTTAgent::connect(const MQTTConnectCallback &fn) {
         _connCallback = fn;
     }
 

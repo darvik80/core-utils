@@ -25,7 +25,8 @@ void Scheduler::doScheduleWithFixedDelay(TimerPtr timer, const TimeHandler &fn, 
     });
 }
 
-void Scheduler::scheduleWithFixedDelay(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period) {
+void
+Scheduler::scheduleWithFixedDelay(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period) {
     TimerPtr timer = std::make_shared<Timer>(_service, initDelay);
     timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
         if (!ec) {
@@ -37,7 +38,7 @@ void Scheduler::scheduleWithFixedDelay(const TimeHandler &fn, const TimeDuration
 void Scheduler::doScheduleAtFixedRate(TimerPtr timer, const TimeHandler &fn, const TimeDuration &period) {
     fn();
 
-    timer->expires_at(timer->expires_at()+period);
+    timer->expires_at(timer->expires_at() + period);
     timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
         if (!ec) {
             doScheduleAtFixedRate(timer, fn, period);

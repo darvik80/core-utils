@@ -8,7 +8,7 @@
 #include "MQTTLogging.h"
 
 namespace network::mqtt {
-    MQTTCodec::MQTTCodec(const MQTTOptions& options)
+    MQTTCodec::MQTTCodec(const MQTTOptions &options)
             : _options(options) {
         _decoder = std::make_shared<v31::MQTTDecoder>();
         _encoder = std::make_shared<v31::MQTTEncoder>();

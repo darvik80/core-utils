@@ -18,11 +18,12 @@ public:
     typedef std::shared_ptr<Service> Ptr;
     typedef std::vector<Ptr> VecPtr;
 public:
-    virtual const char* name() = 0;
+    virtual const char *name() = 0;
 
 public:
-    virtual void postConstruct(Registry& registry) = 0;
-    virtual void preDestroy(Registry& registry) = 0;
+    virtual void postConstruct(Registry &registry) = 0;
+
+    virtual void preDestroy(Registry &registry) = 0;
 
 };
 

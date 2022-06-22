@@ -23,7 +23,7 @@ void AudioPlayer::onFormatInfo(long rate, int channels, int encoding) {
 }
 
 void AudioPlayer::onData(const uint8_t *data, size_t size) {
-    ao_play(_dev, (char*)data, size);
+    ao_play(_dev, (char *) data, size);
 }
 
 void AudioPlayer::play(std::string_view filePath) {

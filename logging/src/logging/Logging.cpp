@@ -85,7 +85,6 @@ void fileFormatter(boost::log::record_view const &rec, boost::log::formatting_os
     strm << "[";
     date_time_formatter(rec, strm);
     strm << "] [";
-
     auto ch = rec[channel];
     if (ch) {
         strm << std::setw(10) << std::right << ch << "] [";
@@ -100,7 +99,7 @@ void logger::setup(const logger::LoggingProperties &props) {
 
     if (props.file) {
         boost::log::add_file_log(
-                boost::log::keywords::file_name = "/tmp/1c-application.log",
+                boost::log::keywords::file_name = props.filePath,
                 boost::log::keywords::rotation_size = 10 * 1024 * 1024,
                 boost::log::keywords::time_based_rotation = boost::log::sinks::file::rotation_at_time_point(0, 0, 0),
                 boost::log::keywords::auto_flush = true

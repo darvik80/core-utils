@@ -35,6 +35,9 @@ inline void fromJson(JsonPropertiesSource &source, LoggingProperties &props) {
         if (auto key = it->find("file"); key != it->end()) {
             key->get_to(props.file);
         }
+        if (auto key = it->find("file-path"); key != it->end()) {
+            key->get_to(props.filePath);
+        }
     }
 }
 

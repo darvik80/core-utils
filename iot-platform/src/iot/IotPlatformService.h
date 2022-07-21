@@ -50,6 +50,16 @@ public:
                             }
                     );
 
+            registry.getService<EventManagerService>()
+                    .subscribe<IotMessage>(
+                            [this](const IotMessage &event) -> bool {
+                                info("publish: {}", event.message);
+                                _delegate->publish(event.topic, event.qos, event.message);
+                                return true;
+
+                            }
+                    );
+
             _delegate->postConstruct(registry);
         }
     }

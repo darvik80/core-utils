@@ -20,4 +20,6 @@ public:
     void telemetry(uint8_t qos, std::string_view data) override {
         publish(TELEMETRY_TOPIC, qos, data);
     }
+
+
 };

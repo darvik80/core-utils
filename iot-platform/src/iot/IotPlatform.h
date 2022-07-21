@@ -31,15 +31,15 @@ protected:
     virtual void onConnect(network::mqtt::MQTTAgent &agent) = 0;
 
     void onMessage(network::mqtt::MQTTAgent &agent, std::string_view topic, std::string_view data) {
-        _eventManager->raiseEvent(IotMessage{topic, data});
+        _eventManager->raiseEvent(IotMessage{topic, 1, data});
     }
 
     void onAttributes(network::mqtt::MQTTAgent &agent, std::string_view data) {
-        _eventManager->raiseEvent(IotMessage{"attributes", data});
+        _eventManager->raiseEvent(IotMessage{"attributes", 1, data});
     }
 
     void onConfig(network::mqtt::MQTTAgent &agent, std::string_view data) {
-        _eventManager->raiseEvent(IotMessage{"config", data});
+        _eventManager->raiseEvent(IotMessage{"config", 1, data});
     }
 
     void onCommand(network::mqtt::MQTTAgent &agent, const IotCommand &cmd) {

@@ -42,8 +42,8 @@ public:
         if (_delegate) {
             registry.getService<EventManagerService>()
                     .subscribe<IotTelemetry>(
-                            [this](const IotTelemetry &event) -> bool {
-                                info("telemetry: {}", event.message);
+                            [this](const auto &event) -> bool {
+                                debug("telemetry: {}", event.message);
                                 _delegate->telemetry(event.qos, event.message);
                                 return true;
 
@@ -52,8 +52,8 @@ public:
 
             registry.getService<EventManagerService>()
                     .subscribe<IotMessage>(
-                            [this](const IotMessage &event) -> bool {
-                                info("publish: {}", event.message);
+                            [this](const auto &event) -> bool {
+                                debug("publish: {}", event.message);
                                 _delegate->publish(event.topic, event.qos, event.message);
                                 return true;
 

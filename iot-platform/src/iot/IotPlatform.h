@@ -35,10 +35,12 @@ protected:
     }
 
     void onAttributes(network::mqtt::MQTTAgent &agent, std::string_view data) {
+        iot::log::info("attributes: {}", data);
         _eventManager->raiseEvent(IotMessage{"attributes", 1, data});
     }
 
     void onConfig(network::mqtt::MQTTAgent &agent, std::string_view data) {
+        iot::log::info("config: {}", data);
         _eventManager->raiseEvent(IotMessage{"config", 1, data});
     }
 
@@ -87,7 +89,7 @@ public:
 
     virtual void publish(std::string_view topic, uint8_t qos, std::string_view data) {
         if (_agent) {
-            iot::log::info("pub: {}:{}", topic, data);
+            iot::log::debug("pub: {}:{}", topic, data);
             _agent->publish(topic, qos, data);
         }
     }

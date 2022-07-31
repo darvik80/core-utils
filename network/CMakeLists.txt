@@ -25,6 +25,9 @@ include_directories(
         ${OPENSSL_INCLUDE_DIR}
 )
 
+message(STATUS ${OPENSSL_INCLUDE_DIR})
+message(STATUS ${OPENSSL_LIBRARIES})
+
 set(MAIN_LIBS logging)
 
 add_library(${PROJECT_NAME} ${SRCS_G})

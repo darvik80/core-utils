@@ -1,0 +1,8 @@
+[requires]
+fmt/8.1.1
+boost/1.76.0
+openssl/1.1.1q
+nlohmann_json/3.11.2
+
+[generators]
+cmake

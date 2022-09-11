@@ -32,7 +32,30 @@ auto static date_time_formatter = boost::log::expressions::stream
         << boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f");
 
 void consoleFormatter(boost::log::record_view const &rec, boost::log::formatting_ostream &strm) {
+#ifdef WIN32
+    strm << "[";
+    date_time_formatter(rec, strm);
+    strm << "] [";
 
+    auto severity = rec[boost::log::trivial::severity];
+
+    strm << std::setw(7) << std::right << severity << "] ";
+
+    auto ch = rec[channel];
+    if (ch) {
+        strm << "[" << std::setw(10) << std::right << ch << "] ";
+    }
+
+    strm << "[" << rec[threadId] << "] : " << rec[boost::log::expressions::smessage];
+
+    switch (severity.get()) {
+        case boost::log::trivial::severity_level::error:
+        case boost::log::trivial::severity_level::fatal:
+            strm << std::endl << boost::stacktrace::stacktrace();
+        default:
+            break;
+    }
+#else
     strm << "\033[38;5;15m[";
     date_time_formatter(rec, strm);
     strm << "] [";
@@ -79,6 +102,7 @@ void consoleFormatter(boost::log::record_view const &rec, boost::log::formatting
             break;
     }
     strm << "\033[0m";
+#endif
 }
 
 void fileFormatter(boost::log::record_view const &rec, boost::log::formatting_ostream &strm) {

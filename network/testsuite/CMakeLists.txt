@@ -15,7 +15,19 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/../src
 )
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+# libs {
+add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
+if (UNIX)
+    find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+else()
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup()
+
+    link_directories(${CONAN_BOOST_ROOT}/lib)
+    set(Boost_LIBRARIES libboost_unit_test_framework)
+endif()
+# }
+
 
 add_executable(${PROJECT_NAME} ${TEST_SRCS})
 target_link_libraries(${PROJECT_NAME} PUBLIC logging network ${Boost_LIBRARIES})

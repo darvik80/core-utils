@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <mutex>
+#include <sstream>
 
 namespace network::handler {
 

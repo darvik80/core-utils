@@ -39,11 +39,19 @@ inline void fromEnv(EnvPropertiesSource &source, LoggingProperties &props) {
 
 inline void fromEnv(EnvPropertiesSource &source, JoystickProperties &props) {
     if (auto val = getenv(PROP_JOYSTICK_TYPE); val != nullptr) {
+#ifdef WIN32
+        if (0 == strcmp(val, "xbox")) {
+            props.type = JoystickType::xbox;
+        } else if (0 == strcmp(val, "ps3")) {
+            props.type = JoystickType::ps3;
+        }
+#else
         if (0 == strcasecmp(val, "xbox")) {
             props.type = JoystickType::xbox;
         } else if (0 == strcasecmp(val, "ps3")) {
             props.type = JoystickType::ps3;
         }
+#endif
     }
 
     if (auto val = getenv(PROP_JOYSTICK_NAME); val != nullptr) {

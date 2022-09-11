@@ -3,11 +3,11 @@ project(logging-example)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if (UNIX)
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-type-limits -Wno-psabi")
 endif ()
-
-add_definitions(-DRASPBERRY_ARCH)
+endif()
 
 file(GLOB SRCS_G
         src/*.cpp

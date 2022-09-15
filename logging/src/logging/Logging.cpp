@@ -47,14 +47,6 @@ void consoleFormatter(boost::log::record_view const &rec, boost::log::formatting
     }
 
     strm << "[" << rec[threadId] << "] : " << rec[boost::log::expressions::smessage];
-
-    switch (severity.get()) {
-        case boost::log::trivial::severity_level::error:
-        case boost::log::trivial::severity_level::fatal:
-            strm << std::endl << boost::stacktrace::stacktrace();
-        default:
-            break;
-    }
 #else
     strm << "\033[38;5;15m[";
     date_time_formatter(rec, strm);

@@ -10,13 +10,13 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 # libs {
+add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
 
 if (WIN32)
     message(STATUS ${CONAN_BOOST_ROOT})
     set(Boost_INCLUDE_DIR ${CONAN_BOOST_ROOT}/include)
     set(Boost_LIBRARIES libboost_system libboost_filesystem libboost_thread libboost_log libboost_log_setup)
 else()
-    add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
     find_package(Boost REQUIRED COMPONENTS system filesystem thread log log_setup REQUIRED)
 endif()
 # }

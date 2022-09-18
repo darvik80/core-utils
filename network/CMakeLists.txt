@@ -16,28 +16,14 @@ file(GLOB SRCS_G
         src/network/mqtt/*.cpp
         )
 
-# libs {
-add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
-if (UNIX)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl@3)
-    find_package(OpenSSL REQUIRED)
-else()
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
-
-    set(OPENSSL_LIBRARIES ${CONAN_LIBS})
-endif()
-# }
-
 include_directories(
         ${PROJECT_SOURCE_DIR}/src
-        ${OPENSSL_INCLUDE_DIR}
 )
 
 set(MAIN_LIBS logging)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS} ${OPENSSL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS} ${CONAN_LIBS})
 
 add_subdirectory(example)
 add_subdirectory(testsuite)

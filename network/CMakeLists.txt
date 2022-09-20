@@ -20,10 +20,8 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/src
 )
 
-set(MAIN_LIBS logging)
-
 add_library(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS} ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} logging ${CONAN_LIBS})
 
 add_subdirectory(example)
 add_subdirectory(testsuite)

@@ -101,12 +101,11 @@ void fileFormatter(boost::log::record_view const &rec, boost::log::formatting_os
     strm << "[";
     date_time_formatter(rec, strm);
     strm << "] [";
+    strm << std::setw(7) << std::right << rec[boost::log::trivial::severity] << "] ";
     auto ch = rec[channel];
     if (ch) {
         strm << std::setw(10) << std::right << ch << "] [";
     }
-
-    strm << std::setw(7) << std::right << rec[boost::log::trivial::severity] << "] ";
     strm << "[ " << rec[threadId] << " ] : " << rec[boost::log::expressions::smessage];
 }
 

@@ -13,9 +13,7 @@ file(GLOB SRCS_G
         src/joystick/*.cpp
         )
 
-set(MAIN_LIBS logging event-manager network)
-
 add_library(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
+target_link_libraries(${PROJECT_NAME} logging event-manager network)
 
 add_subdirectory(example)

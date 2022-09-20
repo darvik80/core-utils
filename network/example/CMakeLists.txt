@@ -12,9 +12,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/../src
 )
 
-set(NET_EXAMPLE_MAIN_LIBS logging network)
-
 add_executable(${PROJECT_NAME} ${SRCS_G})
 
-target_link_libraries(${PROJECT_NAME} ${NET_EXAMPLE_MAIN_LIBS})
+target_link_libraries(${PROJECT_NAME} logging network)
 

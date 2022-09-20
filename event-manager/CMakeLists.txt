@@ -3,12 +3,14 @@ project(event-manager)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB SRCS_G src/event/*.cpp src/scheduler/*.cpp)
+# Include Conan info
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
-set(EVENT_MAIN_LIBS logging)
+file(GLOB SRCS_G src/event/*.cpp src/scheduler/*.cpp)
 
 add_subdirectory(example)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 
-target_link_libraries(${PROJECT_NAME} ${EVENT_MAIN_LIBS})
+target_link_libraries(${PROJECT_NAME} logging)

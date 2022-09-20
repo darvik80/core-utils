@@ -12,12 +12,8 @@ else()
     conan_basic_setup()
 endif()
 
-set(Boost_USE_STATIC_LIBS OFF)  # only find static libs
-set(Boost_USE_SHARED_LIBS ON)  # only find static libs
-set(Boost_USE_DEBUG_LIBS OFF)  # ignore debug libs and
-set(Boost_USE_RELEASE_LIBS ON)  # only find release libs
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
 include_directories(
         /usr/include

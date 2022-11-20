@@ -8,6 +8,7 @@
 #include "event/EventManagerService.h"
 #include "event/ApplicationEvent.h"
 #include "scheduler/SchedulerService.h"
+#include "MessageBus.h"
 
 #include <fstream>
 #include <filesystem>
@@ -31,6 +32,7 @@ void Application::postConstruct(Registry &registry) {
     registry.addService(std::make_shared<LoggingService>());
     registry.addService(std::make_shared<SchedulerService>(registry.getIoService()));
     registry.addService(std::make_shared<EventManagerService>());
+    registry.addService(std::make_shared<MessageBusService>());
     // } System Services
 
     setup(registry);

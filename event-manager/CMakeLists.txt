@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-file(GLOB SRCS_G src/event/*.cpp src/scheduler/*.cpp)
+file(GLOB SRCS_G src/*.cpp src/event/*.cpp src/scheduler/*.cpp)
 
 add_subdirectory(example)
 

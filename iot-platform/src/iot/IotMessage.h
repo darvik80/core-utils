@@ -5,20 +5,14 @@
 #pragma once
 
 #include <string>
-#include "event/Event.h"
 
-struct IotMessage : em::Event {
-    IotMessage(std::string_view topic, int qos, std::string_view message) : topic(topic), qos(qos), message(message) {}
-
+struct IotMessage {
     std::string topic;
     int qos{0};
     std::string message;
 };
 
-struct IotTelemetry : em::Event {
-    IotTelemetry() = default;
-    IotTelemetry(int qos, std::string_view message) : qos(qos), message(message) {}
-
+struct IotTelemetry {
     int qos{0};
     std::string message;
 };

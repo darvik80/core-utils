@@ -5,12 +5,12 @@
 #pragma once
 
 #include "BaseService.h"
-#include <scheduler/Scheduler.h>
+#include "scheduler/Scheduler.h"
 
-class SchedulerService : public Scheduler, public BaseService {
+class SchedulerService : public em::Scheduler, public BaseService {
 public:
     explicit SchedulerService(boost::asio::io_service &service)
-            : Scheduler(service), BaseService(scheduler_logger::get()) {}
+            : em::Scheduler(service), BaseService(scheduler_logger::get()) {}
 
     const char *name() override {
         return "scheduler";

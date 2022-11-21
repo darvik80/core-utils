@@ -4,53 +4,46 @@
 
 #include "Scheduler.h"
 
+namespace em {
 
-void Scheduler::schedule(const TimeHandler &fn, const TimeDuration &duration) {
-    TimerPtr timer = std::make_shared<Timer>(_service, duration);
-    timer->async_wait([fn, timer](const ErrorCode &ec) {
-        if (!ec) {
+    void Scheduler::scheduleOnce(const Timer::Handler &fn, Timer::Duration delay) {
+        auto timer = std::make_shared<Timer>(_service);
+        timer->scheduleOnce(delay, [this, timer, fn]() {
             fn();
+        });
+    }
+
+    void Scheduler::scheduleWithFixedDelay(const Timer::Handler &fn, Timer::Duration initDelay, Timer::Duration period) {
+        auto timer = std::make_shared<Timer>(_service);
+        if (initDelay.is_positive()) {
+            timer->scheduleOnce(initDelay, [this, period, timer, fn]() {
+                fn();
+                timer->scheduleWithFixedDelay(period, [this, timer, fn]() {
+                    fn();
+                });
+            });
+
+        } else {
+            timer->scheduleWithFixedDelay(period, [this, timer, fn]() {
+                fn();
+            });
         }
-    });
-}
+    }
 
-void Scheduler::doScheduleWithFixedDelay(TimerPtr timer, const TimeHandler &fn, const TimeDuration &period) {
-    fn();
-
-    timer->expires_from_now(period);
-    timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
-        if (!ec) {
-            doScheduleWithFixedDelay(timer, fn, period);
+    void Scheduler::scheduleAtFixedRate(const Timer::Handler &fn, Timer::Duration initDelay, Timer::Duration period) {
+        auto timer = std::make_shared<Timer>(_service);
+        if (initDelay.is_positive()) {
+            timer->scheduleOnce(initDelay, [this, period, timer, fn]() {
+                fn();
+                timer->scheduleAtFixedRate(period, [this, timer, fn]() {
+                    fn();
+                });
+            });
+        } else {
+            timer->scheduleAtFixedRate(period, [this, timer, fn]() {
+                fn();
+            });
         }
-    });
-}
+    }
 
-void
-Scheduler::scheduleWithFixedDelay(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period) {
-    TimerPtr timer = std::make_shared<Timer>(_service, initDelay);
-    timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
-        if (!ec) {
-            doScheduleAtFixedRate(timer, fn, period);
-        }
-    });
-}
-
-void Scheduler::doScheduleAtFixedRate(TimerPtr timer, const TimeHandler &fn, const TimeDuration &period) {
-    fn();
-
-    timer->expires_at(timer->expires_at() + period);
-    timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
-        if (!ec) {
-            doScheduleAtFixedRate(timer, fn, period);
-        }
-    });
-}
-
-void Scheduler::scheduleAtFixedRate(const TimeHandler &fn, const TimeDuration &initDelay, const TimeDuration &period) {
-    TimerPtr timer = std::make_shared<Timer>(_service, initDelay);
-    timer->async_wait([fn, timer, period, this](const ErrorCode &ec) {
-        if (!ec) {
-            doScheduleAtFixedRate(timer, fn, period);
-        }
-    });
 }

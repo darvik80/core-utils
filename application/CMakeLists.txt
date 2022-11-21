@@ -13,7 +13,7 @@ file(GLOB SRCS_G
         src/joystick/*.cpp
         )
 
-add_library(${PROJECT_NAME} ${SRCS_G} src/MessageBus.h)
+add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME} logging event-manager network)
 
 add_subdirectory(example)

@@ -16,7 +16,9 @@ public:
     }
 
     explicit JsonPropertiesSource(std::ifstream &stream) {
-        stream >> _json;
+        if (stream.is_open()) {
+            stream >> _json;
+        }
     }
 
     [[nodiscard]] const nlohmann::json &getJson() const {

@@ -18,7 +18,7 @@
 #include "IotProperties.h"
 #include "ThingsBoardIotPlatform.h"
 
-class IotPlatformService : public BaseService {
+class IotPlatformService : public BaseServiceShared<IotPlatformService> {
     std::unique_ptr<IotPlatform> _delegate;
 public:
     const char *name() override {
@@ -40,29 +40,22 @@ public:
 
         }
         if (_delegate) {
-            registry.getService<EventManagerService>()
-                    .subscribe<IotTelemetry>(
-                            [this](const auto &event) -> bool {
-                                debug("telemetry: {}", event.message);
-                                _delegate->telemetry(event.qos, event.message);
-                                return true;
-
-                            }
-                    );
-
-            registry.getService<EventManagerService>()
-                    .subscribe<IotMessage>(
-                            [this](const auto &event) -> bool {
-                                debug("publish: {}", event.message);
-                                _delegate->publish(event.topic, event.qos, event.message);
-                                return true;
-
-                            }
-                    );
-
+            registry.getService<EventManagerService>().subscribe<IotTelemetry>(shared_from_this());
+            registry.getService<EventManagerService>().subscribe<IotMessage>(shared_from_this());
             _delegate->postConstruct(registry);
         }
     }
+
+    void onEvent(const IotTelemetry &telemetry) {
+        debug("telemetry: {}", telemetry.message);
+        _delegate->telemetry(telemetry.qos, telemetry.message);
+    }
+
+    void onEvent(const IotMessage &msg) {
+        debug("publish: {}", msg.message);
+        _delegate->publish(msg.topic, msg.qos, msg.message);
+    }
+
 
     void preDestroy(Registry &registry) override {
         if (_delegate) {

@@ -7,7 +7,7 @@
 #include <system_error>
 #include <nlohmann/json.hpp>
 
-struct IotCommand : em::Event {
+struct IotCommand {
     std::string name;
     nlohmann::json params;
 };

@@ -5,18 +5,19 @@
 #ifndef ROVER_REGISTRY_H
 #define ROVER_REGISTRY_H
 
+#include "Asio.h"
 #include "Service.h"
 #include "Properties.h"
 #include "properties/source/CompositePropertiesSource.h"
 #include <string>
 
-#include <boost/asio.hpp>
+#include "Asio.h"
 #include <unordered_map>
 
 class Registry {
     friend class LoggingService;
 
-    boost::asio::io_service _service;
+    em::IOService _service;
     Service::VecPtr _services;
     Properties::VecPtr _properties;
 
@@ -35,7 +36,7 @@ public:
         std::sort(_services.begin(), _services.end(), OrderedLess<Service>());
     }
 
-    boost::asio::io_service &getIoService() {
+    em::IOService &getIoService() {
         return _service;
     }
 

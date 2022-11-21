@@ -8,7 +8,6 @@
 #include "event/EventManagerService.h"
 #include "event/ApplicationEvent.h"
 #include "scheduler/SchedulerService.h"
-#include "MessageBus.h"
 
 #include <fstream>
 #include <filesystem>
@@ -31,8 +30,7 @@ void Application::postConstruct(Registry &registry) {
     // { System Services
     registry.addService(std::make_shared<LoggingService>());
     registry.addService(std::make_shared<SchedulerService>(registry.getIoService()));
-    registry.addService(std::make_shared<EventManagerService>());
-    registry.addService(std::make_shared<MessageBusService>());
+    registry.addService(std::make_shared<EventManagerService>(registry.getIoService()));
     // } System Services
 
     setup(registry);
@@ -63,13 +61,13 @@ void Application::run(Registry &registry) {
 
     signals.async_wait(
             [&eventManager](boost::system::error_code ec, int signal) {
-                eventManager.raiseEvent(ApplicationCloseEvent{signal});
+                eventManager.post(ApplicationCloseEvent{.signal = signal});
             }
     );
 
     eventManager.subscribe<ApplicationCloseEvent>([&ioc, this](const ApplicationCloseEvent &event) -> bool {
         std::string signal = "unknown";
-        switch (event.getSignal()) {
+        switch (event.signal) {
             case SIGTERM:
                 signal = "SIGTERM";
                 break;
@@ -94,7 +92,7 @@ void Application::run(Registry &registry) {
         return true;
     });
 
-    eventManager.raiseEvent(ApplicationStartedEvent{});
+    eventManager.post(ApplicationStartedEvent{});
     registry.getIoService().run();
 }
 
@@ -102,6 +100,6 @@ void Application::preDestroy(Registry &registry) {
     registry.visitService([&registry](auto &service) {
         service.preDestroy(registry);
     });
-    registry.getService<EventManagerService>().raiseEvent(ApplicationShutdownEvent{});
+    registry.getService<EventManagerService>().post(ApplicationShutdownEvent{});
 }
 

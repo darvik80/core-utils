@@ -10,7 +10,7 @@
 
 class EventManagerService : public em::EventManager, public BaseServiceShared<EventManagerService> {
 public:
-    EventManagerService() : BaseServiceShared<EventManagerService>(em_logger::get()) {}
+    EventManagerService(em::IOService& service) : em::EventManager(service), BaseServiceShared<EventManagerService>(em_logger::get()) {}
 
     const char *name() override {
         return "event-manager";

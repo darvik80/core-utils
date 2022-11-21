@@ -7,9 +7,8 @@
 #include "joystick/Joystick.h"
 
 #include <nlohmann/json.hpp>
-#include "event/Event.h"
 
-class JoystickEvent : public em::Event, public Joystick {
+class JoystickEvent : public Joystick {
 };
 
 void to_json(nlohmann::json &j, const JoystickEvent &event);

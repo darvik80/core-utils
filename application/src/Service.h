@@ -9,11 +9,10 @@
 #include <vector>
 
 #include "Order.h"
-#include <event/Event.h>
 
 class Registry;
 
-class Service : public em::EventSource, public Ordered {
+class Service : public Ordered {
 public:
     typedef std::shared_ptr<Service> Ptr;
     typedef std::vector<Ptr> VecPtr;

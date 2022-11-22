@@ -2,9 +2,8 @@
 // Created by Ivan Kishchenko on 01.08.2021.
 //
 
-#include "event/EventManagerLogger.h"
-#include "Timer.h"
-#include "event/EventManager.h"
+#include "event/Timer.h"
+#include "event/EventBus.h"
 
 struct MyEvent  {
     std::string msg;
@@ -22,11 +21,11 @@ int main(int argc, char *argv[]) {
     logProps.level = "debug";
     logger::setup(logProps);
 
-    em::IOService service;
-    em::EventManager mng(service);
+    bus::IOService service;
+    bus::EventBus mng(service);
 
     mng.subscribe<std::string>([](const std::string &event) -> bool {
-        em::log::info("handle event: {}", event);
+        bus::log::info("handle event: {}", event);
         return true;
     });
 

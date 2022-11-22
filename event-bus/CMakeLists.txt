@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(event-manager)
+project(event-bus)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-file(GLOB SRCS_G src/*.cpp src/event/*.cpp src/scheduler/*.cpp)
+file(GLOB SRCS_G src/*.cpp src/event/*.cpp)
 
 add_subdirectory(example)
 

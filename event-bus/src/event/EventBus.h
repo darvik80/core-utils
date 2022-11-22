@@ -9,16 +9,18 @@
 #include <typeindex>
 #include <any>
 
-#include "EventManagerLogger.h"
-
 #include "Asio.h"
 #include "Timer.h"
-#include "scheduler/Scheduler.h"
+#include "Scheduler.h"
 
-namespace em {
-    class EventManager {
+#include <logging/Logging.h>
+
+LOG_COMPONENT_SETUP(bus, em_logger)
+
+namespace bus {
+    class EventBus {
     public:
-        typedef std::shared_ptr<EventManager> Ptr;
+        typedef std::shared_ptr<EventBus> Ptr;
         typedef boost::signals2::signal<void(const std::any &)> Signal;
         typedef std::unordered_map<std::type_index, Signal> SignalMap;
     private:
@@ -26,7 +28,7 @@ namespace em {
         SignalMap _signals;
         Scheduler _scheduler;
     public:
-        explicit EventManager(IOService &service) : _service(service), _scheduler(service) {}
+        explicit EventBus(IOService &service) : _service(service), _scheduler(service) {}
 
         template<class E, class H>
         void subscribe(const std::shared_ptr<H> &handler) {
@@ -52,11 +54,11 @@ namespace em {
 
         template<class E>
         void send(const E &event) {
-            em::log::debug("send event {}", typeid(event).name());
+            bus::log::debug("send event {}", boost::typeindex::type_id<E>().pretty_name());
             if (auto iter = _signals.find(typeid(event)); iter != _signals.end()) {
                 iter->second(event);
             } else {
-                em::log::warning("sent failed event {}, no consumers", typeid(event).name());
+                bus::log::warning("sent failed event {}, no consumers", boost::typeindex::type_id<E>().pretty_name());
             }
         }
 

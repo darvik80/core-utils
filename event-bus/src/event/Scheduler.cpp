@@ -4,7 +4,7 @@
 
 #include "Scheduler.h"
 
-namespace em {
+namespace bus {
 
     void Scheduler::scheduleOnce(const Timer::Handler &fn, Timer::Duration delay) {
         auto timer = std::make_shared<Timer>(_service);

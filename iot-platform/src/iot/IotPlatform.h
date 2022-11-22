@@ -14,7 +14,7 @@
 #include "network/mqtt/MQTTCodec.h"
 #include "network/handler/IdleStateHandler.h"
 #include "IotCommand.h"
-#include "event/EventManagerService.h"
+#include "core-service/EventBusService.h"
 #include "IotMessage.h"
 
 #include "IotPlatformLogger.h"
@@ -26,7 +26,7 @@ protected:
     network::mqtt::MQTTAgent::Ptr _agent;
     IotProperties _props;
 
-    em::EventManager::Ptr _eventManager;
+    bus::EventBus::Ptr _eventManager;
 protected:
     virtual void onConnect(network::mqtt::MQTTAgent &agent) = 0;
 
@@ -54,7 +54,7 @@ protected:
 
 public:
     virtual void postConstruct(Registry &registry) {
-        _eventManager = registry.getService<EventManagerService>().shared_from_this();
+        _eventManager = registry.getService<EventBusService>().shared_from_this();
         _props = registry.getProperties<IotProperties>();
 
         auto &service = registry.getIoService();

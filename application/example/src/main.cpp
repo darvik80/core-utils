@@ -3,7 +3,7 @@
 //
 
 #include "Application.h"
-#include "scheduler/SchedulerService.h"
+#include "core-service/SchedulerService.h"
 
 class MainApp : public Application {
 protected:

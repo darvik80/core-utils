@@ -4,10 +4,10 @@
 
 #include "Application.h"
 
-#include "logging/LoggingService.h"
-#include "event/EventManagerService.h"
-#include "event/ApplicationEvent.h"
-#include "scheduler/SchedulerService.h"
+#include "core-service/LoggingService.h"
+#include "core-service/EventBusService.h"
+#include "core-service/ApplicationEvent.h"
+#include "core-service/SchedulerService.h"
 
 #include <fstream>
 #include <filesystem>
@@ -30,7 +30,7 @@ void Application::postConstruct(Registry &registry) {
     // { System Services
     registry.addService(std::make_shared<LoggingService>());
     registry.addService(std::make_shared<SchedulerService>(registry.getIoService()));
-    registry.addService(std::make_shared<EventManagerService>(registry.getIoService()));
+    registry.addService(std::make_shared<EventBusService>(registry.getIoService()));
     // } System Services
 
     setup(registry);
@@ -39,7 +39,7 @@ void Application::postConstruct(Registry &registry) {
         service.postConstruct(registry);
     });
 
-    registry.getService<EventManagerService>().subscribe<ApplicationStartedEvent>(
+    registry.getService<EventBusService>().subscribe<ApplicationStartedEvent>(
             [this, now](const ApplicationStartedEvent &event) -> bool {
                 info("application started, {}ms",
                      (boost::posix_time::microsec_clock::local_time() - now).total_milliseconds());
@@ -49,7 +49,7 @@ void Application::postConstruct(Registry &registry) {
 
 void Application::run(Registry &registry) {
     auto &ioc = registry.getIoService();
-    auto &eventManager = registry.getService<EventManagerService>();
+    auto &eventManager = registry.getService<EventBusService>();
 
     asio::signal_set signals(ioc);
     signals.add(SIGINT);
@@ -100,6 +100,6 @@ void Application::preDestroy(Registry &registry) {
     registry.visitService([&registry](auto &service) {
         service.preDestroy(registry);
     });
-    registry.getService<EventManagerService>().post(ApplicationShutdownEvent{});
+    registry.getService<EventBusService>().post(ApplicationShutdownEvent{});
 }
 

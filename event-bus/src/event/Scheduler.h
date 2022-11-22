@@ -9,10 +9,12 @@
 #include <boost/system/error_code.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include "SchedulerLogger.h"
 #include "Timer.h"
+#include "logging/Logging.h"
 
-namespace em {
+LOG_COMPONENT_SETUP(scheduler, scheduler_logger)
+
+namespace bus {
     class Scheduler {
         boost::asio::io_service &_service;
     public:

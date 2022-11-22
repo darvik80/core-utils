@@ -7,7 +7,7 @@
 #include "BaseService.h"
 #include "Registry.h"
 #include "Properties.h"
-#include "event/ApplicationEvent.h"
+#include "core-service/ApplicationEvent.h"
 
 class Application : public BaseService {
 protected:

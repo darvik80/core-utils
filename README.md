@@ -14,7 +14,7 @@
 
 #include <logging/Logging.h>
 
-LOG_COMPONENT_SETUP(em, em_logger);
+LOG_COMPONENT_SETUP(bus, em_logger);
 ```
 
 #### main.cpp
@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
     logger::setup(logProps);
 
 
-    em::log::info("em::info");
-    em::log::warning("em::warn");
+    bus::log::info("bus::info");
+    bus::log::warning("bus::warn");
 
     return 0;
 }
@@ -52,24 +52,24 @@ int main(int argc, char *argv[]) {
     Scheduler scheduler(service);
 
     scheduler.scheduleAtFixedRate([]() {
-        em::log::info("scheduleAtFixedRate");
+        bus::log::info("scheduleAtFixedRate");
     }, boost::posix_time::seconds{0}, boost::posix_time::seconds{10});
 
     scheduler.scheduleWithFixedDelay([]() {
-        em::log::info("scheduleWithFixedDelay");
+        bus::log::info("scheduleWithFixedDelay");
     }, boost::posix_time::seconds{0}, boost::posix_time::seconds{5});
 
     scheduler.schedule([]() {
-        em::log::info("schedule");
+        bus::log::info("schedule");
     }, boost::posix_time::seconds{10});
 
-    em::EventManager mng;
-    mng.subscribe<em::Event>([](const em::Event& event) -> bool {
-        em::log::info("handle event");
+    bus::EventManager mng;
+    mng.subscribe<bus::Event>([](const bus::Event& event) -> bool {
+        bus::log::info("handle event");
         return false;
     });
 
-    mng.raiseEvent(em::Event{});
+    mng.raiseEvent(bus::Event{});
 
     service.run();
     return 0;

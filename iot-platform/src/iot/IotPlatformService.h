@@ -7,7 +7,7 @@
 #include "BaseService.h"
 #include "network/boost/AsyncTcpClient.h"
 
-#include "event/EventManagerService.h"
+#include "core-service/EventBusService.h"
 #include "network/handler/NetworkLogger.h"
 #include "network/handler/IdleStateHandler.h"
 
@@ -40,8 +40,8 @@ public:
 
         }
         if (_delegate) {
-            registry.getService<EventManagerService>().subscribe<IotTelemetry>(shared_from_this());
-            registry.getService<EventManagerService>().subscribe<IotMessage>(shared_from_this());
+            registry.getService<EventBusService>().subscribe<IotTelemetry>(shared_from_this());
+            registry.getService<EventBusService>().subscribe<IotMessage>(shared_from_this());
             _delegate->postConstruct(registry);
         }
     }

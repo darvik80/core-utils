@@ -10,7 +10,7 @@
 
 #include "Asio.h"
 
-namespace em {
+namespace bus {
     class Timer : public std::enable_shared_from_this<Timer> {
     public:
         typedef std::function<void()> Handler;

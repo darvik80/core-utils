@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
     logger::warning("Warning");
     //logger::error("Error");
 
-    em::log::info("em::info");
-    em::log::warning("em::warn");
+    bus::log::info("em::info");
+    bus::log::warning("em::warn");
 
     mqtt::log::info("mqtt::info");
     mqtt::log::warning("mqtt::warn");

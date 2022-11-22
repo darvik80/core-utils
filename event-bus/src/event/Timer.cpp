@@ -2,11 +2,11 @@
 // Created by Kishchenko Ivan on 21/11/2022.
 //
 #include "Timer.h"
-#include <logging/Logging.h>
+#include "logging/Logging.h"
 
 LOG_COMPONENT_SETUP(timer, timer_logger)
 
-namespace em {
+namespace bus {
 
     void Timer::scheduleOnce(const Timer::Duration &duration, const Timer::Handler &fn) {
         _timer->expires_from_now(duration);

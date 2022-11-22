@@ -2,22 +2,21 @@
 // Created by Ivan Kishchenko on 11.04.2021.
 //
 
-#ifndef ROVER_REGISTRY_H
-#define ROVER_REGISTRY_H
+#pragma once
 
-#include "Asio.h"
+#include "event/Asio.h"
 #include "Service.h"
 #include "Properties.h"
 #include "properties/source/CompositePropertiesSource.h"
 #include <string>
 
-#include "Asio.h"
+#include "event/Asio.h"
 #include <unordered_map>
 
 class Registry {
     friend class LoggingService;
 
-    em::IOService _service;
+    bus::IOService _service;
     Service::VecPtr _services;
     Properties::VecPtr _properties;
 
@@ -36,7 +35,7 @@ public:
         std::sort(_services.begin(), _services.end(), OrderedLess<Service>());
     }
 
-    em::IOService &getIoService() {
+    bus::IOService &getIoService() {
         return _service;
     }
 
@@ -69,6 +68,3 @@ public:
 private:
     friend class Application;
 };
-
-
-#endif //ROVER_REGISTRY_H

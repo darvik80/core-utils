@@ -7,7 +7,7 @@
 
 #include <boost/asio.hpp>
 
-namespace em {
+namespace bus {
     typedef boost::asio::deadline_timer IOTimer;
     typedef boost::asio::io_service IOService;
 }

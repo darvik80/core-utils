@@ -77,12 +77,10 @@ void consoleFormatter(boost::log::record_view const &rec, boost::log::formatting
 
     strm << std::setw(7) << std::right << severity << "\033[38;5;15m] ";
 
+    strm << "[\033[34m" << std::setw(10) << std::right;
     auto ch = rec[channel];
-    if (ch) {
-        strm << "[\033[34m" << std::setw(10) << std::right << ch << "\033[38;5;15m] ";
-    }
-
-    strm << "[\033[36m" << rec[threadId] << "\033[38;5;15m] : ";
+    if (ch) strm << ch; else strm << "main";
+    strm << "\033[38;5;15m] [\033[36m" << rec[threadId] << "\033[38;5;15m] : ";
 
     strm << "\033[38;5;250m" << rec[boost::log::expressions::smessage] << "\033[38;5;1m";
 

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "PropertiesSource.h"
+#include "properties/LoggingProperties.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
 
@@ -39,23 +40,6 @@ inline void fromJson(JsonPropertiesSource &source, LoggingProperties &props) {
         }
         if (auto key = it->find("file-path"); key != it->end()) {
             key->get_to(props.filePath);
-        }
-    }
-}
-
-inline void fromJson(JsonPropertiesSource &source, JoystickProperties &props) {
-    if (auto it = source.getJson().find("joystick"); it != source.getJson().end()) {
-        if (auto key = it->find("type"); key != it->end()) {
-            auto type = key->get<std::string>();
-            if (type == "xbox") {
-                props.type = JoystickType::xbox;
-            } else if (type == "ps3") {
-                props.type = JoystickType::ps3;
-            }
-        }
-
-        if (auto key = it->find("name"); key != it->end()) {
-            key->get_to(props.name);
         }
     }
 }

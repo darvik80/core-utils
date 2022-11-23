@@ -10,7 +10,6 @@ include_directories(
 file(GLOB SRCS_G
         src/*.cpp
         src/properties/source/*.cpp
-        src/joystick/*.cpp
         )
 
 add_library(${PROJECT_NAME} ${SRCS_G})

@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "PropertiesSource.h"
 #include <cstdlib>
-
 #include <boost/lexical_cast.hpp>
+
+#include "PropertiesSource.h"
+#include "properties/LoggingProperties.h"
 
 // props: LoggingProperties
 #define PROP_LOGGING_LEVEL      "LOGGING_LEVEL"         // LoggingProperties.level
@@ -15,11 +16,8 @@
 #define PROP_LOGGING_FILE       "LOGGING_FILE"          // LoggingProperties.file
 #define PROP_LOGGING_FILE_PATH  "LOGGING_FILE_PATH"     // LoggingProperties.file
 
-// props: JoystickProperties
-#define PROP_JOYSTICK_TYPE      "JOYSTICK_TYPE"         // JoystickProperties.type
-#define PROP_JOYSTICK_NAME      "JOYSTICK_NAME"         // JoystickProperties.name
-
 class EnvPropertiesSource : public PropertiesSource {
+
 };
 
 inline void fromEnv(EnvPropertiesSource &source, LoggingProperties &props) {
@@ -34,27 +32,5 @@ inline void fromEnv(EnvPropertiesSource &source, LoggingProperties &props) {
     }
     if (auto val = getenv(PROP_LOGGING_FILE_PATH); val != nullptr) {
         props.filePath = val;
-    }
-}
-
-inline void fromEnv(EnvPropertiesSource &source, JoystickProperties &props) {
-    if (auto val = getenv(PROP_JOYSTICK_TYPE); val != nullptr) {
-#ifdef WIN32
-        if (0 == strcmp(val, "xbox")) {
-            props.type = JoystickType::xbox;
-        } else if (0 == strcmp(val, "ps3")) {
-            props.type = JoystickType::ps3;
-        }
-#else
-        if (0 == strcasecmp(val, "xbox")) {
-            props.type = JoystickType::xbox;
-        } else if (0 == strcasecmp(val, "ps3")) {
-            props.type = JoystickType::ps3;
-        }
-#endif
-    }
-
-    if (auto val = getenv(PROP_JOYSTICK_NAME); val != nullptr) {
-        props.name = val;
     }
 }

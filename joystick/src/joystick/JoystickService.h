@@ -8,10 +8,10 @@
 
 #ifdef __linux__
 
-#include "BaseService.h"
-#include "joystick/JoystickEvent.h"
-#include <boost/asio/posix/stream_descriptor.hpp>
 #include <linux/joystick.h>
+#include "BaseService.h"
+#include "JoystickEvent.h"
+#include <boost/asio/posix/stream_descriptor.hpp>
 #include "core-service/EventBusService.h"
 
 class JoystickService : public BaseServiceShared<JoystickService> {

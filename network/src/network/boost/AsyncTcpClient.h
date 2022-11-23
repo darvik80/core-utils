@@ -102,7 +102,11 @@ namespace network {
         explicit AsyncClient(boost::asio::io_service &service, const Callback &callback, const std::string &caFile)
                 : _service(service), _resolver(service), _context(boost::asio::ssl::context::tlsv12_client),
                   _deadline(service), _callback(callback) {
-            _context.use_certificate_file(caFile, boost::asio::ssl::context::pem);
+            if (std::filesystem::exists(caFile)) {
+                _context.use_certificate_file(caFile, boost::asio::ssl::context::pem);
+            } else {
+                network::log::warning("Certificate file not found: {}", caFile);
+            }
             _context.set_options(boost::asio::ssl::context::default_workarounds);
         }
 

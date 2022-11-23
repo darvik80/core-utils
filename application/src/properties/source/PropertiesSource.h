@@ -7,8 +7,6 @@
 #include <string>
 #include <string_view>
 #include <memory>
-#include "properties/LoggingProperties.h"
-#include "properties/JoystickProperties.h"
 
 class PropertiesSource {
 public:

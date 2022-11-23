@@ -74,7 +74,9 @@ public:
                             std::make_shared<network::mqtt::MQTTCodec>(
                                     network::mqtt::MQTTOptions{
                                             .clientId = _props.clientId,
-                                            .accessToken = _props.accessToken
+                                            .accessToken = _props.accessToken,
+                                            .username = _props.username,
+                                            .password = _props.password
                                     }
                             ),
                             _agent

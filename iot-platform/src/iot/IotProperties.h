@@ -47,6 +47,12 @@ inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
         if (auto key = it->find("access-token"); key != it->end()) {
             key->get_to(props.accessToken);
         }
+        if (auto key = it->find("username"); key != it->end()) {
+            key->get_to(props.username);
+        }
+        if (auto key = it->find("password"); key != it->end()) {
+            key->get_to(props.password);
+        }
         if (auto key = it->find("client-id"); key != it->end()) {
             key->get_to(props.clientId);
         }

@@ -9,6 +9,7 @@
 
 class EventBusService : public bus::EventBus, public BaseServiceShared<EventBusService> {
 public:
+    typedef std::shared_ptr<EventBusService> Ptr;
     explicit EventBusService(bus::IOService& service) : bus::EventBus(service), BaseServiceShared<EventBusService>(em_logger::get()) {}
 
     const char *name() override {

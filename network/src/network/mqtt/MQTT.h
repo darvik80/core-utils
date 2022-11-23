@@ -97,11 +97,11 @@ namespace network::mqtt {
     };
 
     struct ConnectMessage : public Message {
-        std::string _protocolName{"MQIsdp"};
-        uint8_t _protocolLevel{3};
+        std::string _protocolName{"MQTT"};
+        uint8_t _protocolLevel{4};
         Flags _flags{0};
         std::string _clientId{};
-        uint16_t _keepAlive{10};
+        uint16_t _keepAlive{60};
 
         // connection data
         std::string _willTopic;

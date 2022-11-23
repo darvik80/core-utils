@@ -12,14 +12,14 @@
 #include "joystick/JoystickEvent.h"
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <linux/joystick.h>
-#include "event/EventManagerService.h"
+#include "core-service/EventBusService.h"
 
 class JoystickService : public BaseServiceShared<JoystickService> {
     js_event _events[64];
     std::unique_ptr<boost::asio::posix::stream_descriptor> _stream;
 
     JoystickEvent _lastEvent;
-    em::EventManager::Ptr _eventManager;
+    EventBusService::Ptr _eventManager;
 
 private:
     bool extractEventXbox(js_event &event, JoystickEvent &jsEvent);

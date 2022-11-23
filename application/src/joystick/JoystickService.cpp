@@ -11,7 +11,7 @@
 void JoystickService::postConstruct(Registry &registry) {
     BaseService::postConstruct(registry);
 
-    _eventManager = registry.getService<EventManagerService>().shared_from_this();
+    _eventManager = registry.getService<EventBusService>().shared_from_this();
 
     auto props = registry.getProperties<JoystickProperties>();
 
@@ -253,7 +253,7 @@ void JoystickService::onRead(JoystickType type, size_t readable) {
     }
 
     if (changed) {
-        _eventManager->raiseEvent(event);
+        _eventManager->send(event);
     }
 
     _lastEvent = event;

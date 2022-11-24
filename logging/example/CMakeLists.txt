@@ -9,9 +9,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 endif ()
 endif()
 
-file(GLOB SRCS_G
-        src/*.cpp
-        )
+file(GLOB SRCS_G src/*.cpp)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/src
@@ -19,4 +17,4 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} logging)
+target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS} logging)

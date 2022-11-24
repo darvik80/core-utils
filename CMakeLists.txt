@@ -3,6 +3,7 @@ project(core_utils)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(Boost_NO_WARN_NEW_VERSIONS 1)
 set(CONAN_DISABLE_CHECK_COMPILER ON)
 if (WIN32)
     add_definitions(-D_ITERATOR_DEBUG_LEVEL=2 -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
@@ -19,19 +20,11 @@ if (UNIX)
 endif()
 
 include_directories(
-        /usr/include
-        /usr/local/include
-        /usr/local/opt/openssl/include
         logging/src
         network/src
         event-bus/src
         application/src
         iot-platform/src
-)
-
-link_directories(
-        /usr/local/lib
-        /usr/local/Cellar/icu4c/70.1/lib
 )
 
 add_subdirectory(logging)

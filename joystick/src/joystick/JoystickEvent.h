@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "joystick/Joystick.h"
+#include "Joystick.h"
 
 #include <nlohmann/json.hpp>
 

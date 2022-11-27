@@ -21,7 +21,7 @@
 
 class IotPlatform {
 protected:
-    using MqttClient = network::AsyncClient<network::TcpSocket>;
+    using MqttClient = network::AsyncClient<network::SslSocket>;
     std::unique_ptr<MqttClient> _client;
     network::mqtt::MQTTAgent::Ptr _agent;
     IotProperties _props;
@@ -65,7 +65,7 @@ public:
 
         _client = std::make_unique<MqttClient>(
                 service,
-                [&service, this](const std::shared_ptr<network::AsyncChannel<network::TcpSocket>> &channel) {
+                [&service, this](const std::shared_ptr<network::AsyncChannel<network::SslSocket>> &channel) {
                     link(
                             channel,
                             std::make_shared<network::handler::NetworkLogger>(),
@@ -85,7 +85,7 @@ public:
                 _props.keyFile
         );
 
-        _client->connect(_props.address, 1883);
+        _client->connect(_props.address, 8883);
     }
 
     virtual void preDestroy(Registry &registry) {

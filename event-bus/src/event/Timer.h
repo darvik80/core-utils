@@ -5,6 +5,7 @@
 #pragma once
 
 #include <utility>
+#include <memory>
 #include <unordered_set>
 #include <boost/system/error_code.hpp>
 

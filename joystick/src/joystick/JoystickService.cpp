@@ -7,6 +7,7 @@
 #ifdef __linux__
 
 #include "JoystickLogger.h"
+#include "JoystickProperties.h"
 
 void JoystickService::postConstruct(Registry &registry) {
     BaseService::postConstruct(registry);

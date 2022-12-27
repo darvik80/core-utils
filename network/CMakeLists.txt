@@ -14,6 +14,7 @@ file(GLOB SRCS_G
         src/network/zeromq/v30/*.cpp
         src/network/zeromq/v31/*.cpp
         src/network/mqtt/*.cpp
+        src/network/mqtt/v31/*.cpp
         )
 
 include_directories(

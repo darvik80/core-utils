@@ -20,6 +20,8 @@ namespace network::mqtt {
         std::string accessToken;
         std::string username;
         std::string password;
+        std::string willTopic;
+        std::string willMessage;
     };
 
     class MQTTCodec

@@ -3,6 +3,9 @@
 //
 
 #include "ThingsBoardIotPlatform.h"
+#include "IotPlatformLogger.h"
+#include "IotCommand.h"
+
 
 using namespace network;
 
@@ -33,3 +36,6 @@ void ThingsBoardIotPlatform::onConnect(mqtt::MQTTAgent &agent) {
     agent.publish("v1/devices/me/attributes/request/1", 1, R"({"sharedKeys":"status"})");
 }
 
+
+void ThingsBoardIotPlatform::onPopulateOptions(network::mqtt::MQTTAgent &agent, network::mqtt::MQTTOptions& options) {
+}

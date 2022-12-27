@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <string_view>
 #include <iterator>
 #include <system_error>

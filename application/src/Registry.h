@@ -22,28 +22,15 @@ class Registry {
 
     CompositePropertiesSource _propsSource;
 public:
-    explicit Registry(std::string_view jsonProps)
-            : _propsSource(jsonProps) {
-    }
+    explicit Registry(std::string_view jsonProps);
 
-    explicit Registry(std::ifstream &fileJsonProps)
-            : _propsSource(fileJsonProps) {
-    }
+    explicit Registry(std::ifstream &fileJsonProps);
 
-    void addService(const Service::Ptr &service) {
-        _services.emplace_back(service);
-        std::sort(_services.begin(), _services.end(), OrderedLess<Service>());
-    }
+    void addService(const Service::Ptr &service);
 
-    bus::IOService &getIoService() {
-        return _service;
-    }
+    bus::IOService &getIoService();
 
-    void visitService(const std::function<void(Service &service)> &visitor) {
-        for (auto &ptr: _services) {
-            visitor(*ptr);
-        }
-    }
+    void visitService(const std::function<void(Service &service)> &visitor);
 
 
     template<class C>

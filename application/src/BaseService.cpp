@@ -5,6 +5,10 @@
 #include "BaseService.h"
 #include "Registry.h"
 
+BaseService::BaseService() : _logger(service_logger::get()) {}
+
+BaseService::BaseService(logger_type &logger) : _logger(logger) {}
+
 void BaseService::postConstruct(Registry &registry) {
     debug("post constructor");
 }

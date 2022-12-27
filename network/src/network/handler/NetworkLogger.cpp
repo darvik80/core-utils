@@ -18,7 +18,7 @@ namespace network::handler {
 
     void init() {
         for (int i = 0; i < 256; i++) {
-            sprintf(byte2hex[i], " %02x", i);
+            snprintf(byte2hex[i], 4, " %02x", i);
         }
 
         for (int i = 0; i < 16; i++) {

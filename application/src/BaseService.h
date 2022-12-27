@@ -12,11 +12,9 @@ LOG_COMPONENT_SETUP(service, service_logger)
 class BaseService : public Service {
     logger_type &_logger;
 public:
-    BaseService() : _logger(service_logger::get()) {
+    BaseService();
 
-    }
-
-    explicit BaseService(logger_type &logger) : _logger(logger) {}
+    explicit BaseService(logger_type &logger);
 
     int order() override {
         return 0;

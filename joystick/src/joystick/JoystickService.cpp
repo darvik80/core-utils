@@ -7,27 +7,18 @@
 #ifdef __linux__
 
 #include "JoystickLogger.h"
-#include "JoystickProperties.h"
+#include "core-service/SchedulerService.h"
 
-void JoystickService::postConstruct(Registry &registry) {
-    BaseService::postConstruct(registry);
-
-    _eventManager = registry.getService<EventBusService>().shared_from_this();
-
-    auto props = registry.getProperties<JoystickProperties>();
-
-    auto jsType = props.type;
-
-    _stream = std::make_unique<boost::asio::posix::stream_descriptor>(
-            registry.getIoService()
-    );
+bool JoystickController::setup(const JoystickProperties &props) {
     int fd = open(props.name.c_str(), O_RDONLY);
     if (fd > 0) {
         char name[128];
         if (ioctl(fd, JSIOCGNAME(sizeof(name)), name) < 0) {
             strncpy(name, "unknown", sizeof(name));
         }
-        joy::log::info("joystick name: {}", name);
+        joy::log::info("detect joystick name: {}", name);
+
+        auto jsType = props.type;
         if (props.type == JoystickType::detect) {
             if (0 == strcmp("PS3 Controller", name)) {
                 jsType = JoystickType::ps3;
@@ -38,23 +29,33 @@ void JoystickService::postConstruct(Registry &registry) {
             }
         }
 
-        _stream->assign(fd);
-        _stream->async_read_some(
+        _stream.assign(fd);
+        _stream.async_read_some(
                 boost::asio::buffer(&_events, sizeof(_events)),
                 [this, jsType](const boost::system::error_code error, std::size_t readable) {
                     if (!error) {
                         onRead(jsType, readable);
                     } else {
-                        // TODO: reopen joystick
+                        if (_onError) {
+                            _onError(error);
+                        }
                     }
                 }
         );
+
+        if (_onConnect) {
+            _onConnect();
+        }
     } else {
-        joy::log::warning("failed to open joystick");
+        if (_onError) {
+            _onError(boost::system::errc::make_error_code(boost::system::errc::io_error));
+        }
     }
+
+    return _stream.is_open();
 }
 
-bool JoystickService::extractEventPs3(js_event &event, JoystickEvent &jsEvent) {
+bool JoystickController::extractEventPs3(js_event &event, JoystickEvent &jsEvent) {
     bool changed = false;
     joy::log::info("ev: {}, {}, {}", event.number, event.type, event.value);
     if (event.number == 0 && JS_EVENT_AXIS == event.type) {
@@ -119,7 +120,7 @@ bool JoystickService::extractEventPs3(js_event &event, JoystickEvent &jsEvent) {
     return changed;
 }
 
-bool JoystickService::extractEventXbox(js_event &event, JoystickEvent &jsEvent) {
+bool JoystickController::extractEventXbox(js_event &event, JoystickEvent &jsEvent) {
     bool changed = false;
     joy::log::info("ev: {}, {}, {}", event.number, event.type, event.value);
     if (event.number == 0 && JS_EVENT_AXIS == event.type) {
@@ -178,7 +179,7 @@ bool JoystickService::extractEventXbox(js_event &event, JoystickEvent &jsEvent) 
     return changed;
 }
 
-bool JoystickService::extractEventGamepad(js_event &event, JoystickEvent &jsEvent) {
+bool JoystickController::extractEventGamepad(js_event &event, JoystickEvent &jsEvent) {
     bool changed = false;
     joy::log::info("ev: {}, {}, {}", event.number, event.type, event.value);
     if (event.number == 1 && JS_EVENT_AXIS == event.type) {
@@ -234,7 +235,7 @@ bool JoystickService::extractEventGamepad(js_event &event, JoystickEvent &jsEven
     return changed;
 }
 
-void JoystickService::onRead(JoystickType type, size_t readable) {
+void JoystickController::onRead(JoystickType type, size_t readable) {
     JoystickEvent event = _lastEvent;
     std::size_t size = readable / sizeof(js_event);
     bool changed = false;
@@ -254,24 +255,61 @@ void JoystickService::onRead(JoystickType type, size_t readable) {
     }
 
     if (changed) {
-        _eventManager->send(event);
+        //_eventManager->send(event);
+        if (_onInput) {
+            _onInput(event);
+        }
     }
 
     _lastEvent = event;
-    _stream->async_read_some(
+    _stream.async_read_some(
             boost::asio::buffer(&_events, sizeof(_events)),
             [this, type](const boost::system::error_code error, std::size_t readable) {
                 if (!error) {
                     onRead(type, readable);
                 } else {
-                    // TODO: reopen joystick
+                    if (_onError) {
+                        _onError(error);
+                    }
                 }
             }
     );
 }
 
+void JoystickController::shutdown() {
+    if (_stream.is_open()) {
+        _stream.close();
+        joy::log::info("close & shutdown");
+    }
+}
+
 void JoystickService::preDestroy(Registry &registry) {
     BaseService::preDestroy(registry);
+}
+
+void JoystickService::setup(Registry &registry) {
+    auto eventManager = registry.getService<EventBusService>().shared_from_this();
+    auto& scheduler = registry.getService<SchedulerService>();
+
+    _controller = std::make_unique<JoystickController>(registry.getIoService());
+    _controller->setOnInput([eventManager](const JoystickEvent &event) {
+        eventManager->send(event);
+    });
+
+    _controller->setOnError([&scheduler, &registry, this](const boost::system::error_code &err) {
+        joy::log::warning("handle err: {}", err.message());
+        scheduler.scheduleOnce([&registry, this]() {
+            setup(registry);
+        }, boost::posix_time::seconds{10});
+    });
+
+    _controller->setup(registry.getProperties<JoystickProperties>());
+}
+
+void JoystickService::postConstruct(Registry &registry) {
+    BaseService::postConstruct(registry);
+
+    setup(registry);
 }
 
 #endif

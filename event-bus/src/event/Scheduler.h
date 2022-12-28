@@ -16,11 +16,11 @@ LOG_COMPONENT_SETUP(scheduler, scheduler_logger)
 
 namespace bus {
     class Scheduler {
-        boost::asio::io_service &_service;
+        IOService &_service;
     public:
         using ErrorCode = boost::system::error_code;
 
-        explicit Scheduler(boost::asio::io_service &service)
+        explicit Scheduler(IOService &service)
                 : _service(service) {}
 
         void scheduleOnce(const Timer::Handler &fn, Timer::Duration delay);

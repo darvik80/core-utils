@@ -48,7 +48,7 @@ bool JoystickController::setup(const JoystickProperties &props) {
         }
     } else {
         if (_onError) {
-            _onError(boost::system::errc::make_error_code(boost::system::errc::io_error));
+            _onError(boost::system::errc::make_error_code(boost::system::errc::no_such_device));
         }
     }
 
@@ -300,7 +300,7 @@ void JoystickService::setup(Registry &registry) {
         joy::log::warning("handle err: {}", err.message());
         scheduler.scheduleOnce([&registry, this]() {
             setup(registry);
-        }, boost::posix_time::seconds{10});
+        }, boost::posix_time::seconds{3});
     });
 
     _controller->setup(registry.getProperties<JoystickProperties>());

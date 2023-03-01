@@ -21,13 +21,11 @@ file(GLOB SRCS_G
 find_package(Boost REQUIRED COMPONENTS system)
 
 if (APPLE)
-    message("Apple build")
     find_library(IOKIT_LIBRARY IOKit)
     find_library(CORE_LIBRARY CoreFoundation)
 
     set(OS_LIBS ${IOKIT_LIBRARY} ${CORE_LIBRARY})
 else ()
-    message("Unix build")
     set(OS_LIBS dl)
 endif ()
 

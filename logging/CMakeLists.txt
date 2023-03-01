@@ -5,10 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB SRCS_G src/*.cpp src/logging/*.cpp)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
-
 # libs {
 add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
 if (WIN32)

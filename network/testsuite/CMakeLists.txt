@@ -20,9 +20,6 @@ add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_US
 if (UNIX)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 else()
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
-
     link_directories(${CONAN_BOOST_ROOT}/lib)
     set(Boost_LIBRARIES libboost_unit_test_framework)
 endif()

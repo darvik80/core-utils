@@ -8,24 +8,6 @@
 #include "properties/source/JsonPropertiesSource.h"
 #include "properties/source/EnvPropertiesSource.h"
 
-enum class IotType {
-    ThingsBoard,
-    Yandex,
-    Crearts,
-};
-
-inline void from_json(const nlohmann::json &j, IotType &type) {
-    std::string str;
-    j.get_to(str);
-    if (str == "thingsboard") {
-        type = IotType::ThingsBoard;
-    } else if (str == "crearts") {
-            type = IotType::Crearts;
-    } else {
-        type = IotType::Yandex;
-    }
-}
-
 struct IotProperties : Properties {
     std::string address;
 
@@ -37,10 +19,8 @@ struct IotProperties : Properties {
 
     std::string keyFile;
 
-    // iot {
+    std::string registryId;
     std::string deviceId;
-    IotType type;
-    // } iot
 };
 
 inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
@@ -64,13 +44,14 @@ inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
             key->get_to(props.keyFile);
         }
 
-        if (auto key = it->find("type"); key != it->end()) {
-            props.type = key.value();
+        if (auto key = it->find("registry-id"); key != it->end()) {
+            props.deviceId = key.value();
         }
 
         if (auto key = it->find("device-id"); key != it->end()) {
             props.deviceId = key.value();
         }
+
         if (props.deviceId.empty()) {
             props.deviceId = props.clientId;
         }
@@ -80,7 +61,3 @@ inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
 inline void fromEnv(EnvPropertiesSource &source, IotProperties &props) {
 
 }
-
-
-
-

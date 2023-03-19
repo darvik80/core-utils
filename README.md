@@ -209,12 +209,12 @@ int main(int argc, char *argv[]) {
 
 class MainApp : public Application {
 protected:
-    void setup(Registry &registry) override {
+    void setup(Registry &registryId) override {
         // TODO: init extra libs
         //wiringPiSetup();
         
         // TODO: register own services
-        // registry.addService(std::make_shared<I2CServoMotor>());
+        // registryId.addService(std::make_shared<I2CServoMotor>());
     }
 };
 

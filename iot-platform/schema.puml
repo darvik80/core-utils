@@ -1,0 +1,66 @@
+@startuml
+left to right direction
+
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+package schema {
+        entity registry {
+            *id : <b>bigint unsigned <<generated>></b> <color red>primary key</color>
+            --
+            +created_at timestamp
+            +updated_at timestamp
+            --
+            name varchar(64)
+            uuid varchar(64)
+            json_data json
+        }
+
+        entity registry_configuration {
+            *id : <b>bigint unsigned <<generated>></b> <color red>primary key</color>
+            --
+            +created_at timestamp
+            +updated_at timestamp
+            --
+            registry_id int
+            json_data json
+        }
+
+        entity device {
+            *id : <b>bigint unsigned <<generated>></b> <color red>primary key</color>
+            --
+            +created_at timestamp
+            +updated_at timestamp
+            --
+            name varchar(64)
+            uuid varchar(64)
+            status int
+            json_data json
+        }
+
+        entity device_configuration {
+            *id : <b>bigint unsigned <<generated>></b> <color red>primary key</color>
+            --
+            +created_at timestamp
+            +updated_at timestamp
+            --
+            device_id int
+            json_data json
+        }
+
+
+        entity device_telemetry {
+            *id : <b>bigint unsigned <<generated>></b> <color red>primary key</color>
+            --
+            +created_at timestamp
+            +updated_at timestamp
+            --
+            device_id int
+            json_data json
+        }
+}
+
+@enduml

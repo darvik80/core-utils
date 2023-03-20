@@ -22,7 +22,7 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME} ${SRCS_G})
-target_link_libraries(${PROJECT_NAME} logging ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} logging OpenSSL::SSL OpenSSL::Crypto)
 
 add_subdirectory(example)
 add_subdirectory(testsuite)

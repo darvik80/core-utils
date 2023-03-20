@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(event-bus)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -9,4 +9,4 @@ add_subdirectory(example)
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 
-target_link_libraries(${PROJECT_NAME} logging)
+target_link_libraries(${PROJECT_NAME} logging ${fmt_LIBRARIES} ${Boost_LIBRARIES})

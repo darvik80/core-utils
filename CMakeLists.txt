@@ -1,25 +1,25 @@
-cmake_minimum_required(VERSION 3.12)
-project(core_utils)
+cmake_minimum_required(VERSION 3.16)
+project(core_utils VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(Boost_NO_WARN_NEW_VERSIONS 1)
-set(CONAN_DISABLE_CHECK_COMPILER ON)
-if (WIN32)
-    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2 -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
-endif()
+# libs {
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
-if (UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -fPIC")
-    if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-type-limits -Wno-psabi")
-    endif()
-endif()
+find_package(Boost 1.81 REQUIRED)
+find_package(fmt REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(nlohmann_json REQUIRED)
+# }
 
 include_directories(
+        ${fmt_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}
+        ${nlohmann_json_INCLUDE_DIRS}
+        ${OpenSSL_INCLUDE_DIRS}
         logging/src
         network/src
         event-bus/src
@@ -30,7 +30,6 @@ include_directories(
 add_subdirectory(logging)
 #add_subdirectory(audioplayer)
 add_subdirectory(event-bus)
-add_subdirectory(serial)
 add_subdirectory(network)
 add_subdirectory(application)
 add_subdirectory(iot-platform)

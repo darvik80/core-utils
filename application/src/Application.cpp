@@ -41,7 +41,7 @@ void Application::postConstruct(Registry &registry) {
 
     registry.getService<EventBusService>().subscribe<ApplicationStartedEvent>(
             [this, now](const ApplicationStartedEvent &event) -> bool {
-                info("application started, {}ms",
+                info("'{}' started, {}ms", name(),
                      (boost::posix_time::microsec_clock::local_time() - now).total_milliseconds());
                 return true;
             });

@@ -86,8 +86,8 @@ int main(int argc, char *argv[]) {
 #include <vector>
 #include "network/Handler.h"
 #include "network/handler/NetworkLogger.h"
-#include "network/boost/AsyncTcpServer.h"
-#include "network/boost/AsyncTcpClient.h"
+#include "network/asio/AsyncTcpServer.h"
+#include "network/asio/AsyncTcpClient.h"
 #include "network/zeromq/ZeroMQCodec.h"
 #include "network/zeromq/ZeroMQHandler.h"
 

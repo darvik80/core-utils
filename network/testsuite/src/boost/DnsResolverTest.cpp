@@ -3,7 +3,7 @@
 //
 
 #include "DnsResolverTest.h"
-#include "network/boost/DnsResolver.h"
+#include "network/asio/DnsResolver.h"
 
 namespace network {
 

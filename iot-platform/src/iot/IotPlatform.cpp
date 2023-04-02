@@ -117,8 +117,11 @@ void IotDevice::telemetry(uint8_t qos, std::string_view data) {
     IotPlatform::publish(fmt::format("/{}/{}/{}", _registryId, _deviceId, IOT_TOPIC_TELEMETRY), qos, data);
 }
 
-IotRegistry::IotRegistry(std::string_view registryId) : _registryId(registryId) {
+void IotRegistry::postConstruct(Registry &registry) {
+    auto props = registry.getProperties<IotProperties>();
+    _registryId = props.registryId;
 
+    IotPlatform::postConstruct(registry);
 }
 
 void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {

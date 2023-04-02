@@ -9,7 +9,7 @@ file(GLOB SRCS_G
         src/*.cpp
         src/network/*.cpp
         src/network/handler/*.cpp
-        src/network/boost/*.cpp
+        src/network/asio/*.cpp
         src/network/zeromq/*.cpp
         src/network/zeromq/v30/*.cpp
         src/network/zeromq/v31/*.cpp

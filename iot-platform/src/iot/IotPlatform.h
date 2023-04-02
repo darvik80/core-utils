@@ -12,7 +12,7 @@
 #include "network/mqtt/MQTTCodec.h"
 #include "IotMessage.h"
 #include "core-service/EventBusService.h"
-#include "network/boost/AsyncTcpClient.h"
+#include "network/asio/AsyncTcpClient.h"
 
 typedef std::function<void(std::string_view topic, std::string_view data)> fnIoTCallback;
 
@@ -82,11 +82,13 @@ protected:
     void onConnect(network::mqtt::MQTTAgent &agent) override;
     void onTelemetry(const IotTelemetry& data);
 public:
-    explicit IotRegistry(std::string_view registryId);
+    IotRegistry() {}
 
     const char *name() override {
         return "iot-registry";
     }
+
+    void postConstruct(Registry &registry) override;
 
     virtual void config(std::string_view deviceId, const IotConfig& cfg);
     virtual void rpc(std::string_view deviceId, const IotRpcReply& cfg);

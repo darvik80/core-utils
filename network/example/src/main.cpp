@@ -6,8 +6,8 @@
 #include "network/Handler.h"
 #include "network/handler/NetworkLogger.h"
 #include "network/handler/IdleStateHandler.h"
-#include "network/boost/AsyncTcpServer.h"
-#include "network/boost/AsyncTcpClient.h"
+#include "network/asio/AsyncTcpServer.h"
+#include "network/asio/AsyncTcpClient.h"
 #include "network/zeromq/ZeroMQCodec.h"
 #include "network/zeromq/ZeroMQHandler.h"
 

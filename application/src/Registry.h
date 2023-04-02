@@ -29,15 +29,12 @@ public:
     void addService(const Service::Ptr &service);
 
     template<typename C, typename... T>
-    inline C &createService(T &&... all) {
+    void createService(T &&... all) {
         auto service = std::make_shared<C>(std::forward<T>(all)...);
         addService(service);
-
-        return *service;
     }
 
-
-        bus::IOService &getIoService();
+    bus::IOService &getIoService();
 
     void visitService(const std::function<void(Service &service)> &visitor);
 

@@ -39,9 +39,11 @@ protected:
 
     void onMessage(network::mqtt::MQTTAgent &agent, std::string_view topic, std::string_view data);
 
-    void onConfig(const IotConfig& data);
+    void onConfig(const IotConfig &data);
 
     void onRpc(const IotRpcRequest &req);
+
+    virtual std::string sysTopicPrefix() = 0;
 
 public:
     void postConstruct(Registry &registry) override;
@@ -66,12 +68,16 @@ protected:
 
     void onConnect(network::mqtt::MQTTAgent &agent) override;
 
+    std::string sysTopicPrefix() override;
+
 public:
-    IotDevice(std::string_view registryId, std::string_view deviceId);
+    IotDevice() = default;
 
     const char *name() override {
         return "iot-device";
     }
+
+    void postConstruct(Registry &registry) override;
 
     virtual void telemetry(uint8_t qos, std::string_view data);
 };
@@ -80,9 +86,13 @@ class IotRegistry : public IotPlatform {
     std::string _registryId;
 protected:
     void onConnect(network::mqtt::MQTTAgent &agent) override;
-    void onTelemetry(const IotTelemetry& data);
+
+    void onTelemetry(const IotTelemetry &data);
+
+    std::string sysTopicPrefix() override;
+
 public:
-    IotRegistry() {}
+    IotRegistry() = default;
 
     const char *name() override {
         return "iot-registry";
@@ -90,8 +100,9 @@ public:
 
     void postConstruct(Registry &registry) override;
 
-    virtual void config(std::string_view deviceId, const IotConfig& cfg);
-    virtual void rpc(std::string_view deviceId, const IotRpcReply& cfg);
+    virtual void config(std::string_view deviceId, const IotConfig &cfg);
+
+    virtual void rpc(std::string_view deviceId, const IotRpcReply &cfg);
 };
 
 

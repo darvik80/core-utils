@@ -20,7 +20,7 @@ void IotPlatform::onMessage(network::mqtt::MQTTAgent &agent, std::string_view to
     });
 }
 
-void IotPlatform::onConfig(const IotConfig& cfg) {
+void IotPlatform::onConfig(const IotConfig &cfg) {
     _eventManager->send(cfg);
 }
 
@@ -84,16 +84,26 @@ void IotPlatform::subscribe(std::string_view topic, uint8_t qos, const fnIoTCall
     }
 }
 
-IotDevice::IotDevice(std::string_view registryId, std::string_view deviceId) : _registryId(registryId), _deviceId(deviceId) {
-
+std::string IotDevice::sysTopicPrefix() {
+    return fmt::format("/{}/{}", _registryId, _deviceId);
 }
 
-void IotDevice::onPopulateOptions(network::mqtt::MQTTAgent &agent, network::mqtt::MQTTOptions &options) {
+void IotDevice::postConstruct(Registry &registry) {
+    auto props = registry.getProperties<IotProperties>();
+    _registryId = props.registryId;
+    _deviceId = props.deviceId;
 
+    IotPlatform::postConstruct(registry);
+}
+
+
+void IotDevice::onPopulateOptions(network::mqtt::MQTTAgent &agent, network::mqtt::MQTTOptions &options) {
+    options.willTopic = sysTopicPrefix() + IOT_TOPIC_RPC;
+    options.willMessage = R"({"status": "offline"})";
 }
 
 void IotDevice::onConnect(network::mqtt::MQTTAgent &agent) {
-    std::string prefix = fmt::format("/{}/{}", _registryId, _deviceId);
+    std::string prefix = sysTopicPrefix();
 
     agent.callback(prefix + IOT_TOPIC_CONFIG, [this](auto &agent, std::string_view topic, std::string_view data) {
         iot::log::debug("cfg: {}:{}", topic, data);
@@ -111,10 +121,11 @@ void IotDevice::onConnect(network::mqtt::MQTTAgent &agent) {
     agent.subscribe(prefix + IOT_TOPIC_CONFIG, 1);
     agent.subscribe(prefix + IOT_TOPIC_RPC, 1);
 
+    telemetry(1, R"({"status": "online"})");
 }
 
 void IotDevice::telemetry(uint8_t qos, std::string_view data) {
-    IotPlatform::publish(fmt::format("/{}/{}/{}", _registryId, _deviceId, IOT_TOPIC_TELEMETRY), qos, data);
+    IotPlatform::publish(sysTopicPrefix() + IOT_TOPIC_TELEMETRY, qos, data);
 }
 
 void IotRegistry::postConstruct(Registry &registry) {
@@ -125,7 +136,7 @@ void IotRegistry::postConstruct(Registry &registry) {
 }
 
 void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {
-    std::string prefix = fmt::format("/{}/+", _registryId);
+    std::string prefix = sysTopicPrefix();
 
     agent.callback(prefix + IOT_TOPIC_RPC, [this](auto &agent, std::string_view topic, std::string_view data) {
         iot::log::debug("rpc: {}:{}", topic, data);
@@ -150,13 +161,17 @@ void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {
 
 }
 
-void IotRegistry::onTelemetry(const IotTelemetry& data) {
+std::string IotRegistry::sysTopicPrefix() {
+    return fmt::format("/{}", _registryId);
+}
+
+void IotRegistry::onTelemetry(const IotTelemetry &data) {
     _eventManager->send(data);
 }
 
 
 void IotRegistry::config(std::string_view deviceId, const IotConfig &cfg) {
-    IotPlatform::publish(fmt::format("/{}/{}", _registryId, IOT_TOPIC_CONFIG), 1, cfg.data.dump());
+    IotPlatform::publish(sysTopicPrefix() + IOT_TOPIC_CONFIG, 1, cfg.data.dump());
 }
 
 void IotRegistry::rpc(std::string_view deviceId, const IotRpcReply &cfg) {

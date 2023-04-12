@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
 
 class MainApp : public Application {
 protected:
-    void setup(Registry &registryId) override {
+    void setup(RegistryPage &registryId) override {
         // TODO: init extra libs
         //wiringPiSetup();
         

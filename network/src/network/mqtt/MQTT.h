@@ -138,11 +138,13 @@ namespace network::mqtt {
 
         void setWillTopic(std::string_view willTopic) {
             _willTopic = willTopic;
+            _flags.bits.willFlag = !willTopic.empty();
         }
 
         void setWillTopic(std::string_view willTopic, std::string_view willMessage) {
             _willTopic = willTopic;
             _willMessage = willMessage;
+            _flags.bits.willFlag = !willTopic.empty();
         }
 
         [[nodiscard]] const std::string &getWillMessage() const {

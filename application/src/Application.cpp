@@ -15,10 +15,12 @@
 using namespace boost;
 
 void Application::run(int argc, char **argv) {
+    std::string fileName(name());
+    fileName.append("_settings.json");
 #ifdef __APPLE__
-    std::string path = std::filesystem::exists("settings.json") ? "settings.json" : "../Resources/settings.json";
+    std::string path = std::filesystem::exists(fileName) ? fileName : "../Resources/settings.json";
 #else
-    std::string path = std::filesystem::exists("settings.json") ? "settings.json" : "../etc/settings.json";
+    std::string path = std::filesystem::exists(fileName) ? fileName : std::string("../etc/") +  fileName;
 #endif
     std::ifstream props(path);
     Registry registry(props);

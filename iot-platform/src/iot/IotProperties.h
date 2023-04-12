@@ -45,7 +45,7 @@ inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
         }
 
         if (auto key = it->find("registry-id"); key != it->end()) {
-            props.deviceId = key.value();
+            props.registryId = key.value();
         }
 
         if (auto key = it->find("device-id"); key != it->end()) {
@@ -54,6 +54,10 @@ inline void fromJson(JsonPropertiesSource &source, IotProperties &props) {
 
         if (props.deviceId.empty()) {
             props.deviceId = props.clientId;
+        }
+
+        if (props.clientId.empty()) {
+            props.clientId = props.deviceId;
         }
     }
 }

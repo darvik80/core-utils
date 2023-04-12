@@ -73,6 +73,9 @@ namespace network::mqtt {
             msg.setUserName(_options.username);
             msg.setPassword(_options.password);
         }
+        if (!_options.willTopic.empty()) {
+            msg.setWillTopic(_options.willTopic, _options.willMessage);
+        }
         _encoder->write(buf, msg);
         write(ctx, buf);
 

@@ -193,7 +193,7 @@ namespace network {
     void link(std::shared_ptr<A> a, std::shared_ptr<B> b) {
         a->linkNext(b);
 
-        if constexpr(std::is_base_of<Prev, B>::value) {
+        if constexpr (std::is_base_of<Prev, B>::value) {
             b->linkPrev(a);
         }
     }

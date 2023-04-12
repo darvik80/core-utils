@@ -5,7 +5,7 @@
 #include "event/Timer.h"
 #include "event/EventBus.h"
 
-struct MyEvent  {
+struct MyEvent {
     std::string msg;
 };
 
@@ -29,9 +29,11 @@ int main(int argc, char *argv[]) {
         return true;
     });
 
-    mng.scheduleAtFixedRate(std::string("scheduleAtFixedRate"), boost::posix_time::seconds{0}, boost::posix_time::seconds{10});
+    mng.scheduleAtFixedRate(std::string("scheduleAtFixedRate"), boost::posix_time::seconds{0},
+                            boost::posix_time::seconds{10});
 
-    mng.scheduleWithFixedDelay(std::string("scheduleWithFixedDelay"), boost::posix_time::seconds{0}, boost::posix_time::seconds{5});
+    mng.scheduleWithFixedDelay(std::string("scheduleWithFixedDelay"), boost::posix_time::seconds{0},
+                               boost::posix_time::seconds{5});
 
     mng.scheduleOnce(std::string("scheduleOnce"), boost::posix_time::seconds{10});
 

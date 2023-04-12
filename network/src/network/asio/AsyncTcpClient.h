@@ -35,7 +35,7 @@ namespace network {
         }
 
         void doConnect(boost::asio::io_service &service) {
-            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
+            if constexpr (std::is_base_of<SslSocket, Socket>::value) {
                 auto sslSocket = std::make_shared<Socket>(service, _context);
                 sslSocket->lowest_layer().async_connect(
                         _resolver.next(),
@@ -69,7 +69,7 @@ namespace network {
                 );
             }
             // TCP Support
-            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
+            if constexpr (std::is_base_of<TcpSocket, Socket>::value) {
                 auto socket = std::make_shared<Socket>(service);
                 socket->async_connect(
                         _resolver.next(),

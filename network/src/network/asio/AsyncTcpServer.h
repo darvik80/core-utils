@@ -34,7 +34,7 @@ namespace network {
                                                 socket.remote_endpoint().port());
 
                             // SSL Support
-                            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
+                            if constexpr (std::is_base_of<SslSocket, Socket>::value) {
                                 auto sslSocket = std::make_shared<Socket>(std::move(socket), _context);
                                 sslSocket->async_handshake(
                                         boost::asio::ssl::stream_base::server,
@@ -59,7 +59,7 @@ namespace network {
                                 );
                             }
 
-                            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
+                            if constexpr (std::is_base_of<TcpSocket, Socket>::value) {
                                 std::shared_ptr<AsyncChannel<Socket>> channel(new AsyncChannel(std::move(socket)),
                                                                               [this](AsyncChannel<Socket> *chan) {
                                                                                   _channels.erase(chan);

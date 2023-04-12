@@ -19,10 +19,10 @@ include_directories(
 add_definitions(-DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED -DBOOST_STACKTRACE_USE_ADDR2LINE)
 if (UNIX)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-else()
+else ()
     link_directories(${CONAN_BOOST_ROOT}/lib)
     set(Boost_LIBRARIES libboost_unit_test_framework)
-endif()
+endif ()
 # }
 
 

@@ -145,19 +145,20 @@ void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {
         onRpc(rpc);
     });
 
-    agent.callback(prefix + "/+" IOT_TOPIC_TELEMETRY, [this](auto &agent, std::string_view topic, std::string_view data) {
-        iot::log::debug("telemetry: {}:{}", topic, data);
+    agent.callback(prefix + "/+" IOT_TOPIC_TELEMETRY,
+                   [this](auto &agent, std::string_view topic, std::string_view data) {
+                       iot::log::debug("telemetry: {}:{}", topic, data);
 
-        IotTelemetry telemetry;
+                       IotTelemetry telemetry;
 
-        std::vector<std::string> parts;
-        boost::split(parts, topic, boost::is_any_of("/"));
-        if (parts.size() > 2) {
-            telemetry.deviceId = parts[2];
-        }
-        telemetry.message = nlohmann::json::parse(data);
-        onTelemetry(telemetry);
-    });
+                       std::vector<std::string> parts;
+                       boost::split(parts, topic, boost::is_any_of("/"));
+                       if (parts.size() > 2) {
+                           telemetry.deviceId = parts[2];
+                       }
+                       telemetry.message = nlohmann::json::parse(data);
+                       onTelemetry(telemetry);
+                   });
 
     agent.subscribe(prefix + IOT_TOPIC_CONFIG, 1);
     agent.subscribe(prefix + IOT_TOPIC_RPC, 1);

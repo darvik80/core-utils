@@ -107,7 +107,8 @@ std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, con
     return out.status();
 }
 
-std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::SubscribeMessage &msg) {
+std::error_code
+network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::SubscribeMessage &msg) {
     Writer out(buf);
 
     size_t size = 2;
@@ -141,7 +142,8 @@ std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, con
     return out.status();
 }
 
-std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::UnSubscribeMessage &msg) {
+std::error_code
+network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::UnSubscribeMessage &msg) {
     Writer out(buf);
 
     size_t size = 2;
@@ -161,7 +163,8 @@ std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, con
     return out.status();
 }
 
-std::error_code network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::UnSubAckMessage &msg) {
+std::error_code
+network::mqtt::v31::MQTTEncoder::write(network::Buffer &buf, const network::mqtt::UnSubAckMessage &msg) {
     Writer out(buf);
 
     out << msg.getHeader().all << IOFlag::variable << 2;

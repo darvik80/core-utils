@@ -13,7 +13,8 @@ namespace bus {
         });
     }
 
-    void Scheduler::scheduleWithFixedDelay(const Timer::Handler &fn, Timer::Duration initDelay, Timer::Duration period) {
+    void
+    Scheduler::scheduleWithFixedDelay(const Timer::Handler &fn, Timer::Duration initDelay, Timer::Duration period) {
         auto timer = std::make_shared<Timer>(_service);
         if (initDelay.is_positive()) {
             timer->scheduleOnce(initDelay, [this, period, timer, fn]() {

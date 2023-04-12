@@ -6,6 +6,7 @@
 
 #include <fmt/ranges.h>
 #include <fmt/core.h>
+
 #ifdef WIN32
 #define BOOST_USE_WINAPI_VERSION BOOST_WINAPI_VERSION_WIN7
 #endif

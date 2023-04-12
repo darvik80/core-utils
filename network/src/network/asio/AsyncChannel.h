@@ -76,7 +76,7 @@ namespace network {
                 : _socket(std::move(socket)) {
             _incBuf.resize(2048);
 
-            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
+            if constexpr (std::is_base_of<SslSocket, Socket>::value) {
                 _socket.set_verify_mode(boost::asio::ssl::verify_peer);
                 _socket.set_verify_callback([](bool preverified, boost::asio::ssl::verify_context &ctx) -> bool {
                     // The verify callback can be used to check whether the certificate that is
@@ -99,7 +99,7 @@ namespace network {
                 _ctx.port = _socket.lowest_layer().remote_endpoint().port();
                 network::log::info("init ssl channel: {}:{}", _ctx.address, _ctx.port);
             }
-            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
+            if constexpr (std::is_base_of<TcpSocket, Socket>::value) {
                 _ctx.address = _socket.remote_endpoint().address().to_string();
                 _ctx.port = _socket.remote_endpoint().port();
                 network::log::info("init tcp channel: {}:{}", _ctx.address, _ctx.port);
@@ -111,14 +111,14 @@ namespace network {
         }
 
         void handleShutdown() override {
-            if constexpr(std::is_base_of<SslSocket, Socket>::value) {
+            if constexpr (std::is_base_of<SslSocket, Socket>::value) {
                 if (_socket.lowest_layer().is_open()) {
                     handleInactive(_ctx);
                     _socket.lowest_layer().close();
                     //network::log::warning("[net] shutdown: {}:{}", _ctx.address, _ctx.port);
                 }
             }
-            if constexpr(std::is_base_of<TcpSocket, Socket>::value) {
+            if constexpr (std::is_base_of<TcpSocket, Socket>::value) {
                 if (_socket.is_open()) {
                     handleInactive(_ctx);
                     _socket.close();

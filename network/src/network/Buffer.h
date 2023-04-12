@@ -239,7 +239,7 @@ namespace network {
 
         template<class T>
         friend Writer &operator<<(Writer &out, T val) {
-            if constexpr(std::is_base_of<Buffer, T>::value) {
+            if constexpr (std::is_base_of<Buffer, T>::value) {
                 out.write(val.data(), val.size());
             } else {
                 out.write(out._flag, val);

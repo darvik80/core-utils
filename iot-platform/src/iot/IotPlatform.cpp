@@ -164,7 +164,6 @@ void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {
     agent.subscribe(prefix + IOT_TOPIC_RPC, 1);
 
     agent.subscribe(prefix + "/+" IOT_TOPIC_TELEMETRY, 1);
-
 }
 
 std::string IotRegistry::sysTopicPrefix() {

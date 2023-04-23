@@ -16,7 +16,7 @@ using namespace boost;
 
 void Application::run(int argc, char **argv) {
     std::string fileName(name());
-    fileName.append("_settings.json");
+    fileName.append("/settings.json");
 #ifdef __APPLE__
     std::string path = std::filesystem::exists(fileName) ? fileName : "../Resources/settings.json";
 #else

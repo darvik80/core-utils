@@ -22,6 +22,7 @@ include_directories(
         ${nlohmann_json_INCLUDE_DIRS}
         ${OpenSSL_INCLUDE_DIRS}
         logging/src
+        core/src
         network/src
         event-bus/src
         application/src
@@ -29,6 +30,7 @@ include_directories(
 )
 
 add_subdirectory(logging)
+add_subdirectory(core)
 #add_subdirectory(audioplayer)
 add_subdirectory(event-bus)
 add_subdirectory(network)

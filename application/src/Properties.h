@@ -5,13 +5,11 @@
 #pragma once
 
 #include <memory>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <vector>
 #include <string>
 #include <optional>
 
 struct Properties {
-    typedef std::shared_ptr<Properties> Ptr;
-    typedef std::vector<Ptr> VecPtr;
-
     virtual ~Properties() = default;
 };

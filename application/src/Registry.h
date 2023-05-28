@@ -18,7 +18,6 @@ class Registry {
 
     bus::IOService _service;
     Service::VecPtr _services;
-    Properties::VecPtr _properties;
 
     CompositePropertiesSource _propsSource;
 public:

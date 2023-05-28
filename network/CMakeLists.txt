@@ -21,7 +21,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/src
 )
 
-add_library(${PROJECT_NAME} ${SRCS_G})
+add_library(${PROJECT_NAME} ${SRCS_G} ../core/src/bitmask_operators.hpp ../core/src/stub.cpp)
 target_link_libraries(${PROJECT_NAME} logging OpenSSL::SSL OpenSSL::Crypto)
 
 add_subdirectory(example)

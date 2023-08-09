@@ -5,6 +5,7 @@
 #pragma once
 
 #include <type_traits>
+#include <cstdint>
 
 template<typename E>
 struct enable_bitmask_operators{

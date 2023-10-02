@@ -26,7 +26,7 @@ namespace network::mqtt {
 
     class MQTTCodec
             : public InboundOutboundMessageHandler<Buffer, PublishMessage, PubAckMessage, SubscribeMessage, SubAckMessage, UnSubscribeMessage, UnSubAckMessage> {
-        ArrayBuffer<2048> _incBuf;
+        ArrayBuffer<16384> _incBuf;
         MQTTDecoder::Ptr _decoder;
         MQTTEncoder::Ptr _encoder;
 

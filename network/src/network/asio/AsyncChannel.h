@@ -140,13 +140,11 @@ namespace network {
             //network::log::debug("[net] onInactive: {}:{}", ctx.address, ctx.port);
         }
 
-        void handleRead(const Context &ctx, const Buffer &event)
-        override {
+        void handleRead(const Context &ctx, const Buffer &event) override {
             fireMessage(ctx, event);
         }
 
-        void handleWrite(const Context &ctx, const Buffer &event)
-        override {
+        void handleWrite(const Context &ctx, const Buffer &event) override {
             bool inProgress = !_outBufs.empty();
             _outBufs.emplace_back(event.data(), event.data() + event.size());
             if (!inProgress) {

@@ -147,7 +147,7 @@ void IotRegistry::onConnect(network::mqtt::MQTTAgent &agent) {
 
     agent.callback(prefix + "/+" IOT_TOPIC_TELEMETRY,
                    [this](auto &agent, std::string_view topic, std::string_view data) {
-                       iot::log::debug("telemetry: {}:{}", topic, data);
+                       iot::log::info("telemetry: {}:{}", topic, data);
 
                        IotTelemetry telemetry;
 

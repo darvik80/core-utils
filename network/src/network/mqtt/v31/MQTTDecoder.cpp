@@ -2,6 +2,7 @@
 // Created by Ivan Kishchenko on 27.12.2022.
 //
 #include "MQTTDecoder.h"
+#include "network/mqtt/MQTTLogging.h"
 
 void network::mqtt::v31::MQTTDecoder::handleReadConnect(network::Reader &inc) {
     ConnectMessage msg;
@@ -119,6 +120,16 @@ void network::mqtt::v31::MQTTDecoder::handleReadPubAck(network::Reader &inc) {
     _pubAckHandler(msg);
 }
 
+void network::mqtt::v31::MQTTDecoder::handleReadPubComp(network::Reader &inc) {
+    PubCompMessage msg;
+
+    /// 3.7.1 Fixed header
+    inc >> msg._header.all << IOFlag::variable >> msg._size;
+
+    /// 3.7.2 Variable header
+    inc << IOFlag::be >> msg._packetIdentifier;
+}
+
 void network::mqtt::v31::MQTTDecoder::handleReadSubscribe(network::Reader &inc) {
     SubscribeMessage msg;
 
@@ -198,56 +209,67 @@ void network::mqtt::v31::MQTTDecoder::handleReadUnSubAck(network::Reader &inc) {
 }
 
 std::error_code network::mqtt::v31::MQTTDecoder::read(network::Buffer &buf) {
-    Reader hdr(buf);
+    while (buf.size()) {
+        mqtt::log::info("decode msg: {}", buf.size());
+        Reader hdr(buf);
 
-    Header header{};
-    varInt size = 0;
-    if (hdr >> header.all << IOFlag::variable >> size; !hdr) {
-        return std::make_error_code(std::errc::message_size);
+        Header header{};
+        varInt size = 0;
+        if (hdr >> header.all << IOFlag::variable >> size; !hdr) {
+            mqtt::log::info("decode msg-hdr: {}", buf.size());
+            return std::make_error_code(std::errc::message_size);
+        }
+
+        if (hdr.available() < size) {
+            mqtt::log::info("decode msg-body: {}", buf.size());
+            return std::make_error_code(std::errc::message_size);
+        }
+
+        Reader inc(buf);
+        switch ((MessageType) header.bits.type) {
+            case MessageType::connect:
+                handleReadConnect(inc);
+                break;
+            case MessageType::conn_ack:
+                handleReadConnAck(inc);
+                break;
+            case MessageType::ping_req:
+                handleReadPingReq(inc);
+                break;
+            case MessageType::ping_resp:
+                handleReadPingResp(inc);
+                break;
+            case MessageType::publish:
+                handleReadPublish(inc);
+                break;
+            case MessageType::pub_ack:
+                handleReadPubAck(inc);
+                break;
+            case MessageType::pub_comp:
+                handleReadPubComp(inc);
+                break;
+            case MessageType::subscribe:
+                handleReadSubscribe(inc);
+                break;
+            case MessageType::sub_ack:
+                handleReadSubAck(inc);
+                break;
+            case MessageType::unsubscribe:
+                handleReadUnSubscribe(inc);
+                break;
+            case MessageType::unsub_ack:
+                handleReadUnSubAck(inc);
+                break;
+            default:
+                mqtt::log::info("unknown msg: {}", (int)header.bits.type);
+                break;
+
+        }
+
+        mqtt::log::info("decode after msg: {}:{}", buf.size(), inc.consumed());
+
+        buf.consume(inc.consumed());
     }
-
-    if (hdr.available() < size) {
-        return std::make_error_code(std::errc::message_size);
-    }
-
-    Reader inc(buf);
-    switch ((MessageType) header.bits.type) {
-        case MessageType::connect:
-            handleReadConnect(inc);
-            break;
-        case MessageType::conn_ack:
-            handleReadConnAck(inc);
-            break;
-        case MessageType::ping_req:
-            handleReadPingReq(inc);
-            break;
-        case MessageType::ping_resp:
-            handleReadPingResp(inc);
-            break;
-        case MessageType::publish:
-            handleReadPublish(inc);
-            break;
-        case MessageType::pub_ack:
-            handleReadPubAck(inc);
-            break;
-        case MessageType::subscribe:
-            handleReadSubscribe(inc);
-            break;
-        case MessageType::sub_ack:
-            handleReadSubAck(inc);
-            break;
-        case MessageType::unsubscribe:
-            handleReadUnSubscribe(inc);
-            break;
-        case MessageType::unsub_ack:
-            handleReadUnSubAck(inc);
-            break;
-        default:
-            break;
-
-    }
-
-    buf.consume(inc.consumed());
 
     return {};
 }

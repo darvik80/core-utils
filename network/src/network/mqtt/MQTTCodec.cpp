@@ -16,6 +16,7 @@ namespace network::mqtt {
 
 
     void MQTTCodec::handleRead(const Context &ctx, const Buffer &msg) {
+        // TODO: potential problem - if we are received a lot of data....
         _incBuf.append(msg.data(), msg.size());
         _decoder->read(_incBuf);
     }
@@ -28,7 +29,7 @@ namespace network::mqtt {
     }
 
     void MQTTCodec::handleWrite(const Context &ctx, const PubAckMessage &msg) {
-        mqtt::log::debug("write PubAck");
+        mqtt::log::debug("write PubAck: {}", msg.getPacketIdentifier());
         ArrayBuffer<1024> buf;
         _encoder->write(buf, msg);
         write(ctx, buf);

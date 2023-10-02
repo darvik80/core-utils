@@ -19,7 +19,7 @@ namespace bus {
         if (initDelay.is_positive()) {
             timer->scheduleOnce(initDelay, [period, timer, fn]() {
                 fn();
-                timer->scheduleWithFixedDelay(period, [timer, fn]() {
+                timer->scheduleWithFixedDelay(period, [fn]() {
                     fn();
                 });
             });
@@ -36,7 +36,7 @@ namespace bus {
         if (initDelay.is_positive()) {
             timer->scheduleOnce(initDelay, [period, timer, fn]() {
                 fn();
-                timer->scheduleAtFixedRate(period, timer, fn]() {
+                timer->scheduleAtFixedRate(period, [timer, fn]() {
                     fn();
                 });
             });

@@ -22,6 +22,8 @@ namespace network::mqtt::v31 {
 
         void handleReadPubAck(Reader &inc);
 
+        void handleReadPubComp(Reader &inc);
+
         void handleReadSubscribe(Reader &inc);
 
         void handleReadSubAck(Reader &inc);

@@ -13,3 +13,5 @@ file(GLOB SRCS_G
 
 add_library(${PROJECT_NAME} ${SRCS_G})
 target_link_libraries(${PROJECT_NAME})
+
+add_subdirectory(testsuite)
